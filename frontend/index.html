@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PDF Tool</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #0f172a;
+      color: white;
+    }
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #3b82f6;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    input {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🚀 PDF Tool</h1>
+
+<div class="box">
+  <h2>Merge PDF</h2>
+  <input type="file" id="mergeFiles" multiple>
+  <br>
+  <button onclick="mergePDF()">Merge</button>
+</div>
+
+<div class="box">
+  <h2>Split PDF</h2>
+  <input type="file" id="splitFile">
+  <br>
+  <button onclick="splitPDF()">Split</button>
+</div>
+
+<div class="box">
+  <h2>Compress PDF</h2>
+  <input type="file" id="compressFile">
+  <br>
+  <button onclick="compressPDF()">Compress</button>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
