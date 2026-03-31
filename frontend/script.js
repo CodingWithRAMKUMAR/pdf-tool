@@ -1,5 +1,6 @@
-const API = "https://pdf-tool-backend-r88g.onrender.com";// 🔁 replace with your URL
+const API = "https://pdf-tool-backend-r88g.onrender.com";
 
+// download helper
 function downloadFile(blob, filename) {
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -10,14 +11,11 @@ function downloadFile(blob, filename) {
 
 // MERGE
 async function mergePDF() {
-  const loader = document.getElementById("mergeLoader");
-  loader.style.display = "block";
-
   try {
     const files = document.getElementById("mergeFiles").files;
+
     if (files.length < 2) {
-      alert("Select at least 2 files");
-      loader.style.display = "none";
+      alert("Select at least 2 PDFs");
       return;
     }
 
@@ -34,23 +32,19 @@ async function mergePDF() {
     const blob = await res.blob();
     downloadFile(blob, "merged.pdf");
 
-  } catch {
+  } catch (err) {
     alert("Merge failed");
+    console.log(err);
   }
-
-  loader.style.display = "none";
 }
 
 // SPLIT
 async function splitPDF() {
-  const loader = document.getElementById("splitLoader");
-  loader.style.display = "block";
-
   try {
     const file = document.getElementById("splitFile").files[0];
+
     if (!file) {
       alert("Select a file");
-      loader.style.display = "none";
       return;
     }
 
@@ -67,23 +61,19 @@ async function splitPDF() {
     const blob = await res.blob();
     downloadFile(blob, "split.pdf");
 
-  } catch {
+  } catch (err) {
     alert("Split failed");
+    console.log(err);
   }
-
-  loader.style.display = "none";
 }
 
 // COMPRESS
 async function compressPDF() {
-  const loader = document.getElementById("compressLoader");
-  loader.style.display = "block";
-
   try {
     const file = document.getElementById("compressFile").files[0];
+
     if (!file) {
       alert("Select a file");
-      loader.style.display = "none";
       return;
     }
 
@@ -100,9 +90,8 @@ async function compressPDF() {
     const blob = await res.blob();
     downloadFile(blob, "compressed.pdf");
 
-  } catch {
+  } catch (err) {
     alert("Compress failed");
+    console.log(err);
   }
-
-  loader.style.display = "none";
 }
