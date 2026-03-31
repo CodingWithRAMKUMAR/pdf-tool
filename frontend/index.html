@@ -12,7 +12,6 @@
       color: white;
     }
 
-    /* NAVBAR */
     .nav {
       position: sticky;
       top: 0;
@@ -20,14 +19,8 @@
       padding: 15px;
       text-align: center;
       backdrop-filter: blur(10px);
-      z-index: 100;
     }
 
-    .nav h2 {
-      margin: 0;
-    }
-
-    /* HERO */
     .hero {
       text-align: center;
       padding: 50px 20px;
@@ -41,7 +34,6 @@
       color: #94a3b8;
     }
 
-    /* FEATURES */
     .container {
       display: flex;
       flex-wrap: wrap;
@@ -107,7 +99,6 @@
       transition: width 0.3s;
     }
 
-    /* FOOTER */
     .footer {
       text-align: center;
       padding: 20px;
@@ -132,45 +123,72 @@
   <!-- MERGE -->
   <div class="card">
     <h3>📎 Merge PDF</h3>
-    <div class="drop-zone" onclick="document.getElementById('mergeFiles').click()">
+    <div class="drop-zone" id="mergeZone" onclick="document.getElementById('mergeFiles').click()">
       Drop files or click here
     </div>
     <input type="file" id="mergeFiles" multiple>
-    <button onclick="mergePDF(); animateBar('mergeBar')">Merge</button>
+    <button onclick="animateBar('mergeBar'); mergePDF();">Merge</button>
     <div class="progress"><div class="bar" id="mergeBar"></div></div>
   </div>
 
   <!-- SPLIT -->
   <div class="card">
     <h3>✂️ Split PDF</h3>
-    <div class="drop-zone" onclick="document.getElementById('splitFile').click()">
+    <div class="drop-zone" id="splitZone" onclick="document.getElementById('splitFile').click()">
       Drop file or click here
     </div>
     <input type="file" id="splitFile">
-    <button onclick="splitPDF(); animateBar('splitBar')">Split</button>
+    <button onclick="animateBar('splitBar'); splitPDF();">Split</button>
     <div class="progress"><div class="bar" id="splitBar"></div></div>
   </div>
 
   <!-- COMPRESS -->
   <div class="card">
     <h3>🗜 Compress PDF</h3>
-    <div class="drop-zone" onclick="document.getElementById('compressFile').click()">
+    <div class="drop-zone" id="compressZone" onclick="document.getElementById('compressFile').click()">
       Drop file or click here
     </div>
     <input type="file" id="compressFile">
-    <button onclick="compressPDF(); animateBar('compressBar')">Compress</button>
+    <button onclick="animateBar('compressBar'); compressPDF();">Compress</button>
     <div class="progress"><div class="bar" id="compressBar"></div></div>
   </div>
 
 </div>
 
 <div class="footer">
-  Built with ambition 🚀 | You deserve better PDFs 😎
+  Built with ambition 🚀 | Your PDF deserves better 😎
 </div>
 
 <script src="script.js"></script>
 
 <script>
+// ================= DRAG & DROP =================
+function setupDrop(zoneId, inputId) {
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+
+  zone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    zone.style.background = "#1e40af";
+  });
+
+  zone.addEventListener("dragleave", () => {
+    zone.style.background = "transparent";
+  });
+
+  zone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    zone.style.background = "transparent";
+    input.files = e.dataTransfer.files;
+  });
+}
+
+setupDrop("mergeZone", "mergeFiles");
+setupDrop("splitZone", "splitFile");
+setupDrop("compressZone", "compressFile");
+
+
+// ================= PROGRESS =================
 function animateBar(id) {
   const bar = document.getElementById(id);
   const container = bar.parentElement;
@@ -181,7 +199,7 @@ function animateBar(id) {
     width += 10;
     bar.style.width = width + "%";
     if (width >= 100) clearInterval(interval);
-  }, 200);
+  }, 150);
 }
 </script>
 
