@@ -39,6 +39,10 @@ app.post("/merge", upload.array("files"), async (req, res) => {
 // ================= SPLIT =================
 app.post("/split", upload.single("file"), async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).send("No file uploaded");
+    }
+
     const pdfBytes = fs.readFileSync(req.file.path);
     const pdfDoc = await PDFDocument.load(pdfBytes);
 
@@ -47,10 +51,13 @@ app.post("/split", upload.single("file"), async (req, res) => {
     newPdf.addPage(firstPage);
 
     const newBytes = await newPdf.save();
-    fs.writeFileSync("split.pdf", newBytes);
 
-    res.download("split.pdf");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=split.pdf");
+    res.send(Buffer.from(newBytes));
+
   } catch (err) {
+    console.error(err);
     res.status(500).send("Error splitting PDF");
   }
 });
@@ -59,6 +66,10 @@ app.post("/split", upload.single("file"), async (req, res) => {
 // ================= COMPRESS =================
 app.post("/compress", upload.single("file"), async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).send("No file uploaded");
+    }
+
     const pdfBytes = fs.readFileSync(req.file.path);
     const pdfDoc = await PDFDocument.load(pdfBytes);
 
@@ -66,14 +77,15 @@ app.post("/compress", upload.single("file"), async (req, res) => {
       useObjectStreams: true
     });
 
-    fs.writeFileSync("compressed.pdf", compressedBytes);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=compressed.pdf");
+    res.send(Buffer.from(compressedBytes));
 
-    res.download("compressed.pdf");
   } catch (err) {
+    console.error(err);
     res.status(500).send("Error compressing PDF");
   }
 });
-
 
 // ================= START SERVER =================
 app.listen(5000, () => console.log("Backend running on http://localhost:5000"));
