@@ -1,66 +1,642 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>AllCutX - Smart PDF Tools</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AllCutX | Ultimate PDF Toolkit – Merge, Split, Compress with Style</title>
+  <meta name="description" content="AllCutX: The world's most beautiful free PDF tool. Merge, split, and compress PDFs instantly in your browser. 100% private, no uploads, no signup.">
+  <meta name="keywords" content="pdf merge, split pdf, compress pdf, free pdf tools, pdf combiner, pdf splitter, pdf optimizer, online pdf tools">
+  <meta name="author" content="AllCutX">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://allcutx.app">
+  <meta property="og:title" content="AllCutX – Beautiful PDF Tools">
+  <meta property="og:description" content="Merge, split, and compress PDFs with a stunning interface. Lightning fast, completely private.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://placehold.co/1200x630/0a1a2a/7aaef0?text=AllCutX">
+  <meta name="twitter:card" content="summary_large_image">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at 10% 20%, #0a1220 0%, #03060c 100%);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      color: #f0f6ff;
+      position: relative;
+    }
+
+    /* animated orbs */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: -20%;
+      width: 80%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(0, 200, 255, 0.2), transparent 70%);
+      filter: blur(70px);
+      z-index: -1;
+      pointer-events: none;
+      animation: float1 18s infinite alternate;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -10%;
+      right: -10%;
+      width: 70%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(100, 80, 255, 0.2), transparent 70%);
+      filter: blur(80px);
+      z-index: -1;
+      pointer-events: none;
+      animation: float2 20s infinite alternate;
+    }
+
+    @keyframes float1 {
+      0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+      100% { transform: translate(8%, 12%) scale(1.2); opacity: 0.7; }
+    }
+    @keyframes float2 {
+      0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+      100% { transform: translate(-5%, -8%) scale(1.3); opacity: 0.6; }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* header */
+    .hero {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    .hero h1 {
+      font-size: 3.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #b5e4ff, #8aa9ff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.02em;
+    }
+    .hero .badges {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    .badge {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(8px);
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+
+    /* glass card */
+    .glass-card {
+      background: rgba(15, 25, 40, 0.6);
+      backdrop-filter: blur(16px);
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+      padding: 1.6rem;
+    }
+    .glass-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(100, 180, 250, 0.5);
+      background: rgba(20, 35, 55, 0.7);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      padding-bottom: 0.8rem;
+    }
+    .card-header i {
+      font-size: 2.2rem;
+      background: linear-gradient(145deg, #7bc5ff, #5a6eff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    .card-header h2 {
+      font-size: 1.7rem;
+      font-weight: 600;
+    }
+
+    /* dropzones */
+    .drop-zone {
+      background: rgba(0, 0, 0, 0.35);
+      border: 2px dashed rgba(100, 160, 250, 0.6);
+      border-radius: 1.5rem;
+      padding: 1.2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1rem;
+    }
+    .drop-zone.drag-over {
+      border-color: #3b82f6;
+      background: rgba(59,130,246,0.2);
+      transform: scale(0.99);
+    }
+    .drop-icon {
+      font-size: 2rem;
+      color: #7aaef0;
+      margin-bottom: 0.4rem;
+    }
+    .drop-text {
+      font-weight: 500;
+    }
+
+    /* file list & preview */
+    .file-list {
+      max-height: 220px;
+      overflow-y: auto;
+      background: rgba(0,0,0,0.3);
+      border-radius: 1.2rem;
+      margin: 0.8rem 0;
+      padding: 0.3rem;
+    }
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.06);
+      margin: 0.4rem 0;
+      padding: 0.5rem 0.8rem;
+      border-radius: 1rem;
+      font-size: 0.85rem;
+    }
+    .file-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
+    }
+    .file-actions button {
+      background: none;
+      border: none;
+      color: #ffaaaa;
+      cursor: pointer;
+      margin-left: 6px;
+    }
+    .reorder-btn {
+      color: #b8d0ff !important;
+    }
+
+    .btn-primary {
+      background: linear-gradient(105deg, #2c6ef0, #1a4fcf);
+      border: none;
+      padding: 0.8rem;
+      border-radius: 3rem;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      color: white;
+      margin-top: 0.8rem;
+      transition: 0.2s;
+      box-shadow: 0 8px 18px -8px #1e4fcf40;
+    }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .range-input {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 2rem;
+      padding: 0.7rem 1rem;
+      width: 100%;
+      color: white;
+      margin: 0.8rem 0;
+      font-family: monospace;
+    }
+    .info-text {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      margin-top: 0.2rem;
+    }
+    .size-preview {
+      font-size: 0.75rem;
+      background: rgba(0,0,0,0.4);
+      border-radius: 20px;
+      padding: 0.3rem 0.8rem;
+      display: inline-block;
+      margin-top: 0.5rem;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e2a3ae0;
+      backdrop-filter: blur(12px);
+      padding: 0.7rem 1.5rem;
+      border-radius: 60px;
+      color: white;
+      z-index: 1000;
+      border-left: 4px solid #3b82f6;
+      pointer-events: none;
+      font-size: 0.9rem;
+    }
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+    @media (max-width: 780px) {
+      body { padding: 1rem; }
+      .hero h1 { font-size: 2.5rem; }
+    }
+  </style>
 </head>
-
 <body>
-
-<header>
-  <h1>AllCutX 🚀</h1>
-  <p>Fast, Secure & Beautiful PDF Tools</p>
-</header>
-
-<section class="hero">
-  <h2>Work with PDFs like a Pro ⚡</h2>
-  <p>Merge, Split, Compress — All in one place, completely free.</p>
-</section>
-
-<div class="tools">
-
-  <!-- MERGE -->
-  
-  <a href="/merge-pdf.html" class="tool">
-    <h2>Merge PDF</h2>
-    <p>Combine multiple PDFs into one file instantly.</p>
-    <div class="drop" id="mergeDrop">Drop files or click</div>
-    <input type="file" id="mergeFiles" multiple hidden>
-    <div class="file-info" id="mergeInfo"></div>
-    <button id="mergeBtn">Merge Now</button>
-    <div class="loader" id="mergeLoader"></div>
-  </a>
-
-  <!-- SPLIT -->
-  <a href="/split-pdf.html" class="tool">
-    <h2>Split PDF</h2>
-    <p>Extract pages from your PDF quickly.</p>
-    <div class="drop" id="splitDrop">Drop file or click</div>
-    <input type="file" id="splitFile" hidden>
-    <div class="file-info" id="splitInfo"></div>
-    <button id="splitBtn">Split Now</button>
-    <div class="loader" id="splitLoader"></div>
-  </a>
-
-  <!-- COMPRESS -->
-  <div class="tool">
-    <h2>Compress PDF</h2>
-    <p>Reduce file size while keeping quality.</p>
-    <div class="drop" id="compressDrop">Drop file or click</div>
-    <input type="file" id="compressFile" hidden>
-    <div class="file-info" id="compressInfo"></div>
-    <button id="compressBtn">Compress Now</button>
-    <div class="loader" id="compressLoader"></div>
+<div class="container">
+  <div class="hero">
+    <h1>AllCutX<span style="font-weight:400"> ✦</span></h1>
+    <p style="font-size:1.1rem; margin-top:0.3rem;">Fast, Secure & Beautiful PDF Workflow</p>
+    <div class="badges">
+      <span class="badge"><i class="fas fa-lock"></i> 100% Local</span>
+      <span class="badge"><i class="fas fa-bolt"></i> Blazing Fast</span>
+      <span class="badge"><i class="fas fa-shield-alt"></i> No Uploads</span>
+    </div>
   </div>
 
+  <div class="tools-grid">
+    <!-- MERGE CARD -->
+    <div class="glass-card">
+      <div class="card-header">
+        <i class="fas fa-object-group"></i>
+        <h2>Merge PDF</h2>
+      </div>
+      <div class="drop-zone" id="mergeDropZone">
+        <div class="drop-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+        <div class="drop-text">Drop PDFs or click to select</div>
+        <div class="info-text">Multiple files • drag to reorder</div>
+      </div>
+      <input type="file" id="mergeFileInput" multiple accept="application/pdf" hidden>
+      <div id="mergeFileList" class="file-list"></div>
+      <button id="mergeBtn" class="btn-primary"><i class="fas fa-compress-alt"></i> Merge & Download</button>
+    </div>
+
+    <!-- SPLIT CARD -->
+    <div class="glass-card">
+      <div class="card-header">
+        <i class="fas fa-cut"></i>
+        <h2>Split PDF</h2>
+      </div>
+      <div class="drop-zone" id="splitDropZone">
+        <div class="drop-icon"><i class="fas fa-file-pdf"></i></div>
+        <div class="drop-text">Drop a single PDF</div>
+      </div>
+      <input type="file" id="splitFileInput" accept="application/pdf" hidden>
+      <div id="splitFileName" style="font-size:0.8rem; margin:8px 0; color:#b8d0ff;"></div>
+      <label style="font-weight:500; font-size:0.85rem;">Page ranges (e.g., 1-3,5,7-end)</label>
+      <input type="text" id="pageRanges" class="range-input" placeholder="1-3,5,8-end  or  * for each page" value="1-3,5,8-10">
+      <div class="info-text">Use "end" for last page, "*" splits every page into separate PDFs</div>
+      <button id="splitBtn" class="btn-primary"><i class="fas fa-scissors"></i> Split & Download ZIP</button>
+    </div>
+
+    <!-- COMPRESS CARD -->
+    <div class="glass-card">
+      <div class="card-header">
+        <i class="fas fa-compress"></i>
+        <h2>Compress PDF</h2>
+      </div>
+      <div class="drop-zone" id="compressDropZone">
+        <div class="drop-icon"><i class="fas fa-file-archive"></i></div>
+        <div class="drop-text">Drop PDF to compress</div>
+      </div>
+      <input type="file" id="compressFileInput" accept="application/pdf" hidden>
+      <div id="compressPreview" style="margin:0.5rem 0; font-size:0.8rem;"></div>
+      <button id="compressBtn" class="btn-primary"><i class="fas fa-waveform"></i> Optimize & Compress</button>
+    </div>
+  </div>
+  <footer>⚡ All operations happen in your browser — your files never leave your device.</footer>
 </div>
 
-<footer>
-  <p>⚡ Free • No Signup • Secure</p>
-</footer>
+<script>
+  // --- HELPERS ---
+  function showToast(msg, isError = false) {
+    let existing = document.querySelector('.toast');
+    if(existing) existing.remove();
+    let div = document.createElement('div');
+    div.className = 'toast';
+    div.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+    div.style.background = isError ? '#b91c1cdd' : '#1f3b4cdd';
+    div.style.borderLeftColor = isError ? '#ff8a7a' : '#3b82f6';
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+  }
 
-<script src="script.js"></script>
+  function formatBytes(bytes) {
+    if(bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  // --- MERGE LOGIC (with reorder) ---
+  let mergeFiles = [];
+  const mergeDrop = document.getElementById('mergeDropZone');
+  const mergeInput = document.getElementById('mergeFileInput');
+  const mergeListDiv = document.getElementById('mergeFileList');
+  const mergeBtn = document.getElementById('mergeBtn');
+
+  function renderMergeList() {
+    if(mergeFiles.length === 0) {
+      mergeListDiv.innerHTML = '<div style="padding:0.8rem;text-align:center;opacity:0.6;"><i class="fas fa-plus-circle"></i> No PDFs selected</div>';
+      return;
+    }
+    let html = '';
+    mergeFiles.forEach((file, idx) => {
+      html += `
+        <div class="file-item" data-idx="${idx}">
+          <span class="file-name"><i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})</span>
+          <div class="file-actions">
+            <button class="reorder-btn" data-move="up" data-idx="${idx}"><i class="fas fa-arrow-up"></i></button>
+            <button class="reorder-btn" data-move="down" data-idx="${idx}"><i class="fas fa-arrow-down"></i></button>
+            <button class="remove-file-btn" data-idx="${idx}"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
+      `;
+    });
+    mergeListDiv.innerHTML = html;
+    document.querySelectorAll('.remove-file-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        let idx = parseInt(btn.dataset.idx);
+        mergeFiles.splice(idx, 1);
+        renderMergeList();
+      });
+    });
+    document.querySelectorAll('.reorder-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        let idx = parseInt(btn.dataset.idx);
+        let move = btn.dataset.move;
+        if(move === 'up' && idx > 0) {
+          [mergeFiles[idx-1], mergeFiles[idx]] = [mergeFiles[idx], mergeFiles[idx-1]];
+          renderMergeList();
+        } else if(move === 'down' && idx < mergeFiles.length-1) {
+          [mergeFiles[idx+1], mergeFiles[idx]] = [mergeFiles[idx], mergeFiles[idx+1]];
+          renderMergeList();
+        }
+      });
+    });
+  }
+
+  function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+  function addMergeFiles(files) {
+    const pdfs = Array.from(files).filter(f => f.type === 'application/pdf');
+    if(pdfs.length) {
+      mergeFiles.push(...pdfs);
+      renderMergeList();
+      showToast(`➕ Added ${pdfs.length} PDF(s) to merge`);
+    } else {
+      showToast('Only PDF files allowed', true);
+    }
+  }
+
+  mergeDrop.addEventListener('click', () => mergeInput.click());
+  mergeDrop.addEventListener('dragover', (e) => { e.preventDefault(); mergeDrop.classList.add('drag-over'); });
+  mergeDrop.addEventListener('dragleave', () => mergeDrop.classList.remove('drag-over'));
+  mergeDrop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    mergeDrop.classList.remove('drag-over');
+    addMergeFiles(e.dataTransfer.files);
+  });
+  mergeInput.addEventListener('change', (e) => {
+    addMergeFiles(e.target.files);
+    mergeInput.value = '';
+  });
+
+  mergeBtn.addEventListener('click', async () => {
+    if(mergeFiles.length < 2) { showToast('Please add at least 2 PDFs to merge', true); return; }
+    mergeBtn.disabled = true;
+    const origHtml = mergeBtn.innerHTML;
+    mergeBtn.innerHTML = '<span class="spinner"></span> Merging...';
+    try {
+      const mergedPdf = await PDFLib.PDFDocument.create();
+      for(let i=0; i<mergeFiles.length; i++) {
+        const arrayBuf = await mergeFiles[i].arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuf);
+        const pages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+        pages.forEach(p => mergedPdf.addPage(p));
+      }
+      const mergedBytes = await mergedPdf.save();
+      const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+      saveAs(blob, `AllCutX_merged_${Date.now()}.pdf`);
+      showToast('✅ Merge successful! Download started.');
+    } catch(err) {
+      console.error(err);
+      showToast('Merge failed: ' + err.message, true);
+    } finally {
+      mergeBtn.disabled = false;
+      mergeBtn.innerHTML = origHtml;
+    }
+  });
+
+  // --- SPLIT LOGIC (page ranges + "*" each page)---
+  let splitFile = null;
+  const splitDrop = document.getElementById('splitDropZone');
+  const splitInput = document.getElementById('splitFileInput');
+  const splitFileNameDiv = document.getElementById('splitFileName');
+  const splitBtnEl = document.getElementById('splitBtn');
+  const pageRangesInput = document.getElementById('pageRanges');
+
+  function updateSplitInfo(file) {
+    if(file) splitFileNameDiv.innerHTML = `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})`;
+    else splitFileNameDiv.innerHTML = '';
+  }
+
+  function handleSplitFile(files) {
+    if(!files.length) return;
+    const pdfFile = Array.from(files).find(f => f.type === 'application/pdf');
+    if(pdfFile) {
+      splitFile = pdfFile;
+      updateSplitInfo(splitFile);
+      showToast(`📄 Split ready: ${pdfFile.name}`);
+    } else {
+      showToast('Please drop a valid PDF file', true);
+    }
+  }
+
+  splitDrop.addEventListener('click', () => splitInput.click());
+  splitDrop.addEventListener('dragover', (e) => { e.preventDefault(); splitDrop.classList.add('drag-over'); });
+  splitDrop.addEventListener('dragleave', () => splitDrop.classList.remove('drag-over'));
+  splitDrop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    splitDrop.classList.remove('drag-over');
+    handleSplitFile(e.dataTransfer.files);
+  });
+  splitInput.addEventListener('change', (e) => {
+    handleSplitFile(e.target.files);
+    splitInput.value = '';
+  });
+
+  function parsePageRanges(rangeStr, totalPages) {
+    if(rangeStr.trim() === '*') return Array.from({length: totalPages}, (_,i) => [i+1, i+1]);
+    const parts = rangeStr.split(',');
+    const ranges = [];
+    for(let part of parts) {
+      part = part.trim();
+      if(part.includes('-')) {
+        let [start, end] = part.split('-').map(s => s.trim());
+        let startNum = parseInt(start);
+        let endNum = end === 'end' ? totalPages : parseInt(end);
+        if(isNaN(startNum) || isNaN(endNum) || startNum < 1) continue;
+        if(endNum > totalPages) endNum = totalPages;
+        for(let p = startNum; p <= endNum; p++) ranges.push([p, p]);
+      } else if(part !== '') {
+        let single = parseInt(part);
+        if(!isNaN(single) && single >=1 && single <= totalPages) ranges.push([single, single]);
+      }
+    }
+    return ranges;
+  }
+
+  splitBtnEl.addEventListener('click', async () => {
+    if(!splitFile) { showToast('Please select a PDF to split', true); return; }
+    splitBtnEl.disabled = true;
+    const originalText = splitBtnEl.innerHTML;
+    splitBtnEl.innerHTML = '<span class="spinner"></span> Splitting...';
+    try {
+      const arrayBuf = await splitFile.arrayBuffer();
+      const sourceDoc = await PDFLib.PDFDocument.load(arrayBuf);
+      const totalPages = sourceDoc.getPageCount();
+      let rangeStr = pageRangesInput.value.trim();
+      let ranges;
+      if(rangeStr === '*') {
+        ranges = Array.from({length: totalPages}, (_,i) => [i+1, i+1]);
+      } else {
+        ranges = parsePageRanges(rangeStr, totalPages);
+        if(ranges.length === 0) throw new Error('No valid pages found in range');
+      }
+      const zip = new JSZip();
+      for(let i=0; i<ranges.length; i++) {
+        const [pageNum] = ranges[i];
+        const newDoc = await PDFLib.PDFDocument.create();
+        const [copiedPage] = await newDoc.copyPages(sourceDoc, [pageNum-1]);
+        newDoc.addPage(copiedPage);
+        const pdfBytes = await newDoc.save();
+        zip.file(`page_${pageNum}.pdf`, pdfBytes);
+      }
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      saveAs(zipBlob, `split_${Date.now()}.zip`);
+      showToast(`✂️ Split complete! ${ranges.length} PDF(s) packed in ZIP.`);
+    } catch(err) {
+      console.error(err);
+      showToast('Split error: ' + err.message, true);
+    } finally {
+      splitBtnEl.disabled = false;
+      splitBtnEl.innerHTML = originalText;
+    }
+  });
+
+  // --- COMPRESS (re-save with pdf-lib - reduces metadata & optimizes structure)---
+  let compressFile = null;
+  const compressDrop = document.getElementById('compressDropZone');
+  const compressInput = document.getElementById('compressFileInput');
+  const compressPreview = document.getElementById('compressPreview');
+  const compressBtnEl = document.getElementById('compressBtn');
+
+  function updateCompressPreview(file) {
+    if(file) {
+      compressPreview.innerHTML = `<span class="size-preview"><i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} · ${formatBytes(file.size)}</span>`;
+    } else {
+      compressPreview.innerHTML = '';
+    }
+  }
+
+  function handleCompressFile(files) {
+    if(!files.length) return;
+    const pdfFile = Array.from(files).find(f => f.type === 'application/pdf');
+    if(pdfFile) {
+      compressFile = pdfFile;
+      updateCompressPreview(compressFile);
+      showToast(`📦 Ready to compress: ${pdfFile.name}`);
+    } else {
+      showToast('Only PDF files are supported', true);
+    }
+  }
+
+  compressDrop.addEventListener('click', () => compressInput.click());
+  compressDrop.addEventListener('dragover', (e) => { e.preventDefault(); compressDrop.classList.add('drag-over'); });
+  compressDrop.addEventListener('dragleave', () => compressDrop.classList.remove('drag-over'));
+  compressDrop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    compressDrop.classList.remove('drag-over');
+    handleCompressFile(e.dataTransfer.files);
+  });
+  compressInput.addEventListener('change', (e) => {
+    handleCompressFile(e.target.files);
+    compressInput.value = '';
+  });
+
+  compressBtnEl.addEventListener('click', async () => {
+    if(!compressFile) { showToast('Please select a PDF to compress', true); return; }
+    compressBtnEl.disabled = true;
+    const origBtnHtml = compressBtnEl.innerHTML;
+    compressBtnEl.innerHTML = '<span class="spinner"></span> Optimizing...';
+    try {
+      const originalSize = compressFile.size;
+      const arrayBuf = await compressFile.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuf);
+      // re-save with standard compression (pdf-lib applies default object compression)
+      const compressedBytes = await pdfDoc.save({ useObjectStreams: true });
+      const newSize = compressedBytes.length;
+      const blob = new Blob([compressedBytes], { type: 'application/pdf' });
+      saveAs(blob, `compressed_${compressFile.name}`);
+      let ratio = ((originalSize - newSize) / originalSize * 100).toFixed(1);
+      showToast(`✅ Compression done! Reduced by ${ratio}% (${formatBytes(originalSize)} → ${formatBytes(newSize)})`);
+    } catch(err) {
+      console.error(err);
+      showToast('Compression failed: ' + err.message, true);
+    } finally {
+      compressBtnEl.disabled = false;
+      compressBtnEl.innerHTML = origBtnHtml;
+    }
+  });
+</script>
 </body>
 </html>
