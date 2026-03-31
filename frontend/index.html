@@ -7,59 +7,91 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #020617, #0f172a);
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
       color: white;
+    }
+
+    /* HERO */
+    .hero {
       text-align: center;
+      padding: 60px 20px;
     }
 
-    h1 {
-      margin-top: 30px;
-      font-size: 2.5rem;
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #3b82f6, #6366f1);
+      -webkit-background-clip: text;
+      color: transparent;
     }
 
-    p {
+    .hero p {
       color: #94a3b8;
+      font-size: 1.1rem;
     }
 
+    /* CONTAINER */
     .container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 25px;
+      gap: 30px;
       padding: 20px;
     }
 
+    /* CARD */
     .card {
       background: rgba(255,255,255,0.05);
-      padding: 20px;
-      border-radius: 12px;
-      width: 300px;
-      transition: 0.3s;
+      backdrop-filter: blur(15px);
+      border-radius: 15px;
+      padding: 25px;
+      width: 320px;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
     .card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      transform: translateY(-10px) scale(1.03);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
     }
 
+    h3 {
+      margin-bottom: 10px;
+    }
+
+    .desc {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-bottom: 15px;
+    }
+
+    /* DROP ZONE */
     .drop-zone {
       border: 2px dashed #3b82f6;
       padding: 20px;
       border-radius: 10px;
       margin: 10px 0;
       cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .drop-zone:hover {
+      background: rgba(59,130,246,0.1);
     }
 
     .file-name {
       font-size: 12px;
-      color: #93c5fd;
+      color: #60a5fa;
+      margin-top: 5px;
     }
 
     input {
       display: none;
     }
 
+    /* BUTTON */
     button {
       padding: 10px 20px;
       border: none;
@@ -72,51 +104,82 @@
 
     button:hover {
       transform: scale(1.1);
+      background: linear-gradient(45deg, #2563eb, #4f46e5);
     }
 
+    /* LOADER */
     .loader {
       display: none;
       margin-top: 10px;
       font-size: 13px;
       color: #60a5fa;
     }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      padding: 30px;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 
 <body>
 
-<h1>🥷 PDF Ninja</h1>
-<p>Fast. Simple. No nonsense.</p>
+<!-- HERO -->
+<div class="hero">
+  <h1>PDF Ninja 🥷</h1>
+  <p>Your all-in-one PDF toolkit — fast, simple, and actually enjoyable 😎</p>
+</div>
 
+<!-- TOOLS -->
 <div class="container">
 
+  <!-- MERGE -->
   <div class="card">
-    <h3>Merge PDF</h3>
+    <h3>📎 Merge PDFs</h3>
+    <div class="desc">Combine multiple PDFs into one smooth document — no mess, no stress.</div>
+
     <div class="drop-zone" id="mergeZone">Drop files or click</div>
     <input type="file" id="mergeFiles" multiple>
     <div class="file-name" id="mergeName"></div>
-    <button onclick="mergePDF()">Merge</button>
-    <div class="loader" id="mergeLoader">Processing...</div>
+
+    <button onclick="mergePDF()">Merge Now</button>
+    <div class="loader" id="mergeLoader">Merging magic... ✨</div>
   </div>
 
+  <!-- SPLIT -->
   <div class="card">
-    <h3>Split PDF</h3>
+    <h3>✂️ Split PDF</h3>
+    <div class="desc">Break large PDFs into smaller pieces — quick and easy.</div>
+
     <div class="drop-zone" id="splitZone">Drop file or click</div>
     <input type="file" id="splitFile">
     <div class="file-name" id="splitName"></div>
-    <button onclick="splitPDF()">Split</button>
-    <div class="loader" id="splitLoader">Processing...</div>
+
+    <button onclick="splitPDF()">Split Now</button>
+    <div class="loader" id="splitLoader">Slicing pages... 🔪</div>
   </div>
 
+  <!-- COMPRESS -->
   <div class="card">
-    <h3>Compress PDF</h3>
+    <h3>🗜 Compress PDF</h3>
+    <div class="desc">Reduce file size while keeping quality — perfect for sharing.</div>
+
     <div class="drop-zone" id="compressZone">Drop file or click</div>
     <input type="file" id="compressFile">
     <div class="file-name" id="compressName"></div>
-    <button onclick="compressPDF()">Compress</button>
-    <div class="loader" id="compressLoader">Processing...</div>
+
+    <button onclick="compressPDF()">Compress Now</button>
+    <div class="loader" id="compressLoader">Shrinking file... 🚀</div>
   </div>
 
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Built for speed ⚡ | Made for humans ❤️ | No login, no nonsense 😎
 </div>
 
 <script src="script.js"></script>
