@@ -1,97 +1,103 @@
 const API = "https://pdf-tool-backend-r88g.onrender.com";
 
-// download helper
-function downloadFile(blob, filename) {
-  const url = window.URL.createObjectURL(blob);
+function download(blob, name) {
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = filename;
+  a.download = name;
   a.click();
 }
 
+// SETUP DROP + PREVIEW
+function setup(dropId, inputId, infoId) {
+  const drop = document.getElementById(dropId);
+  const input = document.getElementById(inputId);
+  const info = document.getElementById(infoId);
+
+  drop.onclick = () => input.click();
+
+  input.onchange = () => {
+    info.innerText = [...input.files].map(f => f.name).join(", ");
+  };
+
+  drop.ondragover = e => e.preventDefault();
+
+  drop.ondrop = e => {
+    e.preventDefault();
+    input.files = e.dataTransfer.files;
+    info.innerText = [...input.files].map(f => f.name).join(", ");
+  };
+}
+
+setup("mergeDrop", "mergeFiles", "mergeInfo");
+setup("splitDrop", "splitFile", "splitInfo");
+setup("compressDrop", "compressFile", "compressInfo");
+
 // MERGE
-async function mergePDF() {
+document.getElementById("mergeBtn").onclick = async () => {
+  const loader = document.getElementById("mergeLoader");
+  loader.style.display = "block";
+
   try {
     const files = document.getElementById("mergeFiles").files;
+    if (files.length < 2) return alert("Select 2 files");
 
-    if (files.length < 2) {
-      alert("Select at least 2 PDFs");
-      return;
-    }
+    const fd = new FormData();
+    [...files].forEach(f => fd.append("files", f));
 
-    const formData = new FormData();
-    for (let f of files) formData.append("files", f);
-
-    const res = await fetch(`${API}/merge`, {
-      method: "POST",
-      body: formData
-    });
-
-    if (!res.ok) throw new Error();
-
+    const res = await fetch(`${API}/merge`, { method: "POST", body: fd });
     const blob = await res.blob();
-    downloadFile(blob, "merged.pdf");
+    download(blob, "merged.pdf");
 
-  } catch (err) {
+  } catch {
     alert("Merge failed");
-    console.log(err);
   }
-}
+
+  loader.style.display = "none";
+};
 
 // SPLIT
-async function splitPDF() {
+document.getElementById("splitBtn").onclick = async () => {
+  const loader = document.getElementById("splitLoader");
+  loader.style.display = "block";
+
   try {
     const file = document.getElementById("splitFile").files[0];
+    if (!file) return alert("Select file");
 
-    if (!file) {
-      alert("Select a file");
-      return;
-    }
+    const fd = new FormData();
+    fd.append("file", file);
 
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch(`${API}/split`, {
-      method: "POST",
-      body: formData
-    });
-
-    if (!res.ok) throw new Error();
-
+    const res = await fetch(`${API}/split`, { method: "POST", body: fd });
     const blob = await res.blob();
-    downloadFile(blob, "split.pdf");
+    download(blob, "split.pdf");
 
-  } catch (err) {
+  } catch {
     alert("Split failed");
-    console.log(err);
   }
-}
+
+  loader.style.display = "none";
+};
 
 // COMPRESS
-async function compressPDF() {
+document.getElementById("compressBtn").onclick = async () => {
+  const loader = document.getElementById("compressLoader");
+  loader.style.display = "block";
+
   try {
     const file = document.getElementById("compressFile").files[0];
+    if (!file) return alert("Select file");
 
-    if (!file) {
-      alert("Select a file");
-      return;
-    }
+    const fd = new FormData();
+    fd.append("file", file);
 
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch(`${API}/compress`, {
-      method: "POST",
-      body: formData
-    });
-
-    if (!res.ok) throw new Error();
-
+    const res = await fetch(`${API}/compress`, { method: "POST", body: fd });
     const blob = await res.blob();
-    downloadFile(blob, "compressed.pdf");
+    download(blob, "compressed.pdf");
 
-  } catch (err) {
+  } catch {
     alert("Compress failed");
-    console.log(err);
   }
-}
+
+  loader.style.display = "none";
+};
