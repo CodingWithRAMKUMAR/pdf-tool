@@ -1,57 +1,123 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>PDF Tool</title>
+  <title>PDF Pro Tools</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
-      font-family: Arial;
-      text-align: center;
-      background: #0f172a;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
       color: white;
+      text-align: center;
     }
-    .box {
-      background: #1e293b;
+
+    h1 {
+      margin-top: 30px;
+      font-size: 2.5rem;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 30px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
       padding: 20px;
-      margin: 20px auto;
-      width: 300px;
-      border-radius: 10px;
+      width: 280px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      transition: transform 0.3s, box-shadow 0.3s;
+      animation: slideUp 0.8s ease;
     }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.03);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    input {
+      margin: 10px 0;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+    }
+
     button {
       padding: 10px 20px;
-      background: #3b82f6;
       border: none;
-      color: white;
       border-radius: 5px;
+      background: #3b82f6;
+      color: white;
       cursor: pointer;
+      transition: 0.3s;
     }
-    input {
-      margin: 10px;
+
+    button:hover {
+      background: #2563eb;
+      transform: scale(1.05);
+    }
+
+    .loader {
+      display: none;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #93c5fd;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0 }
+      to { opacity: 1 }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0 }
+      to { transform: translateY(0); opacity: 1 }
     }
   </style>
 </head>
+
 <body>
 
-<h1>🚀 PDF Tool</h1>
+<h1>🚀 PDF Pro Tools</h1>
 
-<div class="box">
-  <h2>Merge PDF</h2>
-  <input type="file" id="mergeFiles" multiple>
-  <br>
-  <button onclick="mergePDF()">Merge</button>
-</div>
+<div class="container">
 
-<div class="box">
-  <h2>Split PDF</h2>
-  <input type="file" id="splitFile">
-  <br>
-  <button onclick="splitPDF()">Split</button>
-</div>
+  <div class="card">
+    <h2>Merge PDF</h2>
+    <input type="file" id="mergeFiles" multiple>
+    <br>
+    <button onclick="mergePDF()">Merge</button>
+    <div class="loader" id="mergeLoader">Processing...</div>
+  </div>
 
-<div class="box">
-  <h2>Compress PDF</h2>
-  <input type="file" id="compressFile">
-  <br>
-  <button onclick="compressPDF()">Compress</button>
+  <div class="card">
+    <h2>Split PDF</h2>
+    <input type="file" id="splitFile">
+    <br>
+    <button onclick="splitPDF()">Split</button>
+    <div class="loader" id="splitLoader">Processing...</div>
+  </div>
+
+  <div class="card">
+    <h2>Compress PDF</h2>
+    <input type="file" id="compressFile">
+    <br>
+    <button onclick="compressPDF()">Compress</button>
+    <div class="loader" id="compressLoader">Processing...</div>
+  </div>
+
 </div>
 
 <script src="script.js"></script>
