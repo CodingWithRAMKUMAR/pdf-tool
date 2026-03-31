@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Split PDF Online Free | AllCutX</title>
+
+  <meta name="description" content="Split PDF pages online for free. Extract pages from PDF instantly with AllCutX. No signup required.">
+
+  <meta name="keywords" content="split pdf, extract pdf pages, split pdf online free">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      text-align: center;
+    }
+
+    .container {
+      padding: 40px 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(45deg, #3b82f6, #6366f1);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    p {
+      color: #94a3b8;
+    }
+
+    .drop-zone {
+      border: 2px dashed #3b82f6;
+      padding: 30px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(45deg, #3b82f6, #6366f1);
+      color: white;
+      cursor: pointer;
+    }
+
+    .file-name {
+      margin-top: 10px;
+      color: #60a5fa;
+    }
+
+    input {
+      display: none;
+    }
+
+    a {
+      color: #60a5fa;
+      display: block;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Split PDF Online Free</h1>
+  <p>Extract pages from your PDF quickly and easily. No signup required.</p>
+
+  <div class="drop-zone" id="splitZone">Drop PDF here or click</div>
+  <input type="file" id="splitFile">
+  <div class="file-name" id="splitName"></div>
+
+  <button onclick="splitPDF()">Split PDF</button>
+
+  <a href="/">← Back to Home</a>
+</div>
+
+<script>
+const API = "https://pdf-tool-backend-r88g.onrender.com";
+
+function splitPDF() {
+  const file = document.getElementById("splitFile").files[0];
+
+  if (!file) {
+    alert("Select a file");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  fetch(`${API}/split`, {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.blob())
+  .then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "split.pdf";
+    a.click();
+  })
+  .catch(() => alert("Split failed"));
+}
+
+// Drag & drop
+const zone = document.getElementById("splitZone");
+const input = document.getElementById("splitFile");
+const text = document.getElementById("splitName");
+
+zone.onclick = () => input.click();
+
+input.onchange = () => {
+  text.innerText = input.files[0]?.name || "";
+};
+
+zone.ondragover = (e) => e.preventDefault();
+
+zone.ondrop = (e) => {
+  e.preventDefault();
+
+  const dt = new DataTransfer();
+  for (let file of e.dataTransfer.files) dt.items.add(file);
+
+  input.files = dt.files;
+  text.innerText = input.files[0]?.name || "";
+};
+</script>
+
+</body>
+</html>
