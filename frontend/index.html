@@ -1,228 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>PDF Ninja 🥷</title>
+  <title>PDF Ninja 🚀</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
+      font-family: Arial;
+      background: #0f172a;
       color: white;
-    }
-
-    /* HERO */
-    .hero {
       text-align: center;
-      padding: 60px 20px;
-    }
-
-    .hero h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-      background: linear-gradient(45deg, #3b82f6, #6366f1);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
-    .hero p {
-      color: #94a3b8;
-      font-size: 1.1rem;
-    }
-
-    /* CONTAINER */
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 30px;
       padding: 20px;
     }
 
-    /* CARD */
-    .card {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(15px);
-      border-radius: 15px;
-      padding: 25px;
-      width: 320px;
-      text-align: center;
-      transition: all 0.3s ease;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-
-    .card:hover {
-      transform: translateY(-10px) scale(1.03);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-    }
-
-    h3 {
+    h1 {
+      font-size: 40px;
       margin-bottom: 10px;
     }
 
-    .desc {
-      font-size: 0.9rem;
-      color: #94a3b8;
-      margin-bottom: 15px;
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 12px;
+      width: 300px;
     }
 
-    /* DROP ZONE */
-    .drop-zone {
-      border: 2px dashed #3b82f6;
-      padding: 20px;
-      border-radius: 10px;
-      margin: 10px 0;
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .drop-zone:hover {
-      background: rgba(59,130,246,0.1);
-    }
-
-    .file-name {
-      font-size: 12px;
-      color: #60a5fa;
-      margin-top: 5px;
     }
 
     input {
-      display: none;
-    }
-
-    /* BUTTON */
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      background: linear-gradient(45deg, #3b82f6, #6366f1);
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      transform: scale(1.1);
-      background: linear-gradient(45deg, #2563eb, #4f46e5);
-    }
-
-    /* LOADER */
-    .loader {
-      display: none;
       margin-top: 10px;
-      font-size: 13px;
-      color: #60a5fa;
-    }
-
-    /* FOOTER */
-    .footer {
-      text-align: center;
-      padding: 30px;
-      color: #64748b;
-      font-size: 0.9rem;
     }
   </style>
 </head>
 
 <body>
 
-<!-- HERO -->
-<div class="hero">
-  <h1>PDF Ninja 🥷</h1>
-  <p>Your all-in-one PDF toolkit — fast, simple, and actually enjoyable 😎</p>
+<h1>PDF Ninja 🥷</h1>
+<p>All-in-one PDF tool</p>
+
+<div class="box">
+  <h3>Merge PDFs</h3>
+  <input type="file" id="mergeFiles" multiple>
+  <br>
+  <button onclick="mergePDF()">Merge</button>
 </div>
 
-<!-- TOOLS -->
-<div class="container">
-
-  <!-- MERGE -->
-  <div class="card">
-    <h3>📎 Merge PDFs</h3>
-    <div class="desc">Combine multiple PDFs into one smooth document — no mess, no stress.</div>
-
-    <div class="drop-zone" id="mergeZone">Drop files or click</div>
-    <input type="file" id="mergeFiles" multiple>
-    <div class="file-name" id="mergeName"></div>
-
-    <button onclick="mergePDF()">Merge Now</button>
-    <div class="loader" id="mergeLoader">Merging magic... ✨</div>
-  </div>
-
-  <!-- SPLIT -->
-  <div class="card">
-    <h3>✂️ Split PDF</h3>
-    <div class="desc">Break large PDFs into smaller pieces — quick and easy.</div>
-
-    <div class="drop-zone" id="splitZone">Drop file or click</div>
-    <input type="file" id="splitFile">
-    <div class="file-name" id="splitName"></div>
-
-    <button onclick="splitPDF()">Split Now</button>
-    <div class="loader" id="splitLoader">Slicing pages... 🔪</div>
-  </div>
-
-  <!-- COMPRESS -->
-  <div class="card">
-    <h3>🗜 Compress PDF</h3>
-    <div class="desc">Reduce file size while keeping quality — perfect for sharing.</div>
-
-    <div class="drop-zone" id="compressZone">Drop file or click</div>
-    <input type="file" id="compressFile">
-    <div class="file-name" id="compressName"></div>
-
-    <button onclick="compressPDF()">Compress Now</button>
-    <div class="loader" id="compressLoader">Shrinking file... 🚀</div>
-  </div>
-
+<div class="box">
+  <h3>Split PDF</h3>
+  <input type="file" id="splitFile">
+  <br>
+  <button onclick="splitPDF()">Split</button>
 </div>
 
-<!-- FOOTER -->
-<div class="footer">
-  Built for speed ⚡ | Made for humans ❤️ | No login, no nonsense 😎
+<div class="box">
+  <h3>Compress PDF</h3>
+  <input type="file" id="compressFile">
+  <br>
+  <button onclick="compressPDF()">Compress</button>
 </div>
 
+<!-- IMPORTANT -->
 <script src="script.js"></script>
-
-<script>
-function setupDrop(zoneId, inputId, textId) {
-  const zone = document.getElementById(zoneId);
-  const input = document.getElementById(inputId);
-  const text = document.getElementById(textId);
-
-  zone.onclick = () => input.click();
-
-  input.onchange = () => {
-    text.innerText = [...input.files].map(f => f.name).join(", ");
-  };
-
-  zone.ondragover = (e) => {
-    e.preventDefault();
-    zone.style.background = "#1e40af";
-  };
-
-  zone.ondragleave = () => {
-    zone.style.background = "transparent";
-  };
-
-  zone.ondrop = (e) => {
-    e.preventDefault();
-    zone.style.background = "transparent";
-
-    const dt = new DataTransfer();
-    for (let file of e.dataTransfer.files) {
-      dt.items.add(file);
-    }
-
-    input.files = dt.files;
-    text.innerText = [...input.files].map(f => f.name).join(", ");
-  };
-}
-
-setupDrop("mergeZone", "mergeFiles", "mergeName");
-setupDrop("splitZone", "splitFile", "splitName");
-setupDrop("compressZone", "compressFile", "compressName");
-</script>
 
 </body>
 </html>
