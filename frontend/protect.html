@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Protect PDF with Password – AllCutX | Encrypt PDF Free</title>
+  <meta name="description" content="Add password protection to your PDF. Encrypt with a user password. Free, no upload.">
+  <link rel="canonical" href="https://pdf-tool-inky.vercel.app/protect.html">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>/* same style block */</style>
+</head>
+<body>
+<div class="container">
+  <div class="glass-card">
+    <div class="card-header">
+      <i class="fas fa-lock"></i>
+      <h2>Protect PDF</h2>
+    </div>
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-icon"><i class="fas fa-file-pdf"></i></div>
+      <div class="drop-text">Drop a PDF</div>
+    </div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo" style="font-size:0.8rem; margin:0.5rem 0;"></div>
+    <input type="password" id="password" placeholder="Set a password">
+    <button id="protectBtn" class="btn-primary">Encrypt & Download</button>
+    <div style="text-align: center; margin-top: 1rem;">
+      <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to All Tools</a>
+    </div>
+  </div>
+  <footer>⚡ All processing happens locally – your files never leave your device.</footer>
+</div>
+
+<script>
+  // helpers
+  let protectFile = null;
+  // drop handlers
+  protectBtn.addEventListener('click', async () => {
+    if(!protectFile) { showToast('Select a PDF', true); return; }
+    const pwd = document.getElementById('password').value;
+    if(!pwd) { showToast('Enter a password', true); return; }
+    protectBtn.disabled = true;
+    const orig = protectBtn.innerHTML;
+    protectBtn.innerHTML = '<span class="spinner"></span> Encrypting...';
+    try {
+      const doc = await loadPdf(protectFile);
+      await doc.encrypt({ userPassword: pwd, ownerPassword: pwd, permissions: PDFLib.PDFDocument.AllowAll });
+      await saveAndDownload(doc, `protected_${protectFile.name}`);
+      showToast(`✅ PDF encrypted with password`);
+    } catch(e) {
+      showToast('Encrypt error: ' + e.message, true);
+    } finally {
+      protectBtn.disabled = false;
+      protectBtn.innerHTML = orig;
+    }
+  });
+</script>
+</body>
+</html>
