@@ -1,75 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>PDF Ninja 🚀</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
-
-    h1 {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-
-    .box {
-      background: #1e293b;
-      padding: 20px;
-      margin: 20px auto;
-      border-radius: 12px;
-      width: 300px;
-    }
-
-    button {
-      background: #3b82f6;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      margin-top: 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    input {
-      margin-top: 10px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>AllCutX - Smart PDF Tools</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>PDF Ninja 🥷</h1>
-<p>All-in-one PDF tool</p>
+<header>
+  <h1>AllCutX 🚀</h1>
+  <p>Fast, Secure & Beautiful PDF Tools</p>
+</header>
 
-<div class="box">
-  <h3>Merge PDFs</h3>
-  <input type="file" id="mergeFiles" multiple>
-  <br>
-  <button onclick="mergePDF()">Merge</button>
+<section class="hero">
+  <h2>Work with PDFs like a Pro ⚡</h2>
+  <p>Merge, Split, Compress — All in one place, completely free.</p>
+</section>
+
+<div class="tools">
+
+  <!-- MERGE -->
+  <div class="tool">
+    <h2>Merge PDF</h2>
+    <p>Combine multiple PDFs into one file instantly.</p>
+    <div class="drop" id="mergeDrop">Drop files or click</div>
+    <input type="file" id="mergeFiles" multiple hidden>
+    <div class="file-info" id="mergeInfo"></div>
+    <button id="mergeBtn">Merge Now</button>
+    <div class="loader" id="mergeLoader"></div>
+  </div>
+
+  <!-- SPLIT -->
+  <div class="tool">
+    <h2>Split PDF</h2>
+    <p>Extract pages from your PDF quickly.</p>
+    <div class="drop" id="splitDrop">Drop file or click</div>
+    <input type="file" id="splitFile" hidden>
+    <div class="file-info" id="splitInfo"></div>
+    <button id="splitBtn">Split Now</button>
+    <div class="loader" id="splitLoader"></div>
+  </div>
+
+  <!-- COMPRESS -->
+  <div class="tool">
+    <h2>Compress PDF</h2>
+    <p>Reduce file size while keeping quality.</p>
+    <div class="drop" id="compressDrop">Drop file or click</div>
+    <input type="file" id="compressFile" hidden>
+    <div class="file-info" id="compressInfo"></div>
+    <button id="compressBtn">Compress Now</button>
+    <div class="loader" id="compressLoader"></div>
+  </div>
+
 </div>
 
-<div class="box">
-  <h3>Split PDF</h3>
-  <input type="file" id="splitFile">
-  <br>
-  <button onclick="splitPDF()">Split</button>
-</div>
+<footer>
+  <p>⚡ Free • No Signup • Secure</p>
+</footer>
 
-<div class="box">
-  <h3>Compress PDF</h3>
-  <input type="file" id="compressFile">
-  <br>
-  <button onclick="compressPDF()">Compress</button>
-</div>
-
-<!-- IMPORTANT -->
 <script src="script.js"></script>
-
 </body>
 </html>
