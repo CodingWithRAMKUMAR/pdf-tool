@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Merge PDF Online Free | AllcutX</title>
+  <meta name="description" content="Merge PDF files online for free. Combine multiple PDFs into one document quickly using AllcutX. No signup required.">
+  <meta name="keywords" content="merge pdf, combine pdf, merge pdf online free">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      text-align: center;
+    }
+
+    .container {
+      padding: 40px 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #3b82f6, #6366f1);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    p {
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+
+    .drop-zone {
+      border: 2px dashed #3b82f6;
+      padding: 30px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(45deg, #3b82f6, #6366f1);
+      color: white;
+      cursor: pointer;
+    }
+
+    .file-name {
+      margin-top: 10px;
+      color: #60a5fa;
+    }
+
+    input {
+      display: none;
+    }
+
+    a {
+      color: #60a5fa;
+      display: block;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Merge PDF Online Free</h1>
+  <p>Combine multiple PDF files into one document quickly and easily. No signup needed.</p>
+
+  <div class="drop-zone" id="mergeZone">Drop PDFs here or click</div>
+  <input type="file" id="mergeFiles" multiple>
+  <div class="file-name" id="mergeName"></div>
+
+  <button onclick="mergePDF()">Merge PDFs</button>
+
+  <a href="/">← Back to Home</a>
+</div>
+
+<script>
+const API = "https://pdf-backend.onrender.com"; // 🔁 change if needed
+
+function mergePDF() {
+  const files = document.getElementById("mergeFiles").files;
+
+  if (files.length < 2) {
+    alert("Select at least 2 files");
+    return;
+  }
+
+  const formData = new FormData();
+  for (let f of files) formData.append("files", f);
+
+  fetch(`${API}/merge`, {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.blob())
+  .then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "merged.pdf";
+    a.click();
+  })
+  .catch(() => alert("Merge failed"));
+}
+
+// Drag & drop
+const zone = document.getElementById("mergeZone");
+const input = document.getElementById("mergeFiles");
+const text = document.getElementById("mergeName");
+
+zone.onclick = () => input.click();
+
+input.onchange = () => {
+  text.innerText = [...input.files].map(f => f.name).join(", ");
+};
+
+zone.ondragover = (e) => {
+  e.preventDefault();
+};
+
+zone.ondrop = (e) => {
+  e.preventDefault();
+
+  const dt = new DataTransfer();
+  for (let file of e.dataTransfer.files) dt.items.add(file);
+
+  input.files = dt.files;
+  text.innerText = [...input.files].map(f => f.name).join(", ");
+};
+</script>
+
+</body>
+</html>
