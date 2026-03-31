@@ -14,71 +14,35 @@
 
 <body>
 
-<div class="container">
-  <h1>Split PDF Online Free</h1>
-  <p>Extract pages from your PDF quickly and easily. No signup required.</p>
+<body>
 
-  <div class="drop-zone" id="splitZone">Drop PDF here or click</div>
-  <input type="file" id="splitFile">
-  <div class="file-name" id="splitName"></div>
+<header>
+  <h1>AllCutX 🚀</h1>
+  <p>Split PDF Tool</p>
+</header>
 
-  <button onclick="splitPDF()">Split PDF</button>
+<div class="tools">
 
-  <a href="/">← Back to Home</a>
+  <div class="tool">
+    <h2>Split PDF</h2>
+    <p>Extract pages from your PDF quickly.</p>
+
+    <div class="drop" id="splitZone">Drop file or click</div>
+    <input type="file" id="splitFile" hidden>
+
+    <div class="file-info" id="splitName"></div>
+
+    <button onclick="splitPDF()">Split Now</button>
+  </div>
+
 </div>
 
-<script>
-const API = "https://pdf-tool-backend-r88g.onrender.com";
+<footer>
+  <p>⚡ Free • Secure • Fast</p>
+</footer>
 
-function splitPDF() {
-  const file = document.getElementById("splitFile").files[0];
-
-  if (!file) {
-    alert("Select a file");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  fetch(`${API}/split`, {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.blob())
-  .then(blob => {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "split.pdf";
-    a.click();
-  })
-  .catch(() => alert("Split failed"));
-}
-
-// Drag & drop
-const zone = document.getElementById("splitZone");
-const input = document.getElementById("splitFile");
-const text = document.getElementById("splitName");
-
-zone.onclick = () => input.click();
-
-input.onchange = () => {
-  text.innerText = input.files[0]?.name || "";
-};
-
-zone.ondragover = (e) => e.preventDefault();
-
-zone.ondrop = (e) => {
-  e.preventDefault();
-
-  const dt = new DataTransfer();
-  for (let file of e.dataTransfer.files) dt.items.add(file);
-
-  input.files = dt.files;
-  text.innerText = input.files[0]?.name || "";
-};
-</script>
+<script src="script.js"></script>
+</body>
 
 </body>
 </html>
