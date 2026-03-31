@@ -15,6 +15,11 @@
 
     h1 {
       margin-top: 30px;
+      font-size: 2.5rem;
+    }
+
+    p {
+      color: #94a3b8;
     }
 
     .container {
@@ -29,7 +34,13 @@
       background: rgba(255,255,255,0.05);
       padding: 20px;
       border-radius: 12px;
-      width: 280px;
+      width: 300px;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
     }
 
     .drop-zone {
@@ -43,7 +54,6 @@
     .file-name {
       font-size: 12px;
       color: #93c5fd;
-      margin-top: 5px;
     }
 
     input {
@@ -53,10 +63,22 @@
     button {
       padding: 10px 20px;
       border: none;
-      border-radius: 5px;
-      background: #3b82f6;
+      border-radius: 6px;
+      background: linear-gradient(45deg, #3b82f6, #6366f1);
       color: white;
       cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+    }
+
+    .loader {
+      display: none;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #60a5fa;
     }
   </style>
 </head>
@@ -64,35 +86,35 @@
 <body>
 
 <h1>🥷 PDF Ninja</h1>
-<p>Simple. Fast. Works every time.</p>
+<p>Fast. Simple. No nonsense.</p>
 
 <div class="container">
 
-  <!-- MERGE -->
   <div class="card">
     <h3>Merge PDF</h3>
     <div class="drop-zone" id="mergeZone">Drop files or click</div>
     <input type="file" id="mergeFiles" multiple>
     <div class="file-name" id="mergeName"></div>
     <button onclick="mergePDF()">Merge</button>
+    <div class="loader" id="mergeLoader">Processing...</div>
   </div>
 
-  <!-- SPLIT -->
   <div class="card">
     <h3>Split PDF</h3>
     <div class="drop-zone" id="splitZone">Drop file or click</div>
     <input type="file" id="splitFile">
     <div class="file-name" id="splitName"></div>
     <button onclick="splitPDF()">Split</button>
+    <div class="loader" id="splitLoader">Processing...</div>
   </div>
 
-  <!-- COMPRESS -->
   <div class="card">
     <h3>Compress PDF</h3>
     <div class="drop-zone" id="compressZone">Drop file or click</div>
     <input type="file" id="compressFile">
     <div class="file-name" id="compressName"></div>
     <button onclick="compressPDF()">Compress</button>
+    <div class="loader" id="compressLoader">Processing...</div>
   </div>
 
 </div>
@@ -100,7 +122,6 @@
 <script src="script.js"></script>
 
 <script>
-// ✅ DRAG & DROP (COMPATIBLE WITH SCRIPT.JS)
 function setupDrop(zoneId, inputId, textId) {
   const zone = document.getElementById(zoneId);
   const input = document.getElementById(inputId);
@@ -135,7 +156,6 @@ function setupDrop(zoneId, inputId, textId) {
   };
 }
 
-// connect all
 setupDrop("mergeZone", "mergeFiles", "mergeName");
 setupDrop("splitZone", "splitFile", "splitName");
 setupDrop("compressZone", "compressFile", "compressName");
