@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Split PDF Online – AllCutX | Extract Pages Free</title>
+  <meta name="description" content="Split PDF into separate pages or custom ranges. Free, no upload, 100% private.">
+  <link rel="canonical" href="https://pdf-tool-inky.vercel.app/split.html">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+    /* same CSS as merge.html – copy the entire <style> block from merge.html */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(145deg, #0a0f2a 0%, #030618 100%); min-height: 100vh; padding: 2rem 1rem; color: #f0f6ff; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .glass-card { background: rgba(20, 25, 50, 0.7); backdrop-filter: blur(12px); border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.25); padding: 1.5rem; }
+    .card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 0.5rem; }
+    .card-header i { font-size: 1.8rem; background: linear-gradient(145deg, #ffb347, #ff6b6b); background-clip: text; -webkit-background-clip: text; color: transparent; }
+    .card-header h2 { font-size: 1.6rem; font-weight: 600; }
+    .drop-zone { background: rgba(0,0,0,0.35); border: 2px dashed rgba(255,180,70,0.6); border-radius: 1rem; padding: 1rem; text-align: center; cursor: pointer; margin-bottom: 1rem; transition: 0.2s; }
+    .drop-zone.drag-over { border-color: #ff6b6b; background: rgba(255,107,107,0.2); }
+    .drop-icon { font-size: 1.8rem; color: #ffb347; }
+    input, select { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 2rem; padding: 0.6rem 1rem; width: 100%; color: white; margin: 0.8rem 0; font-size: 0.9rem; }
+    .info-text { font-size: 0.75rem; opacity: 0.7; margin-top: 0.2rem; }
+    .btn-primary { background: linear-gradient(105deg, #ff6b6b, #ffb347); border: none; padding: 0.7rem; border-radius: 2rem; font-weight: 600; width: 100%; cursor: pointer; color: white; margin-top: 0.6rem; transition: 0.2s; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e2a3ae0; backdrop-filter: blur(12px); padding: 0.5rem 1rem; border-radius: 40px; color: white; z-index: 1000; border-left: 4px solid #ffb347; pointer-events: none; font-size: 0.8rem; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.6s linear infinite; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .back-link { display: inline-block; margin-top: 1rem; color: #ffb347; text-decoration: none; font-size: 0.9rem; }
+    footer { text-align: center; margin-top: 2rem; font-size: 0.7rem; opacity: 0.6; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="glass-card">
+    <div class="card-header">
+      <i class="fas fa-cut"></i>
+      <h2>Split PDF</h2>
+    </div>
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-icon"><i class="fas fa-file-pdf"></i></div>
+      <div class="drop-text">Drop a PDF or click</div>
+    </div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo" style="font-size:0.8rem; margin:0.5rem 0;"></div>
+    <input type="text" id="ranges" placeholder="e.g., 1-3,5,7-end  or  *" value="*">
+    <div class="info-text">Use "*" to split every page, "end" for last page</div>
+    <button id="splitBtn" class="btn-primary">Split & Download ZIP</button>
+    <div style="text-align: center; margin-top: 1rem;">
+      <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to All Tools</a>
+    </div>
+  </div>
+  <footer>⚡ All processing happens locally – your files never leave your device.</footer>
+</div>
+
+<script>
+  function showToast(msg, isErr = false) {
+    let t = document.querySelector('.toast'); if(t) t.remove();
+    let div = document.createElement('div'); div.className = 'toast';
+    div.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+    div.style.background = isErr ? '#b91c1cdd' : '#1f3b4cdd';
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+  }
+  function formatBytes(b) { if(b===0) return '0 Bytes'; const k=1024; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+['Bytes','KB','MB'][i]; }
+  function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+  async function loadPdf(file) { return await PDFLib.PDFDocument.load(await file.arrayBuffer()); }
+
+  let splitFile = null;
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const fileInfo = document.getElementById('fileInfo');
+  const splitBtn = document.getElementById('splitBtn');
+  const rangesInput = document.getElementById('ranges');
+
+  function parseRanges(rangeStr, totalPages) {
+    if(rangeStr.trim() === '*') return Array.from({length: totalPages}, (_,i) => i+1);
+    let parts = rangeStr.split(',');
+    let pages = new Set();
+    for(let part of parts) {
+      part = part.trim();
+      if(part.includes('-')) {
+        let [s,e] = part.split('-').map(x => x.trim());
+        let start = parseInt(s);
+        let end = (e === 'end') ? totalPages : parseInt(e);
+        if(isNaN(start) || isNaN(end) || start<1) continue;
+        if(end>totalPages) end=totalPages;
+        for(let p=start; p<=end; p++) pages.add(p);
+      } else if(part !== '') {
+        let p = parseInt(part);
+        if(!isNaN(p) && p>=1 && p<=totalPages) pages.add(p);
+      }
+    }
+    return Array.from(pages).sort((a,b)=>a-b);
+  }
+
+  function setFile(file) {
+    splitFile = file;
+    fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : '';
+  }
+
+  function handleDrop(files) {
+    let f = Array.from(files).find(f => f.type === 'application/pdf');
+    if(f) { setFile(f); showToast(`Split ready: ${f.name}`); }
+    else showToast('PDF required', true);
+  }
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    handleDrop(e.dataTransfer.files);
+  });
+  fileInput.addEventListener('change', e => {
+    handleDrop(e.target.files);
+    fileInput.value = '';
+  });
+
+  splitBtn.addEventListener('click', async () => {
+    if(!splitFile) { showToast('Select a PDF', true); return; }
+    splitBtn.disabled = true;
+    const orig = splitBtn.innerHTML;
+    splitBtn.innerHTML = '<span class="spinner"></span> Splitting...';
+    try {
+      const doc = await loadPdf(splitFile);
+      const total = doc.getPageCount();
+      const ranges = parseRanges(rangesInput.value, total);
+      if(ranges.length === 0) throw new Error('No valid pages');
+      const zip = new JSZip();
+      for(let p of ranges) {
+        const newDoc = await PDFLib.PDFDocument.create();
+        const [page] = await newDoc.copyPages(doc, [p-1]);
+        newDoc.addPage(page);
+        zip.file(`page_${p}.pdf`, await newDoc.save());
+      }
+      const blob = await zip.generateAsync({ type: 'blob' });
+      saveAs(blob, `split_${Date.now()}.zip`);
+      showToast(`✅ Split into ${ranges.length} pages`);
+    } catch(e) {
+      showToast('Split error: ' + e.message, true);
+    } finally {
+      splitBtn.disabled = false;
+      splitBtn.innerHTML = orig;
+    }
+  });
+</script>
+</body>
+</html>
