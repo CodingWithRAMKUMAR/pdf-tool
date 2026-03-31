@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Page Numbers to PDF – AllCutX | Free PDF Numbering</title>
+  <meta name="description" content="Add page numbers to PDF documents. Customize format: Page {n} of {total}. Free, no upload.">
+  <link rel="canonical" href="https://pdf-tool-inky.vercel.app/pagenumbers.html">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>/* same style block as rotate.html */</style>
+</head>
+<body>
+<div class="container">
+  <div class="glass-card">
+    <div class="card-header">
+      <i class="fas fa-hashtag"></i>
+      <h2>Add Page Numbers</h2>
+    </div>
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-icon"><i class="fas fa-file-pdf"></i></div>
+      <div class="drop-text">Drop a PDF</div>
+    </div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo" style="font-size:0.8rem; margin:0.5rem 0;"></div>
+    <input type="text" id="pageNumFormat" placeholder="Format: Page {n} of {total}" value="Page {n} of {total}">
+    <button id="pagenumBtn" class="btn-primary">Add Numbers</button>
+    <div style="text-align: center; margin-top: 1rem;">
+      <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to All Tools</a>
+    </div>
+  </div>
+  <footer>⚡ All processing happens locally – your files never leave your device.</footer>
+</div>
+
+<script>
+  // helpers included
+  let pagenumFile = null;
+  // drop handlers same pattern
+  pagenumBtn.addEventListener('click', async () => {
+    if(!pagenumFile) { showToast('Select a PDF', true); return; }
+    pagenumBtn.disabled = true;
+    const orig = pagenumBtn.innerHTML;
+    pagenumBtn.innerHTML = '<span class="spinner"></span> Adding numbers...';
+    try {
+      const doc = await loadPdf(pagenumFile);
+      const format = document.getElementById('pageNumFormat').value;
+      const pages = doc.getPages();
+      const total = pages.length;
+      for(let i = 0; i < total; i++) {
+        const page = pages[i];
+        const { width, height } = page.getSize();
+        const pageNumText = format.replace('{n}', (i+1).toString()).replace('{total}', total.toString());
+        page.drawText(pageNumText, { x: width - 50, y: 30, size: 12, color: PDFLib.rgb(0,0,0) });
+      }
+      await saveAndDownload(doc, `numbered_${pagenumFile.name}`);
+      showToast(`✅ Page numbers added`);
+    } catch(e) {
+      showToast('Numbering error: ' + e.message, true);
+    } finally {
+      pagenumBtn.disabled = false;
+      pagenumBtn.innerHTML = orig;
+    }
+  });
+</script>
+</body>
+</html>
