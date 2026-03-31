@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Extract PDF Pages – AllCutX | Extract Pages Free</title>
-  <meta name="description" content="Extract specific pages from a PDF and save as a new file. Free, no upload, private.">
-  <link rel="canonical" href="https://pdf-tool-inky.vercel.app/extract.html">
+  <title>Add Watermark to PDF – AllCutX | Free PDF Watermarker</title>
+  <meta name="description" content="Add custom text watermark to PDF documents. Choose opacity, free and private.">
+  <link rel="canonical" href="https://pdf-tool-inky.vercel.app/watermark.html">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <style>/* same style block as rotate.html – copy exactly */</style>
+  <style>/* same CSS as merge.html */</style>
 </head>
 <body>
 <div class="container">
   <div class="glass-card">
     <div class="card-header">
-      <i class="fas fa-arrow-right"></i>
-      <h2>Extract Pages</h2>
+      <i class="fas fa-water"></i>
+      <h2>Watermark PDF</h2>
     </div>
     <div class="drop-zone" id="dropZone">
       <div class="drop-icon"><i class="fas fa-file-pdf"></i></div>
@@ -25,16 +25,19 @@
     </div>
     <input type="file" id="fileInput" accept="application/pdf" hidden>
     <div id="fileInfo" style="font-size:0.8rem; margin:0.5rem 0;"></div>
-    <input type="text" id="ranges" placeholder="e.g., 1-3,5,7-end" value="1-3">
-    <div class="info-text">Enter the pages you want to extract (e.g., 1-3,5,7-end)</div>
-    <button id="extractBtn" class="btn-primary">Extract & Download</button>
+    <input type="text" id="watermarkText" placeholder="Watermark text" value="CONFIDENTIAL">
+    <select id="watermarkOpacity">
+      <option value="0.3">Light</option>
+      <option value="0.5" selected>Medium</option>
+      <option value="0.7">Dark</option>
+    </select>
+    <button id="watermarkBtn" class="btn-primary">Add Watermark</button>
     <div style="text-align: center; margin-top: 1rem;">
       <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to All Tools</a>
     </div>
   </div>
   <footer>⚡ All processing happens locally – your files never leave your device.</footer>
 </div>
-
 <script>
   function showToast(msg, isErr = false) {
     let t = document.querySelector('.toast'); if(t) t.remove();
@@ -49,41 +52,22 @@
   async function loadPdf(file) { return await PDFLib.PDFDocument.load(await file.arrayBuffer()); }
   async function saveAndDownload(pdfDoc, filename) { saveAs(new Blob([await pdfDoc.save()], {type:'application/pdf'}), filename); }
 
-  let extractFile = null;
+  let watermarkFile = null;
   const dropZone = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
   const fileInfo = document.getElementById('fileInfo');
-  const extractBtn = document.getElementById('extractBtn');
-  const rangesInput = document.getElementById('ranges');
-
-  function parseRanges(rangeStr, totalPages) {
-    let parts = rangeStr.split(',');
-    let pages = new Set();
-    for(let part of parts) {
-      part = part.trim();
-      if(part.includes('-')) {
-        let [s,e] = part.split('-').map(x => x.trim());
-        let start = parseInt(s);
-        let end = (e === 'end') ? totalPages : parseInt(e);
-        if(isNaN(start) || isNaN(end) || start<1) continue;
-        if(end>totalPages) end=totalPages;
-        for(let p=start; p<=end; p++) pages.add(p);
-      } else if(part !== '') {
-        let p = parseInt(part);
-        if(!isNaN(p) && p>=1 && p<=totalPages) pages.add(p);
-      }
-    }
-    return Array.from(pages).sort((a,b)=>a-b);
-  }
+  const watermarkBtn = document.getElementById('watermarkBtn');
+  const watermarkText = document.getElementById('watermarkText');
+  const watermarkOpacity = document.getElementById('watermarkOpacity');
 
   function setFile(file) {
-    extractFile = file;
+    watermarkFile = file;
     fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : '';
   }
 
   function handleDrop(files) {
     let f = Array.from(files).find(f => f.type === 'application/pdf');
-    if(f) { setFile(f); showToast(`Extract ready: ${f.name}`); }
+    if(f) { setFile(f); showToast(`Watermark ready: ${f.name}`); }
     else showToast('PDF required', true);
   }
 
@@ -100,28 +84,34 @@
     fileInput.value = '';
   });
 
-  extractBtn.addEventListener('click', async () => {
-    if(!extractFile) { showToast('Select a PDF', true); return; }
-    extractBtn.disabled = true;
-    const orig = extractBtn.innerHTML;
-    extractBtn.innerHTML = '<span class="spinner"></span> Extracting...';
+  watermarkBtn.addEventListener('click', async () => {
+    if(!watermarkFile) { showToast('Select a PDF', true); return; }
+    watermarkBtn.disabled = true;
+    const orig = watermarkBtn.innerHTML;
+    watermarkBtn.innerHTML = '<span class="spinner"></span> Adding watermark...';
     try {
-      const doc = await loadPdf(extractFile);
-      const total = doc.getPageCount();
-      const pages = parseRanges(rangesInput.value, total);
-      if(pages.length === 0) throw new Error('No valid pages');
-      const newDoc = await PDFLib.PDFDocument.create();
-      for(let p of pages) {
-        const [page] = await newDoc.copyPages(doc, [p-1]);
-        newDoc.addPage(page);
+      const doc = await loadPdf(watermarkFile);
+      const text = watermarkText.value || 'CONFIDENTIAL';
+      const opacity = parseFloat(watermarkOpacity.value);
+      const pages = doc.getPages();
+      for(let page of pages) {
+        const { width, height } = page.getSize();
+        const fontSize = Math.min(width, height) / 10;
+        page.drawText(text, {
+          x: width/2, y: height/2,
+          size: fontSize,
+          opacity: opacity,
+          color: PDFLib.rgb(0.7,0.7,0.7),
+          rotate: PDFLib.degrees(45)
+        });
       }
-      await saveAndDownload(newDoc, `extracted_${extractFile.name}`);
-      showToast(`✅ Extracted ${pages.length} pages`);
+      await saveAndDownload(doc, `watermarked_${watermarkFile.name}`);
+      showToast(`✅ Watermark added`);
     } catch(e) {
-      showToast('Extract error: ' + e.message, true);
+      showToast('Watermark error: ' + e.message, true);
     } finally {
-      extractBtn.disabled = false;
-      extractBtn.innerHTML = orig;
+      watermarkBtn.disabled = false;
+      watermarkBtn.innerHTML = orig;
     }
   });
 </script>
