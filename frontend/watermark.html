@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extract PDF Pages – AllCutX | Extract Pages Free</title>
+  <meta name="description" content="Extract specific pages from a PDF and save as a new file. Free, no upload, private.">
+  <link rel="canonical" href="https://pdf-tool-inky.vercel.app/extract.html">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>/* same style block as rotate.html – copy exactly */</style>
+</head>
+<body>
+<div class="container">
+  <div class="glass-card">
+    <div class="card-header">
+      <i class="fas fa-arrow-right"></i>
+      <h2>Extract Pages</h2>
+    </div>
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-icon"><i class="fas fa-file-pdf"></i></div>
+      <div class="drop-text">Drop a PDF</div>
+    </div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo" style="font-size:0.8rem; margin:0.5rem 0;"></div>
+    <input type="text" id="ranges" placeholder="e.g., 1-3,5,7-end" value="1-3">
+    <div class="info-text">Enter the pages you want to extract (e.g., 1-3,5,7-end)</div>
+    <button id="extractBtn" class="btn-primary">Extract & Download</button>
+    <div style="text-align: center; margin-top: 1rem;">
+      <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to All Tools</a>
+    </div>
+  </div>
+  <footer>⚡ All processing happens locally – your files never leave your device.</footer>
+</div>
+
+<script>
+  function showToast(msg, isErr = false) {
+    let t = document.querySelector('.toast'); if(t) t.remove();
+    let div = document.createElement('div'); div.className = 'toast';
+    div.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+    div.style.background = isErr ? '#b91c1cdd' : '#1f3b4cdd';
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+  }
+  function formatBytes(b) { if(b===0) return '0 Bytes'; const k=1024; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+['Bytes','KB','MB'][i]; }
+  function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+  async function loadPdf(file) { return await PDFLib.PDFDocument.load(await file.arrayBuffer()); }
+  async function saveAndDownload(pdfDoc, filename) { saveAs(new Blob([await pdfDoc.save()], {type:'application/pdf'}), filename); }
+
+  let extractFile = null;
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const fileInfo = document.getElementById('fileInfo');
+  const extractBtn = document.getElementById('extractBtn');
+  const rangesInput = document.getElementById('ranges');
+
+  function parseRanges(rangeStr, totalPages) {
+    let parts = rangeStr.split(',');
+    let pages = new Set();
+    for(let part of parts) {
+      part = part.trim();
+      if(part.includes('-')) {
+        let [s,e] = part.split('-').map(x => x.trim());
+        let start = parseInt(s);
+        let end = (e === 'end') ? totalPages : parseInt(e);
+        if(isNaN(start) || isNaN(end) || start<1) continue;
+        if(end>totalPages) end=totalPages;
+        for(let p=start; p<=end; p++) pages.add(p);
+      } else if(part !== '') {
+        let p = parseInt(part);
+        if(!isNaN(p) && p>=1 && p<=totalPages) pages.add(p);
+      }
+    }
+    return Array.from(pages).sort((a,b)=>a-b);
+  }
+
+  function setFile(file) {
+    extractFile = file;
+    fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : '';
+  }
+
+  function handleDrop(files) {
+    let f = Array.from(files).find(f => f.type === 'application/pdf');
+    if(f) { setFile(f); showToast(`Extract ready: ${f.name}`); }
+    else showToast('PDF required', true);
+  }
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    handleDrop(e.dataTransfer.files);
+  });
+  fileInput.addEventListener('change', e => {
+    handleDrop(e.target.files);
+    fileInput.value = '';
+  });
+
+  extractBtn.addEventListener('click', async () => {
+    if(!extractFile) { showToast('Select a PDF', true); return; }
+    extractBtn.disabled = true;
+    const orig = extractBtn.innerHTML;
+    extractBtn.innerHTML = '<span class="spinner"></span> Extracting...';
+    try {
+      const doc = await loadPdf(extractFile);
+      const total = doc.getPageCount();
+      const pages = parseRanges(rangesInput.value, total);
+      if(pages.length === 0) throw new Error('No valid pages');
+      const newDoc = await PDFLib.PDFDocument.create();
+      for(let p of pages) {
+        const [page] = await newDoc.copyPages(doc, [p-1]);
+        newDoc.addPage(page);
+      }
+      await saveAndDownload(newDoc, `extracted_${extractFile.name}`);
+      showToast(`✅ Extracted ${pages.length} pages`);
+    } catch(e) {
+      showToast('Extract error: ' + e.message, true);
+    } finally {
+      extractBtn.disabled = false;
+      extractBtn.innerHTML = orig;
+    }
+  });
+</script>
+</body>
+</html>
