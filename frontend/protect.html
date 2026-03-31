@@ -11,7 +11,7 @@
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <style>
-    /* same full style block as extract.html */
+    /* same full style as before – copy from merge.html or any tool */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: linear-gradient(145deg, #0a0f2a 0%, #030618 100%); min-height: 100vh; padding: 2rem 1rem; color: #f0f6ff; }
     .container { max-width: 800px; margin: 0 auto; }
@@ -108,9 +108,14 @@
     protectBtn.innerHTML = '<span class="spinner"></span> Encrypting...';
     try {
       const doc = await loadPdf(protectFile);
-      await doc.encrypt({ userPassword: pwd, ownerPassword: pwd, permissions: PDFLib.PDFDocument.AllowAll });
+      // Encrypt with both user and owner passwords, and restrict printing/modifying
+      await doc.encrypt({
+        userPassword: pwd,
+        ownerPassword: pwd,
+        permissions: PDFLib.Printing | PDFLib.ModifyContents | PDFLib.CopyContents | PDFLib.ModifyAnnotations,
+      });
       await saveAndDownload(doc, `protected_${protectFile.name}`);
-      showToast(`✅ PDF encrypted with password`);
+      showToast(`✅ PDF encrypted with password: ${pwd}`);
     } catch(e) {
       showToast('Encrypt error: ' + e.message, true);
     } finally {
