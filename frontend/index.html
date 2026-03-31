@@ -14,12 +14,10 @@
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://placehold.co/1200x630/0a1a2a/7aaef0?text=AllCutX">
   <meta name="twitter:card" content="summary_large_image">
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -222,7 +220,7 @@
       tool.desc.toLowerCase().includes(filter)
     );
     if (filtered.length === 0) {
-      grid.innerHTML = '<div class="glass-card" style="grid-column:1/-1; text-align:center; padding:2rem;">No matching tools found.</div>';
+      grid.innerHTML = '<div class="tool-card" style="grid-column:1/-1; text-align:center; padding:2rem;">No matching tools found.</div>';
       return;
     }
     filtered.forEach(tool => {
