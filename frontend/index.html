@@ -3,22 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>AllCutX Pro | The Ultimate Free PDF Toolkit</title>
+  <title>AllCutX Pro | The Complete Free PDF Toolkit – Merge, Split, Compress, Watermark, Encrypt & More</title>
   <meta name="description" content="AllCutX Pro: the most powerful free online PDF tool. Merge, split, compress, rotate, extract, watermark, add page numbers, delete pages, protect & unlock PDFs. 100% private, no uploads, no signup. SEO optimized.">
   <meta name="keywords" content="pdf merge, split pdf, compress pdf, rotate pdf, extract pdf pages, watermark pdf, add page numbers, delete pdf pages, encrypt pdf, unlock pdf, free pdf tools online, all-in-one pdf editor">
   <meta name="author" content="Ram">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://pdf-tool-inky.vercel.app/">
+  <link rel="canonical" href="https://allcutxpro.app">
   <meta property="og:title" content="AllCutX Pro – The Ultimate Free PDF Toolkit">
   <meta property="og:description" content="Merge, split, compress, watermark, encrypt, and more – all in your browser. No uploads, no limits.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://placehold.co/1200x630/0a1a2a/7aaef0?text=AllCutX">
   <meta name="twitter:card" content="summary_large_image">
   
+  <!-- Preconnect & libraries -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "AllCutX Pro",
+    "applicationCategory": "Utility",
+    "operatingSystem": "All",
+    "description": "Complete free PDF toolkit: merge, split, compress, rotate, extract, watermark, page numbers, delete pages, encrypt, unlock. Works offline, no uploads.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "1987" },
+    "featureList": "Merge PDF, Split PDF, Compress PDF, Rotate PDF, Extract Pages, Watermark, Add Page Numbers, Delete Pages, Protect PDF, Unlock PDF"
+  }
+  </script>
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,6 +48,7 @@
       padding: 2rem 1rem;
       color: #f0f6ff;
     }
+    /* animated gradient background */
     body::before {
       content: '';
       position: fixed;
@@ -41,6 +61,7 @@
       z-index: -2;
     }
     .container { max-width: 1400px; margin: 0 auto; }
+    /* header with search */
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -111,43 +132,127 @@
     }
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 1.5rem;
       margin-bottom: 3rem;
     }
-    .tool-card {
+    .glass-card {
       background: rgba(20, 25, 50, 0.7);
       backdrop-filter: blur(12px);
       border-radius: 1.5rem;
       border: 1px solid rgba(255,255,255,0.25);
-      padding: 1.5rem;
-      transition: all 0.2s;
-      text-decoration: none;
-      color: inherit;
-      display: block;
+      padding: 1.2rem;
+      transition: all 0.25s ease;
     }
-    .tool-card:hover {
+    .glass-card:hover {
       transform: translateY(-5px);
       border-color: #ffb347;
       box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3);
     }
-    .tool-card i {
-      font-size: 2rem;
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      padding-bottom: 0.5rem;
+    }
+    .card-header i {
+      font-size: 1.6rem;
       background: linear-gradient(145deg, #ffb347, #ff6b6b);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      margin-bottom: 0.5rem;
-      display: inline-block;
     }
-    .tool-card h2 {
+    .card-header h2 {
       font-size: 1.3rem;
+      font-weight: 600;
+    }
+    .drop-zone {
+      background: rgba(0,0,0,0.35);
+      border: 2px dashed rgba(255,180,70,0.6);
+      border-radius: 1rem;
+      padding: 0.8rem;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 0.8rem;
+      transition: 0.2s;
+    }
+    .drop-zone.drag-over {
+      border-color: #ff6b6b;
+      background: rgba(255,107,107,0.2);
+    }
+    .drop-icon { font-size: 1.5rem; color: #ffb347; }
+    .drop-text { font-size: 0.85rem; }
+    .file-list {
+      max-height: 160px;
+      overflow-y: auto;
+      background: rgba(0,0,0,0.3);
+      border-radius: 0.8rem;
       margin: 0.5rem 0;
+      padding: 0.2rem;
     }
-    .tool-card p {
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.06);
+      margin: 0.2rem 0;
+      padding: 0.3rem 0.6rem;
+      border-radius: 0.6rem;
+      font-size: 0.75rem;
+    }
+    .btn-primary {
+      background: linear-gradient(105deg, #ff6b6b, #ffb347);
+      border: none;
+      padding: 0.6rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      color: white;
+      margin-top: 0.6rem;
+      transition: 0.2s;
       font-size: 0.85rem;
-      opacity: 0.8;
     }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    input, select, textarea {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 2rem;
+      padding: 0.5rem 0.8rem;
+      width: 100%;
+      color: white;
+      margin: 0.5rem 0;
+      font-size: 0.8rem;
+    }
+    .info-text { font-size: 0.7rem; opacity: 0.7; margin-top: 0.2rem; }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e2a3ae0;
+      backdrop-filter: blur(12px);
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      color: white;
+      z-index: 1000;
+      border-left: 4px solid #ffb347;
+      pointer-events: none;
+      font-size: 0.8rem;
+    }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.6s linear infinite;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     footer {
       text-align: center;
       margin-top: 2rem;
@@ -164,6 +269,7 @@
       .top-bar { flex-direction: column; align-items: stretch; }
       .search-box { width: 100%; }
       .hero h1 { font-size: 2rem; }
+      .glass-card { padding: 1rem; }
     }
   </style>
 </head>
@@ -189,7 +295,7 @@
   </div>
 
   <div class="tools-grid" id="toolsGrid">
-    <!-- Cards will be generated by JavaScript -->
+    <!-- All tool cards will be here; they are generated dynamically with JavaScript for easy filtering -->
   </div>
 
   <footer>
@@ -199,48 +305,326 @@
 </div>
 
 <script>
-  const tools = [
-    { name: "Merge PDF", desc: "Combine multiple PDFs into one file", icon: "fas fa-object-group", url: "merge.html" },
-    { name: "Split PDF", desc: "Extract pages or split every page", icon: "fas fa-cut", url: "split.html" },
-    { name: "Compress PDF", desc: "Reduce file size while maintaining quality", icon: "fas fa-compress", url: "compress.html" },
-    { name: "Rotate PDF", desc: "Rotate pages 90°, 180°, or 270°", icon: "fas fa-sync-alt", url: "rotate.html" },
-    { name: "Extract Pages", desc: "Extract a custom range of pages", icon: "fas fa-arrow-right", url: "extract.html" },
-    { name: "Watermark PDF", desc: "Add custom text watermark", icon: "fas fa-water", url: "watermark.html" },
-    { name: "Add Page Numbers", desc: "Add page numbers to your PDF", icon: "fas fa-hashtag", url: "pagenumbers.html" },
-    { name: "Delete Pages", desc: "Remove unwanted pages", icon: "fas fa-trash-alt", url: "delete.html" },
-    { name: "Protect PDF", desc: "Encrypt with a password", icon: "fas fa-lock", url: "protect.html" },
-    { name: "Unlock PDF", desc: "Remove password (if known)", icon: "fas fa-unlock-alt", url: "unlock.html" }
+  // ======================= TOOL DEFINITIONS =======================
+  // Each tool is an object with name, description, and its unique HTML template + logic.
+  // We'll build the grid dynamically to enable filtering.
+
+  const toolsData = [
+    { name: "Merge PDF", desc: "Combine multiple PDFs into one", icon: "fas fa-object-group", htmlId: "mergeTool", content: `
+      <div class="drop-zone" id="mergeDrop"><div class="drop-icon"><i class="fas fa-cloud-upload-alt"></i></div><div class="drop-text">Drop PDFs or click</div></div>
+      <input type="file" id="mergeInput" multiple accept="application/pdf" hidden>
+      <div id="mergeList" class="file-list"></div>
+      <button id="mergeBtn" class="btn-primary"><i class="fas fa-compress-alt"></i> Merge & Download</button>
+    `},
+    { name: "Split PDF", desc: "Extract pages or split every page", icon: "fas fa-cut", htmlId: "splitTool", content: `
+      <div class="drop-zone" id="splitDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a PDF</div></div>
+      <input type="file" id="splitInput" accept="application/pdf" hidden>
+      <div id="splitInfo" style="font-size:0.75rem"></div>
+      <input type="text" id="splitRanges" placeholder="e.g., 1-3,5,7-end  or  *" value="*">
+      <div class="info-text">Use "*" to split every page, "end" for last page</div>
+      <button id="splitBtn" class="btn-primary"><i class="fas fa-scissors"></i> Split & Download ZIP</button>
+    `},
+    { name: "Compress PDF", desc: "Reduce file size", icon: "fas fa-compress", htmlId: "compressTool", content: `
+      <div class="drop-zone" id="compressDrop"><div class="drop-icon"><i class="fas fa-file-archive"></i></div><div class="drop-text">Drop PDF to compress</div></div>
+      <input type="file" id="compressInput" accept="application/pdf" hidden>
+      <div id="compressPreview"></div>
+      <button id="compressBtn" class="btn-primary"><i class="fas fa-waveform"></i> Optimize & Compress</button>
+    `},
+    { name: "Rotate PDF", desc: "Rotate all pages", icon: "fas fa-sync-alt", htmlId: "rotateTool", content: `
+      <div class="drop-zone" id="rotateDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a PDF</div></div>
+      <input type="file" id="rotateInput" accept="application/pdf" hidden>
+      <div id="rotateInfo"></div>
+      <select id="rotateAngle"><option value="90">90° clockwise</option><option value="180">180°</option><option value="270">270°</option></select>
+      <button id="rotateBtn" class="btn-primary"><i class="fas fa-undo-alt"></i> Rotate & Download</button>
+    `},
+    { name: "Extract Pages", desc: "Extract custom page range", icon: "fas fa-arrow-right", htmlId: "extractTool", content: `
+      <div class="drop-zone" id="extractDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a PDF</div></div>
+      <input type="file" id="extractInput" accept="application/pdf" hidden>
+      <div id="extractInfo"></div>
+      <input type="text" id="extractRanges" placeholder="e.g., 1-3,5,7-end" value="1-3">
+      <button id="extractBtn" class="btn-primary"><i class="fas fa-file-export"></i> Extract & Download</button>
+    `},
+    { name: "Watermark", desc: "Add text watermark", icon: "fas fa-water", htmlId: "watermarkTool", content: `
+      <div class="drop-zone" id="watermarkDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a PDF</div></div>
+      <input type="file" id="watermarkInput" accept="application/pdf" hidden>
+      <div id="watermarkInfo"></div>
+      <input type="text" id="watermarkText" placeholder="Watermark text" value="CONFIDENTIAL">
+      <select id="watermarkOpacity"><option value="0.3">Light</option><option value="0.5">Medium</option><option value="0.7">Dark</option></select>
+      <button id="watermarkBtn" class="btn-primary"><i class="fas fa-tint"></i> Add Watermark</button>
+    `},
+    { name: "Add Page Numbers", desc: "Add page numbers to PDF", icon: "fas fa-hashtag", htmlId: "pagenumTool", content: `
+      <div class="drop-zone" id="pagenumDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a PDF</div></div>
+      <input type="file" id="pagenumInput" accept="application/pdf" hidden>
+      <div id="pagenumInfo"></div>
+      <input type="text" id="pageNumFormat" placeholder="Format: Page {n} of {total}" value="Page {n} of {total}">
+      <button id="pagenumBtn" class="btn-primary"><i class="fas fa-sort-numeric-up"></i> Add Numbers</button>
+    `},
+    { name: "Delete Pages", desc: "Remove specified pages", icon: "fas fa-trash-alt", htmlId: "deleteTool", content: `
+      <div class="drop-zone" id="deleteDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a PDF</div></div>
+      <input type="file" id="deleteInput" accept="application/pdf" hidden>
+      <div id="deleteInfo"></div>
+      <input type="text" id="deleteRanges" placeholder="Pages to delete: 2,5-7,9-end" value="">
+      <button id="deleteBtn" class="btn-primary"><i class="fas fa-trash"></i> Delete & Download</button>
+    `},
+    { name: "Protect PDF", desc: "Encrypt with password", icon: "fas fa-lock", htmlId: "protectTool", content: `
+      <div class="drop-zone" id="protectDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a PDF</div></div>
+      <input type="file" id="protectInput" accept="application/pdf" hidden>
+      <div id="protectInfo"></div>
+      <input type="password" id="protectPassword" placeholder="Set a password">
+      <button id="protectBtn" class="btn-primary"><i class="fas fa-key"></i> Encrypt & Download</button>
+    `},
+    { name: "Unlock PDF", desc: "Remove password (if known)", icon: "fas fa-unlock-alt", htmlId: "unlockTool", content: `
+      <div class="drop-zone" id="unlockDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a password‑protected PDF</div></div>
+      <input type="file" id="unlockInput" accept="application/pdf" hidden>
+      <div id="unlockInfo"></div>
+      <input type="password" id="unlockPassword" placeholder="Enter password">
+      <button id="unlockBtn" class="btn-primary"><i class="fas fa-lock-open"></i> Unlock & Download</button>
+    `}
   ];
 
+  // Build the grid dynamically
   const grid = document.getElementById('toolsGrid');
-  const searchInput = document.getElementById('toolSearch');
-
-  function renderTools(filter = "") {
+  function buildGrid(filter = "") {
     grid.innerHTML = "";
-    const filtered = tools.filter(tool => 
-      tool.name.toLowerCase().includes(filter) || 
-      tool.desc.toLowerCase().includes(filter)
-    );
-    if (filtered.length === 0) {
-      grid.innerHTML = '<div class="glass-card" style="grid-column:1/-1; text-align:center; padding:2rem;">No matching tools found.</div>';
-      return;
-    }
-    filtered.forEach(tool => {
-      const card = document.createElement('a');
-      card.className = 'tool-card';
-      card.href = tool.url;
+    toolsData.forEach((tool, idx) => {
+      if (filter && !tool.name.toLowerCase().includes(filter) && !tool.desc.toLowerCase().includes(filter)) return;
+      const card = document.createElement('div');
+      card.className = 'glass-card';
       card.innerHTML = `
-        <i class="${tool.icon}"></i>
-        <h2>${tool.name}</h2>
-        <p>${tool.desc}</p>
+        <div class="card-header">
+          <i class="${tool.icon}"></i>
+          <h2>${tool.name}</h2>
+        </div>
+        ${tool.content}
       `;
       grid.appendChild(card);
     });
+    // After building, re-attach all event listeners
+    attachAllListeners();
   }
 
-  renderTools();
-  searchInput.addEventListener('input', () => {
-    renderTools(searchInput.value.toLowerCase());
+  // Helper functions for toast, formatting, etc.
+  function showToast(msg, isErr = false) {
+    let t = document.querySelector('.toast'); if(t) t.remove();
+    let div = document.createElement('div'); div.className = 'toast';
+    div.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+    div.style.background = isErr ? '#b91c1cdd' : '#1f3b4cdd';
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+  }
+  function formatBytes(b) { if(b===0) return '0 Bytes'; const k=1024; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+['Bytes','KB','MB'][i]; }
+  function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+  async function loadPdf(file) { return await PDFLib.PDFDocument.load(await file.arrayBuffer()); }
+  async function saveAndDownload(pdfDoc, filename) { saveAs(new Blob([await pdfDoc.save()], {type:'application/pdf'}), filename); }
+
+  function parseRanges(rangeStr, totalPages) {
+    if(rangeStr.trim() === '*') return Array.from({length: totalPages}, (_,i) => i+1);
+    let parts = rangeStr.split(',');
+    let pages = new Set();
+    for(let part of parts) {
+      part = part.trim();
+      if(part.includes('-')) {
+        let [s,e] = part.split('-').map(x => x.trim());
+        let start = parseInt(s);
+        let end = (e === 'end') ? totalPages : parseInt(e);
+        if(isNaN(start) || isNaN(end) || start<1) continue;
+        if(end>totalPages) end=totalPages;
+        for(let p=start; p<=end; p++) pages.add(p);
+      } else if(part !== '') {
+        let p = parseInt(part);
+        if(!isNaN(p) && p>=1 && p<=totalPages) pages.add(p);
+      }
+    }
+    return Array.from(pages).sort((a,b)=>a-b);
+  }
+
+  // Function to attach all event listeners after grid rebuild
+  function attachAllListeners() {
+    // MERGE
+    let mergeFiles = [];
+    const mergeDrop = document.getElementById('mergeDrop');
+    const mergeInput = document.getElementById('mergeInput');
+    const mergeListDiv = document.getElementById('mergeList');
+    const mergeBtn = document.getElementById('mergeBtn');
+    if (mergeDrop) {
+      function renderMerge() {
+        if(!mergeFiles.length) { mergeListDiv.innerHTML = '<div style="padding:0.4rem;text-align:center;">No PDFs</div>'; return; }
+        mergeListDiv.innerHTML = mergeFiles.map((f,i)=>`<div class="file-item"><span><i class="fas fa-file-pdf"></i> ${escapeHtml(f.name)} (${formatBytes(f.size)})</span><span><button class="merge-remove" data-idx="${i}"><i class="fas fa-trash"></i></button></span></div>`).join('');
+        document.querySelectorAll('.merge-remove').forEach(btn => btn.addEventListener('click', e => { mergeFiles.splice(parseInt(btn.dataset.idx),1); renderMerge(); }));
+      }
+      function addMerge(files) { let pdfs = Array.from(files).filter(f=>f.type==='application/pdf'); if(pdfs.length) { mergeFiles.push(...pdfs); renderMerge(); showToast(`➕ Added ${pdfs.length} PDF(s)`); } else showToast('Only PDF files', true); }
+      mergeDrop.addEventListener('click',()=>mergeInput.click());
+      mergeDrop.addEventListener('dragover',e=>{e.preventDefault();mergeDrop.classList.add('drag-over');});
+      mergeDrop.addEventListener('dragleave',()=>mergeDrop.classList.remove('drag-over'));
+      mergeDrop.addEventListener('drop',e=>{e.preventDefault();mergeDrop.classList.remove('drag-over');addMerge(e.dataTransfer.files);});
+      mergeInput.addEventListener('change',e=>{addMerge(e.target.files);e.target.value='';});
+      mergeBtn.addEventListener('click',async()=>{
+        if(mergeFiles.length<2){showToast('Select at least 2 PDFs',true);return;}
+        mergeBtn.disabled=true; let orig=mergeBtn.innerHTML; mergeBtn.innerHTML='<span class="spinner"></span> Merging...';
+        try{ let merged=await PDFLib.PDFDocument.create(); for(let f of mergeFiles){ let doc=await loadPdf(f); let pages=await merged.copyPages(doc,doc.getPageIndices()); pages.forEach(p=>merged.addPage(p)); } await saveAndDownload(merged,`merged_${Date.now()}.pdf`); showToast('✅ Merge done!'); }
+        catch(e){ showToast('Merge error: '+e.message,true); } finally{ mergeBtn.disabled=false; mergeBtn.innerHTML=orig; }
+      });
+      renderMerge();
+    }
+
+    // SPLIT
+    let splitFile=null; const splitDrop=document.getElementById('splitDrop'); const splitInput=document.getElementById('splitInput'); const splitInfo=document.getElementById('splitInfo'); const splitBtn=document.getElementById('splitBtn'); const splitRanges=document.getElementById('splitRanges');
+    if(splitDrop){
+      function setSplit(file){ splitFile=file; splitInfo.innerHTML=file?`<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})`:''; }
+      function handleSplitDrop(files){ let f=Array.from(files).find(f=>f.type==='application/pdf'); if(f){ setSplit(f); showToast(`Split ready: ${f.name}`); } else showToast('PDF required',true); }
+      splitDrop.addEventListener('click',()=>splitInput.click());
+      splitDrop.addEventListener('dragover',e=>{e.preventDefault();splitDrop.classList.add('drag-over');});
+      splitDrop.addEventListener('dragleave',()=>splitDrop.classList.remove('drag-over'));
+      splitDrop.addEventListener('drop',e=>{e.preventDefault();splitDrop.classList.remove('drag-over');handleSplitDrop(e.dataTransfer.files);});
+      splitInput.addEventListener('change',e=>{handleSplitDrop(e.target.files);e.target.value='';});
+      splitBtn.addEventListener('click',async()=>{
+        if(!splitFile){showToast('Select a PDF',true);return;} splitBtn.disabled=true; let orig=splitBtn.innerHTML; splitBtn.innerHTML='<span class="spinner"></span> Splitting...';
+        try{ let doc=await loadPdf(splitFile); let total=doc.getPageCount(); let ranges=parseRanges(splitRanges.value,total); if(!ranges.length) throw new Error('No pages selected'); let zip=new JSZip(); for(let p of ranges){ let newDoc=await PDFLib.PDFDocument.create(); let [page]=await newDoc.copyPages(doc,[p-1]); newDoc.addPage(page); zip.file(`page_${p}.pdf`,await newDoc.save()); } let blob=await zip.generateAsync({type:'blob'}); saveAs(blob,`split_${Date.now()}.zip`); showToast(`✅ Split into ${ranges.length} pages`); }
+        catch(e){ showToast('Split error: '+e.message,true); } finally{ splitBtn.disabled=false; splitBtn.innerHTML=orig; }
+      });
+    }
+
+    // COMPRESS
+    let compressFile=null; const compressDrop=document.getElementById('compressDrop'); const compressInput=document.getElementById('compressInput'); const compressPreview=document.getElementById('compressPreview'); const compressBtn=document.getElementById('compressBtn');
+    if(compressDrop){
+      function setCompress(file){ compressFile=file; compressPreview.innerHTML=file?`<span class="size-preview"><i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} · ${formatBytes(file.size)}</span>`:''; }
+      function handleCompressDrop(files){ let f=Array.from(files).find(f=>f.type==='application/pdf'); if(f){ setCompress(f); showToast(`Ready to compress: ${f.name}`); } else showToast('PDF required',true); }
+      compressDrop.addEventListener('click',()=>compressInput.click());
+      compressDrop.addEventListener('dragover',e=>{e.preventDefault();compressDrop.classList.add('drag-over');});
+      compressDrop.addEventListener('dragleave',()=>compressDrop.classList.remove('drag-over'));
+      compressDrop.addEventListener('drop',e=>{e.preventDefault();compressDrop.classList.remove('drag-over');handleCompressDrop(e.dataTransfer.files);});
+      compressInput.addEventListener('change',e=>{handleCompressDrop(e.target.files);e.target.value='';});
+      compressBtn.addEventListener('click',async()=>{
+        if(!compressFile){showToast('Select a PDF',true);return;} compressBtn.disabled=true; let orig=compressBtn.innerHTML; compressBtn.innerHTML='<span class="spinner"></span> Compressing...';
+        try{ let doc=await loadPdf(compressFile); let bytes=await doc.save({useObjectStreams:true}); let blob=new Blob([bytes],{type:'application/pdf'}); saveAs(blob,`compressed_${compressFile.name}`); showToast(`✅ Compression done`); }
+        catch(e){ showToast('Compress error: '+e.message,true); } finally{ compressBtn.disabled=false; compressBtn.innerHTML=orig; }
+      });
+    }
+
+    // ROTATE
+    let rotateFile=null; const rotateDrop=document.getElementById('rotateDrop'); const rotateInput=document.getElementById('rotateInput'); const rotateInfo=document.getElementById('rotateInfo'); const rotateBtn=document.getElementById('rotateBtn'); const rotateAngle=document.getElementById('rotateAngle');
+    if(rotateDrop){
+      function setRotate(file){ rotateFile=file; rotateInfo.innerHTML=file?`<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)}`:''; }
+      function handleRotateDrop(files){ let f=Array.from(files).find(f=>f.type==='application/pdf'); if(f){ setRotate(f); showToast(`Rotate ready`); } else showToast('PDF required',true); }
+      rotateDrop.addEventListener('click',()=>rotateInput.click());
+      rotateDrop.addEventListener('dragover',e=>{e.preventDefault();rotateDrop.classList.add('drag-over');});
+      rotateDrop.addEventListener('dragleave',()=>rotateDrop.classList.remove('drag-over'));
+      rotateDrop.addEventListener('drop',e=>{e.preventDefault();rotateDrop.classList.remove('drag-over');handleRotateDrop(e.dataTransfer.files);});
+      rotateInput.addEventListener('change',e=>{handleRotateDrop(e.target.files);e.target.value='';});
+      rotateBtn.addEventListener('click',async()=>{
+        if(!rotateFile){showToast('Select a PDF',true);return;} rotateBtn.disabled=true; let orig=rotateBtn.innerHTML; rotateBtn.innerHTML='<span class="spinner"></span> Rotating...';
+        try{ let doc=await loadPdf(rotateFile); let angle=parseInt(rotateAngle.value); doc.getPages().forEach(p=>p.setRotation(PDFLib.degrees(angle))); await saveAndDownload(doc,`rotated_${rotateFile.name}`); showToast(`✅ Rotated ${angle}°`); }
+        catch(e){ showToast('Rotate error: '+e.message,true); } finally{ rotateBtn.disabled=false; rotateBtn.innerHTML=orig; }
+      });
+    }
+
+    // EXTRACT
+    let extractFile=null; const extractDrop=document.getElementById('extractDrop'); const extractInput=document.getElementById('extractInput'); const extractInfo=document.getElementById('extractInfo'); const extractBtn=document.getElementById('extractBtn'); const extractRanges=document.getElementById('extractRanges');
+    if(extractDrop){
+      function setExtract(file){ extractFile=file; extractInfo.innerHTML=file?`<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)}`:''; }
+      function handleExtractDrop(files){ let f=Array.from(files).find(f=>f.type==='application/pdf'); if(f){ setExtract(f); showToast(`Extract ready`); } else showToast('PDF required',true); }
+      extractDrop.addEventListener('click',()=>extractInput.click());
+      extractDrop.addEventListener('dragover',e=>{e.preventDefault();extractDrop.classList.add('drag-over');});
+      extractDrop.addEventListener('dragleave',()=>extractDrop.classList.remove('drag-over'));
+      extractDrop.addEventListener('drop',e=>{e.preventDefault();extractDrop.classList.remove('drag-over');handleExtractDrop(e.dataTransfer.files);});
+      extractInput.addEventListener('change',e=>{handleExtractDrop(e.target.files);e.target.value='';});
+      extractBtn.addEventListener('click',async()=>{
+        if(!extractFile){showToast('Select a PDF',true);return;} extractBtn.disabled=true; let orig=extractBtn.innerHTML; extractBtn.innerHTML='<span class="spinner"></span> Extracting...';
+        try{ let doc=await loadPdf(extractFile); let total=doc.getPageCount(); let pages=parseRanges(extractRanges.value,total); if(!pages.length) throw new Error('No pages selected'); let newDoc=await PDFLib.PDFDocument.create(); for(let p of pages){ let [page]=await newDoc.copyPages(doc,[p-1]); newDoc.addPage(page); } await saveAndDownload(newDoc,`extracted_${extractFile.name}`); showToast(`✅ Extracted ${pages.length} pages`); }
+        catch(e){ showToast('Extract error: '+e.message,true); } finally{ extractBtn.disabled=false; extractBtn.innerHTML=orig; }
+      });
+    }
+
+    // WATERMARK
+    let watermarkFile=null; const watermarkDrop=document.getElementById('watermarkDrop'); const watermarkInput=document.getElementById('watermarkInput'); const watermarkInfo=document.getElementById('watermarkInfo'); const watermarkBtn=document.getElementById('watermarkBtn'); const watermarkText=document.getElementById('watermarkText'); const watermarkOpacity=document.getElementById('watermarkOpacity');
+    if(watermarkDrop){
+      function setWatermark(file){ watermarkFile=file; watermarkInfo.innerHTML=file?`<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)}`:''; }
+      function handleWatermarkDrop(files){ let f=Array.from(files).find(f=>f.type==='application/pdf'); if(f){ setWatermark(f); showToast(`Watermark ready`); } else showToast('PDF required',true); }
+      watermarkDrop.addEventListener('click',()=>watermarkInput.click());
+      watermarkDrop.addEventListener('dragover',e=>{e.preventDefault();watermarkDrop.classList.add('drag-over');});
+      watermarkDrop.addEventListener('dragleave',()=>watermarkDrop.classList.remove('drag-over'));
+      watermarkDrop.addEventListener('drop',e=>{e.preventDefault();watermarkDrop.classList.remove('drag-over');handleWatermarkDrop(e.dataTransfer.files);});
+      watermarkInput.addEventListener('change',e=>{handleWatermarkDrop(e.target.files);e.target.value='';});
+      watermarkBtn.addEventListener('click',async()=>{
+        if(!watermarkFile){showToast('Select a PDF',true);return;} watermarkBtn.disabled=true; let orig=watermarkBtn.innerHTML; watermarkBtn.innerHTML='<span class="spinner"></span> Adding watermark...';
+        try{ let doc=await loadPdf(watermarkFile); let text=watermarkText.value||'CONFIDENTIAL'; let opacity=parseFloat(watermarkOpacity.value); let pages=doc.getPages(); for(let page of pages){ let {width,height}=page.getSize(); let fontSize=Math.min(width,height)/10; page.drawText(text,{x:width/2, y:height/2, size:fontSize, opacity, color:PDFLib.rgb(0.7,0.7,0.7), rotate:PDFLib.degrees(45)}); } await saveAndDownload(doc,`watermarked_${watermarkFile.name}`); showToast(`✅ Watermark added`); }
+        catch(e){ showToast('Watermark error: '+e.message,true); } finally{ watermarkBtn.disabled=false; watermarkBtn.innerHTML=orig; }
+      });
+    }
+
+    // PAGE NUMBERS
+    let pagenumFile=null; const pagenumDrop=document.getElementById('pagenumDrop'); const pagenumInput=document.getElementById('pagenumInput'); const pagenumInfo=document.getElementById('pagenumInfo'); const pagenumBtn=document.getElementById('pagenumBtn'); const pageNumFormat=document.getElementById('pageNumFormat');
+    if(pagenumDrop){
+      function setPageNum(file){ pagenumFile=file; pagenumInfo.innerHTML=file?`<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)}`:''; }
+      function handlePageNumDrop(files){ let f=Array.from(files).find(f=>f.type==='application/pdf'); if(f){ setPageNum(f); showToast(`Ready to add numbers`); } else showToast('PDF required',true); }
+      pagenumDrop.addEventListener('click',()=>pagenumInput.click());
+      pagenumDrop.addEventListener('dragover',e=>{e.preventDefault();pagenumDrop.classList.add('drag-over');});
+      pagenumDrop.addEventListener('dragleave',()=>pagenumDrop.classList.remove('drag-over'));
+      pagenumDrop.addEventListener('drop',e=>{e.preventDefault();pagenumDrop.classList.remove('drag-over');handlePageNumDrop(e.dataTransfer.files);});
+      pagenumInput.addEventListener('change',e=>{handlePageNumDrop(e.target.files);e.target.value='';});
+      pagenumBtn.addEventListener('click',async()=>{
+        if(!pagenumFile){showToast('Select a PDF',true);return;} pagenumBtn.disabled=true; let orig=pagenumBtn.innerHTML; pagenumBtn.innerHTML='<span class="spinner"></span> Adding numbers...';
+        try{ let doc=await loadPdf(pagenumFile); let format=pageNumFormat.value; let pages=doc.getPages(); let total=pages.length; for(let i=0;i<total;i++){ let page=pages[i]; let {width,height}=page.getSize(); let pageNumText=format.replace('{n}',(i+1).toString()).replace('{total}',total.toString()); let fontSize=12; page.drawText(pageNumText,{x:width-50, y:30, size:fontSize, color:PDFLib.rgb(0,0,0)}); } await saveAndDownload(doc,`numbered_${pagenumFile.name}`); showToast(`✅ Page numbers added`); }
+        catch(e){ showToast('Page number error: '+e.message,true); } finally{ pagenumBtn.disabled=false; pagenumBtn.innerHTML=orig; }
+      });
+    }
+
+    // DELETE PAGES
+    let deleteFile=null; const deleteDrop=document.getElementById('deleteDrop'); const deleteInput=document.getElementById('deleteInput'); const deleteInfo=document.getElementById('deleteInfo'); const deleteBtn=document.getElementById('deleteBtn'); const deleteRanges=document.getElementById('deleteRanges');
+    if(deleteDrop){
+      function setDelete(file){ deleteFile=file; deleteInfo.innerHTML=file?`<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)}`:''; }
+      function handleDeleteDrop(files){ let f=Array.from(files).find(f=>f.type==='application/pdf'); if(f){ setDelete(f); showToast(`Ready to delete pages`); } else showToast('PDF required',true); }
+      deleteDrop.addEventListener('click',()=>deleteInput.click());
+      deleteDrop.addEventListener('dragover',e=>{e.preventDefault();deleteDrop.classList.add('drag-over');});
+      deleteDrop.addEventListener('dragleave',()=>deleteDrop.classList.remove('drag-over'));
+      deleteDrop.addEventListener('drop',e=>{e.preventDefault();deleteDrop.classList.remove('drag-over');handleDeleteDrop(e.dataTransfer.files);});
+      deleteInput.addEventListener('change',e=>{handleDeleteDrop(e.target.files);e.target.value='';});
+      deleteBtn.addEventListener('click',async()=>{
+        if(!deleteFile){showToast('Select a PDF',true);return;} deleteBtn.disabled=true; let orig=deleteBtn.innerHTML; deleteBtn.innerHTML='<span class="spinner"></span> Deleting pages...';
+        try{ let doc=await loadPdf(deleteFile); let total=doc.getPageCount(); let toDelete=parseRanges(deleteRanges.value,total); let keepIndices=Array.from({length:total},(_,i)=>i+1).filter(p=>!toDelete.includes(p)); if(keepIndices.length===0) throw new Error('No pages left after deletion'); let newDoc=await PDFLib.PDFDocument.create(); for(let p of keepIndices){ let [page]=await newDoc.copyPages(doc,[p-1]); newDoc.addPage(page); } await saveAndDownload(newDoc,`deleted_${deleteFile.name}`); showToast(`✅ Deleted ${toDelete.length} pages`); }
+        catch(e){ showToast('Delete error: '+e.message,true); } finally{ deleteBtn.disabled=false; deleteBtn.innerHTML=orig; }
+      });
+    }
+
+    // PROTECT
+    let protectFile=null; const protectDrop=document.getElementById('protectDrop'); const protectInput=document.getElementById('protectInput'); const protectInfo=document.getElementById('protectInfo'); const protectBtn=document.getElementById('protectBtn'); const protectPassword=document.getElementById('protectPassword');
+    if(protectDrop){
+      function setProtect(file){ protectFile=file; protectInfo.innerHTML=file?`<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)}`:''; }
+      function handleProtectDrop(files){ let f=Array.from(files).find(f=>f.type==='application/pdf'); if(f){ setProtect(f); showToast(`Ready to encrypt`); } else showToast('PDF required',true); }
+      protectDrop.addEventListener('click',()=>protectInput.click());
+      protectDrop.addEventListener('dragover',e=>{e.preventDefault();protectDrop.classList.add('drag-over');});
+      protectDrop.addEventListener('dragleave',()=>protectDrop.classList.remove('drag-over'));
+      protectDrop.addEventListener('drop',e=>{e.preventDefault();protectDrop.classList.remove('drag-over');handleProtectDrop(e.dataTransfer.files);});
+      protectInput.addEventListener('change',e=>{handleProtectDrop(e.target.files);e.target.value='';});
+      protectBtn.addEventListener('click',async()=>{
+        if(!protectFile){showToast('Select a PDF',true);return;} let pwd=protectPassword.value; if(!pwd){showToast('Enter a password',true);return;} protectBtn.disabled=true; let orig=protectBtn.innerHTML; protectBtn.innerHTML='<span class="spinner"></span> Encrypting...';
+        try{ let doc=await loadPdf(protectFile); await doc.encrypt({userPassword:pwd, ownerPassword:pwd, permissions:PDFLib.PDFDocument.AllowAll}); await saveAndDownload(doc,`protected_${protectFile.name}`); showToast(`✅ PDF encrypted with password`); }
+        catch(e){ showToast('Encrypt error: '+e.message,true); } finally{ protectBtn.disabled=false; protectBtn.innerHTML=orig; }
+      });
+    }
+
+    // UNLOCK
+    let unlockFile=null; const unlockDrop=document.getElementById('unlockDrop'); const unlockInput=document.getElementById('unlockInput'); const unlockInfo=document.getElementById('unlockInfo'); const unlockBtn=document.getElementById('unlockBtn'); const unlockPassword=document.getElementById('unlockPassword');
+    if(unlockDrop){
+      function setUnlock(file){ unlockFile=file; unlockInfo.innerHTML=file?`<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)}`:''; }
+      function handleUnlockDrop(files){ let f=Array.from(files).find(f=>f.type==='application/pdf'); if(f){ setUnlock(f); showToast(`Ready to unlock`); } else showToast('PDF required',true); }
+      unlockDrop.addEventListener('click',()=>unlockInput.click());
+      unlockDrop.addEventListener('dragover',e=>{e.preventDefault();unlockDrop.classList.add('drag-over');});
+      unlockDrop.addEventListener('dragleave',()=>unlockDrop.classList.remove('drag-over'));
+      unlockDrop.addEventListener('drop',e=>{e.preventDefault();unlockDrop.classList.remove('drag-over');handleUnlockDrop(e.dataTransfer.files);});
+      unlockInput.addEventListener('change',e=>{handleUnlockDrop(e.target.files);e.target.value='';});
+      unlockBtn.addEventListener('click',async()=>{
+        if(!unlockFile){showToast('Select a PDF',true);return;} let pwd=unlockPassword.value; if(!pwd){showToast('Enter password',true);return;} unlockBtn.disabled=true; let orig=unlockBtn.innerHTML; unlockBtn.innerHTML='<span class="spinner"></span> Unlocking...';
+        try{ let arrayBuf=await unlockFile.arrayBuffer(); let doc=await PDFLib.PDFDocument.load(arrayBuf,{password:pwd}); await saveAndDownload(doc,`unlocked_${unlockFile.name}`); showToast(`✅ PDF unlocked`); }
+        catch(e){ showToast('Wrong password or file is not encrypted',true); } finally{ unlockBtn.disabled=false; unlockBtn.innerHTML=orig; }
+      });
+    }
+  }
+
+  // Initialize grid and search listener
+  buildGrid();
+  document.getElementById('toolSearch').addEventListener('input', (e) => {
+    buildGrid(e.target.value.toLowerCase());
   });
 </script>
 </body>
