@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Pages from PDF – AllCutX | Remove PDF Pages Free</title>
+  <meta name="description" content="Delete specific pages from a PDF. Remove unwanted pages quickly. Free, no upload.">
+  <link rel="canonical" href="https://pdf-tool-inky.vercel.app/delete.html">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>/* same style block */</style>
+</head>
+<body>
+<div class="container">
+  <div class="glass-card">
+    <div class="card-header">
+      <i class="fas fa-trash-alt"></i>
+      <h2>Delete Pages</h2>
+    </div>
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-icon"><i class="fas fa-file-pdf"></i></div>
+      <div class="drop-text">Drop a PDF</div>
+    </div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo" style="font-size:0.8rem; margin:0.5rem 0;"></div>
+    <input type="text" id="deleteRanges" placeholder="Pages to delete: 2,5-7,9-end" value="">
+    <button id="deleteBtn" class="btn-primary">Delete & Download</button>
+    <div style="text-align: center; margin-top: 1rem;">
+      <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to All Tools</a>
+    </div>
+  </div>
+  <footer>⚡ All processing happens locally – your files never leave your device.</footer>
+</div>
+
+<script>
+  // helpers included
+  let deleteFile = null;
+  // drop handlers same
+  deleteBtn.addEventListener('click', async () => {
+    if(!deleteFile) { showToast('Select a PDF', true); return; }
+    deleteBtn.disabled = true;
+    const orig = deleteBtn.innerHTML;
+    deleteBtn.innerHTML = '<span class="spinner"></span> Deleting pages...';
+    try {
+      const doc = await loadPdf(deleteFile);
+      const total = doc.getPageCount();
+      const toDelete = parseRanges(document.getElementById('deleteRanges').value, total);
+      const keepIndices = Array.from({length: total}, (_,i) => i+1).filter(p => !toDelete.includes(p));
+      if(keepIndices.length === 0) throw new Error('No pages left');
+      const newDoc = await PDFLib.PDFDocument.create();
+      for(let p of keepIndices) {
+        const [page] = await newDoc.copyPages(doc, [p-1]);
+        newDoc.addPage(page);
+      }
+      await saveAndDownload(newDoc, `deleted_${deleteFile.name}`);
+      showToast(`✅ Deleted ${toDelete.length} pages`);
+    } catch(e) {
+      showToast('Delete error: ' + e.message, true);
+    } finally {
+      deleteBtn.disabled = false;
+      deleteBtn.innerHTML = orig;
+    }
+  });
+</script>
+</body>
+</html>
