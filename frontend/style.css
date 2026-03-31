@@ -19,7 +19,10 @@ header {
   flex-wrap: wrap;
   justify-content: center;
 }
-
+a.tool {
+  text-decoration: none;
+  color: white;
+}
 .tool {
   background: rgba(255,255,255,0.1);
   backdrop-filter: blur(12px);
