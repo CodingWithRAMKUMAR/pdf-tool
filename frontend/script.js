@@ -14,10 +14,14 @@ function setup(dropId, inputId, infoId) {
   const input = document.getElementById(inputId);
   const info = document.getElementById(infoId);
 
+  if (!drop || !input) return;
+
   drop.onclick = () => input.click();
 
   input.onchange = () => {
-    info.innerText = [...input.files].map(f => f.name).join(", ");
+    if (info) {
+      info.innerText = [...input.files].map(f => f.name).join(", ");
+    }
   };
 
   drop.ondragover = e => e.preventDefault();
@@ -25,7 +29,10 @@ function setup(dropId, inputId, infoId) {
   drop.ondrop = e => {
     e.preventDefault();
     input.files = e.dataTransfer.files;
-    info.innerText = [...input.files].map(f => f.name).join(", ");
+
+    if (info) {
+      info.innerText = [...input.files].map(f => f.name).join(", ");
+    }
   };
 }
 
@@ -34,10 +41,14 @@ setup("splitDrop", "splitFile", "splitInfo");
 setup("compressDrop", "compressFile", "compressInfo");
 
 // MERGE
-document.getElementById("mergeBtn").onclick = async () => {
+const splitBtn = document.getElementById("mergeBtn");
+
+if (splitBtn) {
+  splitBtn.onclick = async () => {
   const loader = document.getElementById("mergeLoader");
   loader.style.display = "block";
-
+  };
+}
   try {
     const files = document.getElementById("mergeFiles").files;
     if (files.length < 2) return alert("Select 2 files");
@@ -57,10 +68,14 @@ document.getElementById("mergeBtn").onclick = async () => {
 };
 
 // SPLIT
-document.getElementById("splitBtn").onclick = async () => {
+const splitBtn = document.getElementById("splitBtn");
+
+if (splitBtn) {
+  splitBtn.onclick = async () => {
   const loader = document.getElementById("splitLoader");
   loader.style.display = "block";
-
+  };
+}
   try {
     const file = document.getElementById("splitFile").files[0];
     if (!file) return alert("Select file");
@@ -80,10 +95,14 @@ document.getElementById("splitBtn").onclick = async () => {
 };
 
 // COMPRESS
-document.getElementById("compressBtn").onclick = async () => {
+const splitBtn = document.getElementById("compressBtn");
+
+if (splitBtn) {
+  splitBtn.onclick = async () => {
   const loader = document.getElementById("compressLoader");
   loader.style.display = "block";
-
+  };
+}
   try {
     const file = document.getElementById("compressFile").files[0];
     if (!file) return alert("Select file");
