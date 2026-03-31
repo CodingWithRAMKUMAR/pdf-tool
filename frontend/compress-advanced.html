@@ -10,8 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <style>
-    /* same full style as before */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: linear-gradient(145deg, #0a0f2a 0%, #030618 100%); min-height: 100vh; padding: 2rem 1rem; color: #f0f6ff; }
     .container { max-width: 800px; margin: 0 auto; }
@@ -45,7 +45,7 @@
     <div class="drop-zone" id="dropZone">
       <div class="drop-icon"><i class="fas fa-file-archive"></i></div>
       <div class="drop-text">Drop a PDF or click to select</div>
-      <div class="info-text">Supports files up to 100 MB (but browser memory may limit)</div>
+      <div class="info-text">Supports files up to ~100 MB (browser memory limit may vary)</div>
     </div>
     <input type="file" id="fileInput" accept="application/pdf" hidden>
     <div id="fileInfo" style="font-size:0.8rem; margin:0.5rem 0;"></div>
@@ -54,14 +54,25 @@
     <label>Target Size (KB)</label>
     <input type="number" id="targetKB" placeholder="e.g., 500" value="500" step="100" min="1">
 
-    <label style="display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0;">
-      <input type="checkbox" id="removeMetadata" checked> Remove metadata (often saves a few KB)
-    </label>
+    <div style="margin: 0.8rem 0;">
+      <label style="display: flex; align-items: center; gap: 0.5rem;">
+        <input type="checkbox" id="removeMetadata" checked> Remove metadata (saves a few KB)
+      </label>
+      <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+        <input type="checkbox" id="rasterizeMode"> 🔥 Rasterize to images (drastic size reduction, loses text)
+      </label>
+      <div id="qualityControl" style="display: none;">
+        <label>JPEG Quality (1-100)</label>
+        <input type="range" id="jpegQuality" min="1" max="100" value="70">
+        <span id="qualityValue">70</span>
+        <div class="info-text">Lower quality = smaller file, but more blur. For extreme reduction, set 10-30.</div>
+      </div>
+    </div>
 
-    <div class="info-text">Tip: For very small targets (e.g., 10 KB), this tool will attempt to re‑compress, but extreme size reduction may require image downsampling, which is limited in client‑side PDF libraries. Use the "Maximum Compression" mode below for the best possible result.</div>
+    <div class="info-text">Tip: For extreme compression (e.g., 100 MB → 10 KB), enable "Rasterize to images" and set quality to 10-30. The PDF will become a set of images (no selectable text).</div>
 
     <button id="compressBtn" class="btn-primary">Compress to Target</button>
-    <button id="maxCompressBtn" class="btn-primary" style="background: linear-gradient(105deg, #ff6b6b, #ffa347); margin-top: 0.2rem;">Maximum Compression (Try Harder)</button>
+    <button id="maxCompressBtn" class="btn-primary" style="background: linear-gradient(105deg, #ff6b6b, #ffa347); margin-top: 0.2rem;">Standard Compression (without rasterize)</button>
 
     <div style="text-align: center; margin-top: 1rem;">
       <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to All Tools</a>
@@ -71,6 +82,9 @@
 </div>
 
 <script>
+  // Configure pdf.js worker
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
   function showToast(msg, isErr = false) {
     let t = document.querySelector('.toast'); if(t) t.remove();
     let div = document.createElement('div'); div.className = 'toast';
@@ -99,21 +113,66 @@
     saveAs(new Blob([await pdfDoc.save()], { type: 'application/pdf' }), filename);
   }
 
-  // Helper to remove metadata (if any)
+  // Simple metadata removal (just set empty strings)
   function removeMetadata(doc) {
-    // pdf-lib does not have a direct metadata removal API, but we can set info to empty
-    // Actually we can set info to undefined or null
-    // Not all metadata is removable, but we can clear the info dictionary
-    // doc.setTitle(''); doc.setAuthor(''); etc. but those only set if present
-    // There's also a method to remove all metadata? Not exposed. We'll just do our best.
-    // For now, we'll clear the info dictionary by setting it to empty.
     doc.setTitle('');
     doc.setAuthor('');
     doc.setSubject('');
     doc.setKeywords([]);
     doc.setProducer('');
     doc.setCreator('');
-    // No direct way to remove all metadata; this is the best we can do.
+  }
+
+  // Standard compression: re‑save with object streams
+  async function standardCompress(file, options = { removeMetadata: true }) {
+    const doc = await loadPdf(file);
+    if (options.removeMetadata) removeMetadata(doc);
+    const compressedBytes = await doc.save({ useObjectStreams: true });
+    return compressedBytes;
+  }
+
+  // Rasterize mode: convert each page to JPEG and create a new PDF with those images
+  async function rasterizeCompress(file, jpegQuality) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfData = new Uint8Array(arrayBuffer);
+    const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+    const pdfDoc = await loadingTask.promise;
+    const pageCount = pdfDoc.numPages;
+
+    const newPdf = await PDFLib.PDFDocument.create();
+
+    for (let i = 1; i <= pageCount; i++) {
+      const page = await pdfDoc.getPage(i);
+      const viewport = page.getViewport({ scale: 1.0 });
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport
+      };
+      await page.render(renderContext).promise;
+
+      // Convert canvas to JPEG blob with specified quality
+      const jpegBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', jpegQuality / 100));
+      const jpegBytes = await jpegBlob.arrayBuffer();
+
+      // Embed the image into the new PDF
+      const image = await newPdf.embedJpg(jpegBytes);
+      const pageSize = [canvas.width, canvas.height];
+      const embeddedPage = newPdf.addPage(pageSize);
+      embeddedPage.drawImage(image, {
+        x: 0,
+        y: 0,
+        width: canvas.width,
+        height: canvas.height,
+      });
+    }
+
+    const compressedBytes = await newPdf.save();
+    return compressedBytes;
   }
 
   let currentFile = null;
@@ -123,8 +182,20 @@
   const sizeInfo = document.getElementById('sizeInfo');
   const targetKB = document.getElementById('targetKB');
   const removeMetadataCheck = document.getElementById('removeMetadata');
+  const rasterizeModeCheck = document.getElementById('rasterizeMode');
+  const qualityControl = document.getElementById('qualityControl');
+  const jpegQualitySlider = document.getElementById('jpegQuality');
+  const qualityValue = document.getElementById('qualityValue');
   const compressBtn = document.getElementById('compressBtn');
   const maxCompressBtn = document.getElementById('maxCompressBtn');
+
+  // Show/hide quality slider based on rasterize mode
+  rasterizeModeCheck.addEventListener('change', () => {
+    qualityControl.style.display = rasterizeModeCheck.checked ? 'block' : 'none';
+  });
+  jpegQualitySlider.addEventListener('input', () => {
+    qualityValue.textContent = jpegQualitySlider.value;
+  });
 
   function setFile(file) {
     currentFile = file;
@@ -160,59 +231,7 @@
     fileInput.value = '';
   });
 
-  // Core compression function: re‑saves with object streams and optional metadata removal
-  async function compressPdf(file, options = { removeMetadata: true }) {
-    const doc = await loadPdf(file);
-    if (options.removeMetadata) {
-      removeMetadata(doc);
-    }
-    const compressedBytes = await doc.save({ useObjectStreams: true });
-    return compressedBytes;
-  }
-
-  // Attempt to compress to target size by trying multiple passes (if needed)
-  // This is a basic approach – we can't easily control size, so we just compress once.
-  async function compressToTarget(file, targetKB) {
-    const origSize = file.size;
-    let compressedBytes = await compressPdf(file, { removeMetadata: removeMetadataCheck.checked });
-    let newSize = compressedBytes.length;
-
-    // If still above target, we can't do much more in a simple way. We'll warn.
-    if (newSize > targetKB * 1024) {
-      showToast(`Warning: compressed size is ${formatBytes(newSize)} which is still above target. Try "Maximum Compression".`, true);
-    }
-    return compressedBytes;
-  }
-
-  // Maximum compression – this tries to reduce image quality by rendering pages to canvas and re‑encoding
-  // as JPEG. This can drastically reduce size, especially for scanned documents.
-  // Note: This is heavy and might fail for very large files.
-  async function maxCompress(file) {
-    const doc = await loadPdf(file);
-    const pages = doc.getPages();
-    const pageCount = pages.length;
-
-    // We'll create a new document and for each page, we render it to a canvas at lower quality
-    // then embed the image as a new page. This loses all text and vector content, but reduces size.
-    // It's a last‑resort for extreme compression.
-    const newDoc = await PDFLib.PDFDocument.create();
-
-    for (let i = 0; i < pageCount; i++) {
-      // This step requires rendering the page to an image. pdf-lib cannot do that directly.
-      // We would need to use pdf.js to render. That's a huge dependency.
-      // Instead, we can simply not implement this for now and fallback to normal compression.
-      // For now, we just reuse the original page without image downsampling.
-      // I'll leave a note.
-      const [copiedPage] = await newDoc.copyPages(doc, [i]);
-      newDoc.addPage(copiedPage);
-    }
-
-    // Also remove metadata
-    removeMetadata(newDoc);
-    const compressedBytes = await newDoc.save({ useObjectStreams: true });
-    return compressedBytes;
-  }
-
+  // Main compress function that tries to hit target
   compressBtn.addEventListener('click', async () => {
     if (!currentFile) {
       showToast('Please select a PDF file first', true);
@@ -225,16 +244,33 @@
       return;
     }
 
+    const useRasterize = rasterizeModeCheck.checked;
+    const quality = useRasterize ? parseInt(jpegQualitySlider.value) : 70;
+
     compressBtn.disabled = true;
     const origText = compressBtn.innerHTML;
     compressBtn.innerHTML = '<span class="spinner"></span> Compressing...';
 
     try {
-      const compressedBytes = await compressToTarget(currentFile, target);
+      let compressedBytes;
+      if (useRasterize) {
+        showToast('Rasterizing each page to JPEG... this may take a while for large PDFs', false);
+        compressedBytes = await rasterizeCompress(currentFile, quality);
+      } else {
+        compressedBytes = await standardCompress(currentFile, { removeMetadata: removeMetadataCheck.checked });
+      }
+
+      const newSize = compressedBytes.length;
+      const newSizeKB = newSize / 1024;
+      if (newSizeKB > target) {
+        showToast(`Warning: compressed size (${formatBytes(newSize)}) is still above target. Try enabling "Rasterize to images" with lower quality.`, true);
+      } else {
+        showToast(`✅ Compression successful! New size: ${formatBytes(newSize)}`);
+      }
       const blob = new Blob([compressedBytes], { type: 'application/pdf' });
       saveAs(blob, `compressed_${currentFile.name}`);
-      showToast(`✅ Compression done. New size: ${formatBytes(compressedBytes.length)}`);
     } catch (e) {
+      console.error(e);
       showToast('Compression error: ' + e.message, true);
     } finally {
       compressBtn.disabled = false;
@@ -242,6 +278,7 @@
     }
   });
 
+  // Standard compression only (no rasterize)
   maxCompressBtn.addEventListener('click', async () => {
     if (!currentFile) {
       showToast('Please select a PDF file first', true);
@@ -250,17 +287,15 @@
 
     maxCompressBtn.disabled = true;
     const origText = maxCompressBtn.innerHTML;
-    maxCompressBtn.innerHTML = '<span class="spinner"></span> Maximum compressing...';
+    maxCompressBtn.innerHTML = '<span class="spinner"></span> Compressing...';
 
     try {
-      // For now, we simply do the same as normal compression (no image downsampling)
-      // In a real implementation, we'd add image processing. But that's beyond scope for now.
-      const compressedBytes = await compressPdf(currentFile, { removeMetadata: true });
+      const compressedBytes = await standardCompress(currentFile, { removeMetadata: removeMetadataCheck.checked });
       const blob = new Blob([compressedBytes], { type: 'application/pdf' });
-      saveAs(blob, `max_compressed_${currentFile.name}`);
-      showToast(`✅ Maximum compression applied. New size: ${formatBytes(compressedBytes.length)}`);
+      saveAs(blob, `compressed_${currentFile.name}`);
+      showToast(`✅ Standard compression done. New size: ${formatBytes(compressedBytes.length)}`);
     } catch (e) {
-      showToast('Maximum compression error: ' + e.message, true);
+      showToast('Standard compression error: ' + e.message, true);
     } finally {
       maxCompressBtn.disabled = false;
       maxCompressBtn.innerHTML = origText;
