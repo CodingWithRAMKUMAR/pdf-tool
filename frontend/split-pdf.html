@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="style.css">
-  <title>Split PDF Online Free | AllCutX</title>
-
-  <meta name="description" content="Split PDF pages online for free. Extract pages from PDF instantly with AllCutX. No signup required.">
-
+  <title>Split PDF Online Free | AllcutX</title>
+  <meta name="description" content="Split PDF pages online for free. Extract pages from PDF instantly with AllcutX. No signup required.">
   <meta name="keywords" content="split pdf, extract pdf pages, split pdf online free">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  
+  <link rel="stylesheet" href="style.css">
 </head>
-
-<body>
 
 <body>
 
@@ -22,27 +17,25 @@
 </header>
 
 <div class="tools">
-
   <div class="tool">
-    <h2>Split PDF</h2>
-    <p>Extract pages from your PDF quickly.</p>
-
-    <div class="drop" id="splitZone">Drop file or click</div>
+    <h2>Split PDF File</h2>
+    <p>Extract all pages from your PDF. Each page becomes a separate file.</p>
+    
+    <div class="drop" id="splitDrop">📁 Drop PDF here or click</div>
     <input type="file" id="splitFile" hidden>
-
-    <div class="file-info" id="splitName"></div>
-
-    <button onclick="splitPDF()">Split Now</button>
+    <div class="file-info" id="splitInfo"></div>
+    
+    <div id="splitLoader" style="display:none;" class="loader">⏳ Splitting your PDF...</div>
+    <button id="splitBtn" class="tool-btn">Split PDF</button>
   </div>
-
 </div>
 
 <footer>
-  <p>⚡ Free • Secure • Fast</p>
+  <p>⚡ Free • Secure • Fast • No Signup Required</p>
+  <p><a href="/">← Back to Home</a></p>
 </footer>
 
 <script src="script.js"></script>
-</body>
 
 </body>
 </html>
