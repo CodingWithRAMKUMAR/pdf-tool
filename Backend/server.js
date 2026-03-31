@@ -1,3 +1,10 @@
+const cors = require("cors");
+
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST"],
+}));
+
 const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
