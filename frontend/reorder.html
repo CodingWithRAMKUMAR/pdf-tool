@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Page Reorder – Convertulo</title>
+  <style>/* same CSS block */</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-arrows-alt"></i><h1>Page Reorder</h1></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo"></div>
+    <div id="pageList" style="max-height:200px; overflow-y:auto; margin:1rem 0;"></div>
+    <button id="reorderBtn" class="btn-primary">Download Reordered PDF</button>
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
+  </div>
+</div>
+<script>
+  let pages = [], pdfDoc = null;
+  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfo = document.getElementById('fileInfo'), listDiv = document.getElementById('pageList'), reorderBtn = document.getElementById('reorderBtn');
+  function renderList() {
+    listDiv.innerHTML = pages.map((_,i) => `<div draggable="true" data-idx="${i}" style="padding:0.5rem; margin:0.3rem; background:rgba(255,255,255,0.05); border-radius:1rem; cursor:grab;">Page ${i+1}</div>`).join('');
+    const items = listDiv.querySelectorAll('div');
+    items.forEach(item => {
+      item.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', item.dataset.idx); });
+      item.addEventListener('dragover', e => { e.preventDefault(); });
+      item.addEventListener('drop', e => {
+        e.preventDefault();
+        const from = parseInt(e.dataTransfer.getData('text/plain'));
+        const to = parseInt(item.dataset.idx);
+        if(from !== to) {
+          const moved = pages.splice(from,1)[0];
+          pages.splice(to,0,moved);
+          renderList();
+        }
+      });
+    });
+  }
+  async function loadPages(file) {
+    pdfDoc = await loadPdf(file);
+    pages = Array.from({length: pdfDoc.getPageCount()}, (_,i) => i);
+    renderList();
+    fileInfo.innerHTML = `${pages.length} pages loaded. Drag to reorder.`;
+  }
+  function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if(f) { loadPages(f); showToast(`Loaded ${f.name}`); } else showToast('PDF required', true); }
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { handleDrop(e.target.files); fileInput.value = ''; });
+  reorderBtn.addEventListener('click', async () => {
+    if(!pdfDoc) { showToast('Load a PDF first', true); return; }
+    reorderBtn.disabled = true; const orig = reorderBtn.innerHTML; reorderBtn.innerHTML = '<span class="spinner"></span> Reordering...';
+    try {
+      const newDoc = await PDFLib.PDFDocument.create();
+      for(let idx of pages) { const [page] = await newDoc.copyPages(pdfDoc, [idx]); newDoc.addPage(page); }
+      await saveAndDownload(newDoc, `reordered_${Date.now()}.pdf`);
+      showToast(`✅ Reordered PDF saved`);
+    } catch(e) { showToast('Reorder error: ' + e.message, true); }
+    finally { reorderBtn.disabled = false; reorderBtn.innerHTML = orig; }
+  });
+</script>
+</body>
+</html>
