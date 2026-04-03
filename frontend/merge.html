@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Merge PDF – Convertulo</title>
+  <title>Split PDF – Convertulo</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,8 +28,8 @@
     .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1c1c1e; backdrop-filter: blur(12px); padding: 0.6rem 1.2rem; border-radius: 40px; color: white; z-index: 1000; font-size: 0.85rem; }
     .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.6s linear infinite; margin-right: 6px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .file-list { max-height: 200px; overflow-y: auto; margin: 1rem 0; }
-    .file-item { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); margin: 0.3rem 0; padding: 0.5rem; border-radius: 1rem; }
+    input, select { width: 100%; padding: 0.7rem; margin: 0.5rem 0; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 1rem; color: white; }
+    .info-text { font-size: 0.7rem; opacity: 0.7; margin-top: 0.2rem; }
   </style>
 </head>
 <body>
@@ -36,16 +37,17 @@
 <div class="bg-glow"></div>
 <div class="container">
   <div class="card">
-    <div class="card-header"><i class="fas fa-object-group"></i><h1>Merge PDF</h1></div>
-    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-cloud-upload-alt"></i></div><div class="drop-text">Drop PDFs or click to select</div></div>
-    <input type="file" id="fileInput" multiple accept="application/pdf" hidden>
-    <div id="fileList" class="file-list"></div>
-    <button id="mergeBtn" class="btn-primary">Merge & Download</button>
+    <div class="card-header"><i class="fas fa-cut"></i><h1>Split PDF</h1></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a PDF</div></div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo" style="font-size:0.75rem"></div>
+    <input type="text" id="ranges" placeholder="e.g., 1-3,5,7-end  or  *" value="*">
+    <div class="info-text">Use "*" to split every page, "end" for last page</div>
+    <button id="splitBtn" class="btn-primary">Split & Download ZIP</button>
     <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
   </div>
 </div>
 <script>
-  // Helper functions
   function showToast(msg, isErr = false) {
     let t = document.querySelector('.toast'); if(t) t.remove();
     let div = document.createElement('div'); div.className = 'toast';
@@ -57,32 +59,56 @@
   function formatBytes(b) { if(b===0) return '0 Bytes'; const k=1024; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+['Bytes','KB','MB'][i]; }
   function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
   async function loadPdf(file) { return await PDFLib.PDFDocument.load(await file.arrayBuffer()); }
-  async function saveAndDownload(pdfDoc, filename) { saveAs(new Blob([await pdfDoc.save()], {type:'application/pdf'}), filename); }
-  let mergeFiles = [];
-  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileListDiv = document.getElementById('fileList'), mergeBtn = document.getElementById('mergeBtn');
-  function renderList() {
-    if(!mergeFiles.length) { fileListDiv.innerHTML = '<div style="padding:0.5rem;text-align:center;">No PDFs selected</div>'; return; }
-    fileListDiv.innerHTML = mergeFiles.map((f,i) => `<div class="file-item"><span><i class="fas fa-file-pdf"></i> ${escapeHtml(f.name)} (${formatBytes(f.size)})</span><button class="remove-file" data-idx="${i}" style="background:none;border:none;color:#ff6b6b;cursor:pointer;">✖</button></div>`).join('');
-    document.querySelectorAll('.remove-file').forEach(btn => btn.addEventListener('click', e => { mergeFiles.splice(parseInt(btn.dataset.idx),1); renderList(); }));
+  function parseRanges(rangeStr, totalPages) {
+    if(rangeStr.trim() === '*') return Array.from({length: totalPages}, (_,i) => i+1);
+    let parts = rangeStr.split(',');
+    let pages = new Set();
+    for(let part of parts) {
+      part = part.trim();
+      if(part.includes('-')) {
+        let [s,e] = part.split('-').map(x => x.trim());
+        let start = parseInt(s);
+        let end = (e === 'end') ? totalPages : parseInt(e);
+        if(isNaN(start) || isNaN(end) || start<1) continue;
+        if(end>totalPages) end=totalPages;
+        for(let p=start; p<=end; p++) pages.add(p);
+      } else if(part !== '') {
+        let p = parseInt(part);
+        if(!isNaN(p) && p>=1 && p<=totalPages) pages.add(p);
+      }
+    }
+    return Array.from(pages).sort((a,b)=>a-b);
   }
-  function addFiles(files) { const pdfs = Array.from(files).filter(f => f.type === 'application/pdf'); if(pdfs.length) { mergeFiles.push(...pdfs); renderList(); showToast(`➕ Added ${pdfs.length} PDF(s)`); } else showToast('Only PDF files', true); }
+  let splitFile = null;
+  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfo = document.getElementById('fileInfo'), rangesInput = document.getElementById('ranges'), splitBtn = document.getElementById('splitBtn');
+  function setFile(file) { splitFile = file; fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
+  function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if(f) { setFile(f); showToast(`Split ready: ${f.name}`); } else showToast('PDF required', true); }
   dropZone.addEventListener('click', () => fileInput.click());
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); addFiles(e.dataTransfer.files); });
-  fileInput.addEventListener('change', e => { addFiles(e.target.files); fileInput.value = ''; });
-  mergeBtn.addEventListener('click', async () => {
-    if(mergeFiles.length < 2) { showToast('Select at least 2 PDFs', true); return; }
-    mergeBtn.disabled = true; const orig = mergeBtn.innerHTML; mergeBtn.innerHTML = '<span class="spinner"></span> Merging...';
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { handleDrop(e.target.files); fileInput.value = ''; });
+  splitBtn.addEventListener('click', async () => {
+    if(!splitFile) { showToast('Select a PDF', true); return; }
+    splitBtn.disabled = true; const orig = splitBtn.innerHTML; splitBtn.innerHTML = '<span class="spinner"></span> Splitting...';
     try {
-      const merged = await PDFLib.PDFDocument.create();
-      for(let f of mergeFiles) { const doc = await loadPdf(f); const pages = await merged.copyPages(doc, doc.getPageIndices()); pages.forEach(p => merged.addPage(p)); }
-      await saveAndDownload(merged, `merged_${Date.now()}.pdf`);
-      showToast('✅ Merge successful!');
-    } catch(e) { showToast('Merge error: ' + e.message, true); }
-    finally { mergeBtn.disabled = false; mergeBtn.innerHTML = orig; }
+      const doc = await loadPdf(splitFile);
+      const total = doc.getPageCount();
+      const ranges = parseRanges(rangesInput.value, total);
+      if(ranges.length === 0) throw new Error('No valid pages');
+      const zip = new JSZip();
+      for(let p of ranges) {
+        const newDoc = await PDFLib.PDFDocument.create();
+        const [page] = await newDoc.copyPages(doc, [p-1]);
+        newDoc.addPage(page);
+        zip.file(`page_${p}.pdf`, await newDoc.save());
+      }
+      const blob = await zip.generateAsync({ type: 'blob' });
+      saveAs(blob, `split_${Date.now()}.zip`);
+      showToast(`✅ Split into ${ranges.length} pages`);
+    } catch(e) { showToast('Split error: ' + e.message, true); }
+    finally { splitBtn.disabled = false; splitBtn.innerHTML = orig; }
   });
-  renderList();
   // Starfield
   const canvas = document.getElementById('starfield'), ctx = canvas.getContext('2d');
   let width, height, stars = [];
@@ -91,24 +117,9 @@
     canvas.width = width; canvas.height = height;
     stars = [];
     const starCount = Math.min(400, Math.floor(width * height / 3000));
-    for (let i = 0; i < starCount; i++) {
-      stars.push({ x: Math.random() * width, y: Math.random() * height, radius: Math.random() * 2.5 + 0.5, alpha: Math.random() * 0.8 + 0.2, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, pulse: Math.random() * Math.PI * 2 });
-    }
+    for (let i = 0; i < starCount; i++) { stars.push({ x: Math.random() * width, y: Math.random() * height, radius: Math.random() * 2.5 + 0.5, alpha: Math.random() * 0.8 + 0.2, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, pulse: Math.random() * Math.PI * 2 }); }
   }
-  function drawStars() {
-    if(!ctx) return;
-    ctx.clearRect(0, 0, width, height);
-    for(let s of stars) {
-      ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-      const glow = Math.sin(Date.now() * 0.001 + s.pulse) * 0.3 + 0.5;
-      ctx.fillStyle = `rgba(255, 200, 100, ${s.alpha * glow})`;
-      ctx.fill();
-      s.x += s.vx; s.y += s.vy;
-      if(s.x < 0) s.x = width; if(s.x > width) s.x = 0;
-      if(s.y < 0) s.y = height; if(s.y > height) s.y = 0;
-    }
-    requestAnimationFrame(drawStars);
-  }
+  function drawStars() { if(!ctx) return; ctx.clearRect(0,0,width,height); for(let s of stars) { ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2); const glow = Math.sin(Date.now()*0.001 + s.pulse)*0.3+0.5; ctx.fillStyle = `rgba(255,200,100,${s.alpha*glow})`; ctx.fill(); s.x += s.vx; s.y += s.vy; if(s.x<0) s.x=width; if(s.x>width) s.x=0; if(s.y<0) s.y=height; if(s.y>height) s.y=0; } requestAnimationFrame(drawStars); }
   window.addEventListener('resize', () => initStars());
   initStars(); drawStars();
 </script>
