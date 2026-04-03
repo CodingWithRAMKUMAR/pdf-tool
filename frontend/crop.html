@@ -2,56 +2,133 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crop PDF – Convertulo</title>
-  <style>/* same CSS block */</style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #050b14; color: #eef2ff; padding: 2rem 1rem; }
+    #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; }
+    .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, rgba(0,150,255,0.08), transparent 70%), radial-gradient(circle at 80% 70%, rgba(255,100,150,0.08), transparent 70%); z-index: -1; pointer-events: none; }
+    .container { max-width: 800px; margin: 0 auto; position: relative; z-index: 2; }
+    .card { background: rgba(15, 25, 45, 0.6); backdrop-filter: blur(16px); border-radius: 2rem; padding: 2rem; border: 1px solid rgba(255,255,255,0.15); }
+    .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem; }
+    .card-header i { font-size: 2rem; background: linear-gradient(145deg, #ffb347, #ff6b6b); background-clip: text; -webkit-background-clip: text; color: transparent; }
+    .card-header h1 { font-size: 1.8rem; font-weight: 600; }
+    .drop-zone { background: rgba(0,0,0,0.3); border: 2px dashed rgba(255,180,71,0.6); border-radius: 1.5rem; padding: 1rem; text-align: center; cursor: pointer; transition: 0.2s; margin-bottom: 1rem; }
+    .drop-zone.drag-over { border-color: #ff6b6b; background: rgba(255,107,107,0.1); }
+    .btn-primary { background: linear-gradient(105deg, #ff6b6b, #ffb347); border: none; padding: 0.8rem; border-radius: 2rem; font-weight: 600; width: 100%; cursor: pointer; color: white; margin-top: 1rem; transition: 0.2s; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .back-link { display: inline-block; margin-top: 1.5rem; color: #ffb347; text-decoration: none; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1c1c1e; backdrop-filter: blur(12px); padding: 0.6rem 1.2rem; border-radius: 40px; color: white; z-index: 1000; font-size: 0.85rem; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.6s linear infinite; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .file-info { background: rgba(255,255,255,0.05); border-radius: 1rem; padding: 0.5rem; margin: 1rem 0; text-align: center; }
+    .crop-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .crop-inputs input { padding: 0.5rem; border-radius: 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; }
+  </style>
 </head>
 <body>
+<canvas id="starfield"></canvas>
+<div class="bg-glow"></div>
 <div class="container">
   <div class="card">
     <div class="card-header"><i class="fas fa-crop-alt"></i><h1>Crop PDF</h1></div>
-    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-cloud-upload-alt"></i></div><div class="drop-text">Drop PDF or click to select</div></div>
     <input type="file" id="fileInput" accept="application/pdf" hidden>
-    <div id="fileInfo"></div>
-    <input type="number" id="cropLeft" placeholder="Left margin (points)" value="0" step="10">
-    <input type="number" id="cropTop" placeholder="Top margin (points)" value="0" step="10">
-    <input type="number" id="cropRight" placeholder="Right margin (points)" value="0" step="10">
-    <input type="number" id="cropBottom" placeholder="Bottom margin (points)" value="0" step="10">
-    <button id="cropBtn" class="btn-primary">Crop & Download</button>
+    <div id="fileInfo" class="file-info"></div>
+    <div class="crop-inputs">
+      <input type="number" id="cropLeft" placeholder="Left (px)" value="0">
+      <input type="number" id="cropTop" placeholder="Top (px)" value="0">
+      <input type="number" id="cropRight" placeholder="Right (px)" value="0">
+      <input type="number" id="cropBottom" placeholder="Bottom (px)" value="0">
+    </div>
+    <button id="cropBtn" class="btn-primary">Crop PDF</button>
     <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
   </div>
 </div>
 <script>
-  let cropFile = null;
-  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfo = document.getElementById('fileInfo'), cropBtn = document.getElementById('cropBtn');
-  const leftInput = document.getElementById('cropLeft'), topInput = document.getElementById('cropTop'), rightInput = document.getElementById('cropRight'), bottomInput = document.getElementById('cropBottom');
-  function setFile(file) { cropFile = file; fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-  function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if(f) { setFile(f); showToast(`Ready to crop`); } else showToast('PDF required', true); }
+  function showToast(msg, isErr = false) {
+    let t = document.querySelector('.toast'); if(t) t.remove();
+    let div = document.createElement('div'); div.className = 'toast';
+    div.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+    div.style.background = isErr ? '#ff3b30' : '#1c1c1e';
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+  }
+  function formatBytes(b) { if(b===0) return '0 Bytes'; const k=1024; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+['Bytes','KB','MB'][i]; }
+  async function loadPdf(file) { return await PDFLib.PDFDocument.load(await file.arrayBuffer()); }
+  async function saveAndDownload(pdfDoc, filename) { saveAs(new Blob([await pdfDoc.save()], {type:'application/pdf'}), filename); }
+  
+  let currentFile = null;
+  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfoDiv = document.getElementById('fileInfo'), cropBtn = document.getElementById('cropBtn');
+  const cropLeft = document.getElementById('cropLeft'), cropTop = document.getElementById('cropTop'), cropRight = document.getElementById('cropRight'), cropBottom = document.getElementById('cropBottom');
+  
+  function updateFileInfo(file) {
+    if(!file) { fileInfoDiv.innerHTML = ''; return; }
+    fileInfoDiv.innerHTML = `<i class="fas fa-file-pdf"></i> ${file.name} (${formatBytes(file.size)})`;
+  }
+  function setFile(file) { currentFile = file; updateFileInfo(file); }
+  
   dropZone.addEventListener('click', () => fileInput.click());
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-  fileInput.addEventListener('change', e => { handleDrop(e.target.files); fileInput.value = ''; });
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); if(e.dataTransfer.files[0] && e.dataTransfer.files[0].type === 'application/pdf') setFile(e.dataTransfer.files[0]); else showToast('Only PDF files', true); });
+  fileInput.addEventListener('change', e => { if(e.target.files[0]) setFile(e.target.files[0]); fileInput.value = ''; });
+  
   cropBtn.addEventListener('click', async () => {
-    if(!cropFile) { showToast('Select a PDF', true); return; }
-    const left = parseInt(leftInput.value) || 0, top = parseInt(topInput.value) || 0, right = parseInt(rightInput.value) || 0, bottom = parseInt(bottomInput.value) || 0;
+    if(!currentFile) { showToast('Select a PDF', true); return; }
     cropBtn.disabled = true; const orig = cropBtn.innerHTML; cropBtn.innerHTML = '<span class="spinner"></span> Cropping...';
     try {
-      const doc = await loadPdf(cropFile);
-      const pages = doc.getPages();
-      for(const page of pages) {
+      const srcDoc = await loadPdf(currentFile);
+      const pages = srcDoc.getPages();
+      const left = parseInt(cropLeft.value) || 0;
+      const top = parseInt(cropTop.value) || 0;
+      const right = parseInt(cropRight.value) || 0;
+      const bottom = parseInt(cropBottom.value) || 0;
+      
+      for(let page of pages) {
         const { width, height } = page.getSize();
-        const newWidth = width - left - right;
-        const newHeight = height - top - bottom;
-        if(newWidth > 0 && newHeight > 0) {
-          page.setCropBox(left, bottom, left + newWidth, bottom + newHeight);
-          page.setMediaBox(left, bottom, left + newWidth, bottom + newHeight);
-        }
+        page.setCropBox(left, bottom, width - right, height - top);
+        page.setMediaBox(left, bottom, width - right, height - top);
       }
-      await saveAndDownload(doc, `cropped_${cropFile.name}`);
-      showToast(`✅ PDF cropped`);
-    } catch(e) { showToast('Crop error: ' + e.message, true); }
+      await saveAndDownload(srcDoc, `cropped_${currentFile.name}`);
+      showToast('✅ PDF cropped');
+    } catch(e) { showToast('Error: ' + e.message, true); }
     finally { cropBtn.disabled = false; cropBtn.innerHTML = orig; }
   });
+  
+  const canvas = document.getElementById('starfield'), ctx = canvas.getContext('2d');
+  let width, height, stars = [];
+  function initStars() {
+    width = window.innerWidth; height = window.innerHeight;
+    canvas.width = width; canvas.height = height;
+    stars = [];
+    const starCount = Math.min(400, Math.floor(width * height / 3000));
+    for (let i = 0; i < starCount; i++) {
+      stars.push({ x: Math.random() * width, y: Math.random() * height, radius: Math.random() * 2.5 + 0.5, alpha: Math.random() * 0.8 + 0.2, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, pulse: Math.random() * Math.PI * 2 });
+    }
+  }
+  function drawStars() {
+    if(!ctx) return;
+    ctx.clearRect(0, 0, width, height);
+    for(let s of stars) {
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      const glow = Math.sin(Date.now() * 0.001 + s.pulse) * 0.3 + 0.5;
+      ctx.fillStyle = `rgba(255, 200, 100, ${s.alpha * glow})`;
+      ctx.fill();
+      s.x += s.vx; s.y += s.vy;
+      if(s.x < 0) s.x = width; if(s.x > width) s.x = 0;
+      if(s.y < 0) s.y = height; if(s.y > height) s.y = 0;
+    }
+    requestAnimationFrame(drawStars);
+  }
+  window.addEventListener('resize', () => initStars());
+  initStars(); drawStars();
 </script>
 </body>
 </html>
