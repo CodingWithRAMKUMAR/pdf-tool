@@ -121,4 +121,44 @@
     addSigBtn.disabled = true; const orig = addSigBtn.innerHTML; addSigBtn.innerHTML = '<span class="spinner"></span> Adding signature...';
     try {
       const srcDoc = await loadPdf(currentFile);
-      const pngImage = await srcDoc.embedPng(signatureImageData.split
+      const pngImage = await srcDoc.embedPng(signatureImageData.split(',')[1]);
+      const pages = srcDoc.getPages();
+      const firstPage = pages[0];
+      const { width, height } = firstPage.getSize();
+      firstPage.drawImage(pngImage, { x: width - 150, y: 50, width: 120, height: 50 });
+      await saveAndDownload(srcDoc, `signed_${currentFile.name}`);
+      showToast('✅ Signature added to first page');
+    } catch(e) { showToast('Error: ' + e.message, true); }
+    finally { addSigBtn.disabled = false; addSigBtn.innerHTML = orig; }
+  });
+  
+  const starCanvas = document.getElementById('starfield'), starCtx = starCanvas.getContext('2d');
+  let sw, sh, stars = [];
+  function initStars() {
+    sw = window.innerWidth; sh = window.innerHeight;
+    starCanvas.width = sw; starCanvas.height = sh;
+    stars = [];
+    const starCount = Math.min(400, Math.floor(sw * sh / 3000));
+    for (let i = 0; i < starCount; i++) {
+      stars.push({ x: Math.random() * sw, y: Math.random() * sh, radius: Math.random() * 2.5 + 0.5, alpha: Math.random() * 0.8 + 0.2, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, pulse: Math.random() * Math.PI * 2 });
+    }
+  }
+  function drawStars() {
+    if(!starCtx) return;
+    starCtx.clearRect(0, 0, sw, sh);
+    for(let s of stars) {
+      starCtx.beginPath(); starCtx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      const glow = Math.sin(Date.now() * 0.001 + s.pulse) * 0.3 + 0.5;
+      starCtx.fillStyle = `rgba(255, 200, 100, ${s.alpha * glow})`;
+      starCtx.fill();
+      s.x += s.vx; s.y += s.vy;
+      if(s.x < 0) s.x = sw; if(s.x > sw) s.x = 0;
+      if(s.y < 0) s.y = sh; if(s.y > sh) s.y = 0;
+    }
+    requestAnimationFrame(drawStars);
+  }
+  window.addEventListener('resize', () => initStars());
+  initStars(); drawStars();
+</script>
+</body>
+</html>
