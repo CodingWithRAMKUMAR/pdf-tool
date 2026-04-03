@@ -3,126 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Protect PDF with Password – AllCutX | Encrypt PDF Free</title>
-  <meta name="description" content="Add password protection to your PDF. Encrypt with a user password. Free, no upload.">
-  <link rel="canonical" href="https://pdf-tool-inky.vercel.app/protect.html">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>Protect PDF | Convertulo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <style>
-    /* same full style as before – copy from merge.html or any tool */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(145deg, #0a0f2a 0%, #030618 100%); min-height: 100vh; padding: 2rem 1rem; color: #f0f6ff; }
-    .container { max-width: 800px; margin: 0 auto; }
-    .glass-card { background: rgba(20, 25, 50, 0.7); backdrop-filter: blur(12px); border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.25); padding: 1.5rem; }
-    .card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 0.5rem; }
-    .card-header i { font-size: 1.8rem; background: linear-gradient(145deg, #ffb347, #ff6b6b); background-clip: text; -webkit-background-clip: text; color: transparent; }
-    .card-header h2 { font-size: 1.6rem; font-weight: 600; }
-    .drop-zone { background: rgba(0,0,0,0.35); border: 2px dashed rgba(255,180,70,0.6); border-radius: 1rem; padding: 1rem; text-align: center; cursor: pointer; margin-bottom: 1rem; transition: 0.2s; }
-    .drop-zone.drag-over { border-color: #ff6b6b; background: rgba(255,107,107,0.2); }
-    .drop-icon { font-size: 1.8rem; color: #ffb347; }
-    input { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 2rem; padding: 0.6rem 1rem; width: 100%; color: white; margin: 0.8rem 0; font-size: 0.9rem; }
-    .btn-primary { background: linear-gradient(105deg, #ff6b6b, #ffb347); border: none; padding: 0.7rem; border-radius: 2rem; font-weight: 600; width: 100%; cursor: pointer; color: white; margin-top: 0.6rem; transition: 0.2s; }
-    .btn-primary:active { transform: scale(0.98); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e2a3ae0; backdrop-filter: blur(12px); padding: 0.5rem 1rem; border-radius: 40px; color: white; z-index: 1000; border-left: 4px solid #ffb347; pointer-events: none; font-size: 0.8rem; }
-    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.6s linear infinite; margin-right: 6px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .back-link { display: inline-block; margin-top: 1rem; color: #ffb347; text-decoration: none; font-size: 0.9rem; }
-    footer { text-align: center; margin-top: 2rem; font-size: 0.7rem; opacity: 0.6; }
+    body { font-family: 'Inter', sans-serif; background: #050b14; color: #eef2ff; padding: 2rem 1rem; }
+    #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; }
+    .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, rgba(0,150,255,0.08), transparent 70%), radial-gradient(circle at 80% 70%, rgba(255,100,150,0.08), transparent 70%); z-index: -1; }
+    .container { max-width: 600px; margin: 0 auto; position: relative; z-index: 2; }
+    .card { background: rgba(15, 25, 45, 0.6); backdrop-filter: blur(16px); border-radius: 2rem; padding: 2rem; border: 1px solid rgba(255,255,255,0.15); }
+    .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; }
+    .card-header i { font-size: 2rem; background: linear-gradient(135deg, #ffb347, #ff6b6b); -webkit-background-clip: text; color: transparent; }
+    .drop-zone { background: rgba(255,255,255,0.03); border: 2px dashed rgba(255,180,71,0.4); border-radius: 1.5rem; padding: 3rem 1rem; text-align: center; cursor: pointer; transition: 0.3s; }
+    .input-group { margin-top: 1.5rem; display: none; }
+    input[type="password"] { width: 100%; padding: 1rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.2); background: #0a1423; color: white; margin-bottom: 1rem; }
+    .btn-primary { background: linear-gradient(105deg, #ff6b6b, #ffb347); border: none; padding: 1rem; border-radius: 2rem; font-weight: 700; width: 100%; cursor: pointer; color: white; transition: 0.3s; }
+    .back-link { display: inline-block; margin-top: 1.5rem; color: #ffb347; text-decoration: none; }
   </style>
 </head>
 <body>
+<canvas id="starfield"></canvas>
+<div class="bg-glow"></div>
 <div class="container">
-  <div class="glass-card">
-    <div class="card-header">
-      <i class="fas fa-lock"></i>
-      <h2>Protect PDF</h2>
-    </div>
-    <div class="drop-zone" id="dropZone">
-      <div class="drop-icon"><i class="fas fa-file-pdf"></i></div>
-      <div class="drop-text">Drop a PDF or click</div>
-    </div>
+  <div class="card">
+    <div class="card-header"><i class="fas fa-lock"></i><h1>Protect PDF</h1></div>
+    <div class="drop-zone" id="dropZone"><p id="fileNameDisplay">Click to upload PDF</p></div>
     <input type="file" id="fileInput" accept="application/pdf" hidden>
-    <div id="fileInfo" style="font-size:0.8rem; margin:0.5rem 0;"></div>
-    <input type="password" id="password" placeholder="Set a password">
-    <button id="protectBtn" class="btn-primary">Encrypt & Download</button>
-    <div style="text-align: center; margin-top: 1rem;">
-      <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to All Tools</a>
+    <div id="controls" class="input-group">
+      <input type="password" id="passInput" placeholder="Set PDF Password">
+      <button id="actionBtn" class="btn-primary">Encrypt & Download</button>
     </div>
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a></div>
   </div>
-  <footer>⚡ All processing happens locally – your files never leave your device.</footer>
 </div>
 <script>
-  function showToast(msg, isErr = false) {
-    let t = document.querySelector('.toast'); if(t) t.remove();
-    let div = document.createElement('div'); div.className = 'toast';
-    div.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
-    div.style.background = isErr ? '#b91c1cdd' : '#1f3b4cdd';
-    document.body.appendChild(div);
-    setTimeout(() => div.remove(), 3000);
-  }
-  function formatBytes(b) { if(b===0) return '0 Bytes'; const k=1024; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+['Bytes','KB','MB'][i]; }
-  function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
-  async function loadPdf(file) { return await PDFLib.PDFDocument.load(await file.arrayBuffer()); }
-  async function saveAndDownload(pdfDoc, filename) { saveAs(new Blob([await pdfDoc.save()], {type:'application/pdf'}), filename); }
-
-  let protectFile = null;
-  const dropZone = document.getElementById('dropZone');
-  const fileInput = document.getElementById('fileInput');
-  const fileInfo = document.getElementById('fileInfo');
-  const protectBtn = document.getElementById('protectBtn');
-  const passwordInput = document.getElementById('password');
-
-  function setFile(file) {
-    protectFile = file;
-    fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : '';
-  }
-
-  function handleDrop(files) {
-    let f = Array.from(files).find(f => f.type === 'application/pdf');
-    if(f) { setFile(f); showToast(`Ready to encrypt: ${f.name}`); }
-    else showToast('PDF required', true);
-  }
-
-  dropZone.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('drag-over');
-    handleDrop(e.dataTransfer.files);
-  });
-  fileInput.addEventListener('change', e => {
-    handleDrop(e.target.files);
-    fileInput.value = '';
-  });
-
-  protectBtn.addEventListener('click', async () => {
-    if(!protectFile) { showToast('Select a PDF', true); return; }
-    const pwd = passwordInput.value;
-    if(!pwd) { showToast('Enter a password', true); return; }
-    protectBtn.disabled = true;
-    const orig = protectBtn.innerHTML;
-    protectBtn.innerHTML = '<span class="spinner"></span> Encrypting...';
-    try {
-      const doc = await loadPdf(protectFile);
-      // Encrypt with both user and owner passwords, and restrict printing/modifying
-      await doc.encrypt({
-        userPassword: pwd,
-        ownerPassword: pwd,
-        permissions: PDFLib.Printing | PDFLib.ModifyContents | PDFLib.CopyContents | PDFLib.ModifyAnnotations,
-      });
-      await saveAndDownload(doc, `protected_${protectFile.name}`);
-      showToast(`✅ PDF encrypted with password: ${pwd}`);
-    } catch(e) {
-      showToast('Encrypt error: ' + e.message, true);
-    } finally {
-      protectBtn.disabled = false;
-      protectBtn.innerHTML = orig;
-    }
-  });
+  const fileInput = document.getElementById('fileInput'), dropZone = document.getElementById('dropZone'), controls = document.getElementById('controls'), actionBtn = document.getElementById('actionBtn'), passInput = document.getElementById('passInput');
+  let rawFile = null;
+  dropZone.onclick = () => fileInput.click();
+  fileInput.onchange = (e) => { if(e.target.files[0]) { rawFile = e.target.files[0]; document.getElementById('fileNameDisplay').innerText = rawFile.name; controls.style.display = 'block'; } };
+  actionBtn.onclick = async () => {
+    if(!passInput.value) return alert("Enter a password");
+    actionBtn.innerText = "Processing...";
+    const pdfDoc = await PDFLib.PDFDocument.load(await rawFile.arrayBuffer());
+    const bytes = await pdfDoc.save({ userPassword: passInput.value, ownerPassword: passInput.value });
+    saveAs(new Blob([bytes]), `protected_${rawFile.name}`);
+    actionBtn.innerText = "Encrypt & Download";
+  };
+  // Starfield logic
+  const canvas = document.getElementById('starfield'), ctx = canvas.getContext('2d');
+  let w, h, s = [];
+  function init() { w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; s=Array.from({length:150},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5})); }
+  function draw() { ctx.clearRect(0,0,w,h); ctx.fillStyle="white"; s.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,1,0,Math.PI*2);ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;}); requestAnimationFrame(draw); }
+  window.onresize=init; init(); draw();
 </script>
 </body>
 </html>
