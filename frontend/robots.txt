@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://pdf-tool-inky.vercel.app/sitemap.xml
+Sitemap: https://pdfair.vercel.app/sitemap.xml
+Host: https://pdfair.vercel.app
