@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crop PDF – Convertulo</title>
+  <style>/* same CSS block */</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-crop-alt"></i><h1>Crop PDF</h1></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo"></div>
+    <input type="number" id="cropLeft" placeholder="Left margin (points)" value="0" step="10">
+    <input type="number" id="cropTop" placeholder="Top margin (points)" value="0" step="10">
+    <input type="number" id="cropRight" placeholder="Right margin (points)" value="0" step="10">
+    <input type="number" id="cropBottom" placeholder="Bottom margin (points)" value="0" step="10">
+    <button id="cropBtn" class="btn-primary">Crop & Download</button>
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
+  </div>
+</div>
+<script>
+  let cropFile = null;
+  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfo = document.getElementById('fileInfo'), cropBtn = document.getElementById('cropBtn');
+  const leftInput = document.getElementById('cropLeft'), topInput = document.getElementById('cropTop'), rightInput = document.getElementById('cropRight'), bottomInput = document.getElementById('cropBottom');
+  function setFile(file) { cropFile = file; fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
+  function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if(f) { setFile(f); showToast(`Ready to crop`); } else showToast('PDF required', true); }
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { handleDrop(e.target.files); fileInput.value = ''; });
+  cropBtn.addEventListener('click', async () => {
+    if(!cropFile) { showToast('Select a PDF', true); return; }
+    const left = parseInt(leftInput.value) || 0, top = parseInt(topInput.value) || 0, right = parseInt(rightInput.value) || 0, bottom = parseInt(bottomInput.value) || 0;
+    cropBtn.disabled = true; const orig = cropBtn.innerHTML; cropBtn.innerHTML = '<span class="spinner"></span> Cropping...';
+    try {
+      const doc = await loadPdf(cropFile);
+      const pages = doc.getPages();
+      for(const page of pages) {
+        const { width, height } = page.getSize();
+        const newWidth = width - left - right;
+        const newHeight = height - top - bottom;
+        if(newWidth > 0 && newHeight > 0) {
+          page.setCropBox(left, bottom, left + newWidth, bottom + newHeight);
+          page.setMediaBox(left, bottom, left + newWidth, bottom + newHeight);
+        }
+      }
+      await saveAndDownload(doc, `cropped_${cropFile.name}`);
+      showToast(`✅ PDF cropped`);
+    } catch(e) { showToast('Crop error: ' + e.message, true); }
+    finally { cropBtn.disabled = false; cropBtn.innerHTML = orig; }
+  });
+</script>
+</body>
+</html>
