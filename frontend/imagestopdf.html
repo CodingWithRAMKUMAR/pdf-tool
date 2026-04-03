@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Images to PDF – Convertulo</title>
+  <!-- same CSS & libraries as pdftoimages.html -->
+  <style>/* same CSS block */</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-file-image"></i><h1>Images to PDF</h1></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-images"></i></div><div class="drop-text">Drop images (PNG, JPG)</div></div>
+    <input type="file" id="fileInput" multiple accept="image/jpeg,image/png" hidden>
+    <div id="fileInfo" style="font-size:0.75rem"></div>
+    <button id="createBtn" class="btn-primary">Create PDF</button>
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
+  </div>
+</div>
+<script>
+  // helpers
+  let imageFiles = [];
+  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfo = document.getElementById('fileInfo'), createBtn = document.getElementById('createBtn');
+  function updateInfo() { fileInfo.innerHTML = imageFiles.length ? `${imageFiles.length} images selected` : ''; }
+  function addFiles(files) {
+    const imgs = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if(imgs.length) { imageFiles.push(...imgs); updateInfo(); showToast(`➕ Added ${imgs.length} images`); }
+    else showToast('Only images allowed', true);
+  }
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); addFiles(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { addFiles(e.target.files); fileInput.value = ''; });
+  createBtn.addEventListener('click', async () => {
+    if(imageFiles.length === 0) { showToast('Select images', true); return; }
+    createBtn.disabled = true; const orig = createBtn.innerHTML; createBtn.innerHTML = '<span class="spinner"></span> Creating PDF...';
+    try {
+      const pdfDoc = await PDFLib.PDFDocument.create();
+      for(let img of imageFiles) {
+        const buf = await img.arrayBuffer();
+        let image;
+        if(img.type === 'image/png') image = await pdfDoc.embedPng(buf);
+        else image = await pdfDoc.embedJpg(buf);
+        const page = pdfDoc.addPage([image.width, image.height]);
+        page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
+      }
+      const bytes = await pdfDoc.save();
+      saveAs(new Blob([bytes], { type: 'application/pdf' }), `images_${Date.now()}.pdf`);
+      showToast(`✅ PDF created with ${imageFiles.length} pages`);
+      imageFiles = []; updateInfo();
+    } catch(e) { showToast('Error: ' + e.message, true); }
+    finally { createBtn.disabled = false; createBtn.innerHTML = orig; }
+  });
+  updateInfo();
+</script>
+</body>
+</html>
