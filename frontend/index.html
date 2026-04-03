@@ -3,642 +3,167 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>PDFAir | The Ultimate PDF Toolkit – 24+ Free Tools, No Uploads</title>
-  <meta name="description" content="PDFAir: 24+ free PDF tools – merge, split, compress, rotate, watermark, sign, convert, protect & more. 100% client-side, no uploads, completely private.">
-  <meta name="keywords" content="PDF tools, free PDF editor, merge PDF, compress PDF, PDF to images, PDF toolkit, PDFAir, no upload PDF">
+  <title>PDFAir | 27+ Free PDF Tools – No Uploads, 100% Private</title>
+  <meta name="description" content="PDFAir: 27+ free PDF tools – merge, split, compress, rotate, watermark, sign, convert, protect, scan to PDF, OCR, form filler & more. 100% client-side, no uploads, completely private.">
+  <meta name="keywords" content="PDF tools, free PDF editor, merge PDF, compress PDF, PDF to images, OCR PDF, scan to PDF, PDF form filler, PDF toolkit, PDFAir, no upload PDF">
   <meta name="author" content="Ram">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="PDFAir | Ultimate PDF Toolkit">
-  <meta property="og:description" content="24+ free PDF tools. No uploads. 100% private.">
+  <meta property="og:title" content="PDFAir | Ultimate PDF Toolkit – 27+ Free Tools">
+  <meta property="og:description" content="27+ free PDF tools. No uploads. 100% private. Scan, OCR, fill forms, merge, compress & more.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pdfair.vercel.app">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://pdfair.vercel.app">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #050b14;
-      color: #eef2ff;
-      overflow-x: hidden;
-      position: relative;
-    }
-    
-    /* Canvas Particle Background */
-    #particleCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -2;
-      pointer-events: none;
-    }
-    
-    /* Gradient Overlay */
-    .gradient-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at 20% 30%, rgba(74,144,226,0.08), transparent 60%),
-                  radial-gradient(circle at 80% 70%, rgba(255,107,107,0.08), transparent 60%);
-      z-index: -1;
-      pointer-events: none;
-    }
-    
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 2;
-      padding: 0 1.5rem;
-    }
-    
-    /* Header */
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin: 1rem 0 2rem;
-      padding: 0.8rem 2rem;
-      background: rgba(10, 20, 35, 0.4);
-      backdrop-filter: blur(20px);
-      border-radius: 3rem;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    }
-    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #050b14; color: #eef2ff; overflow-x: hidden; position: relative; }
+    #particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; }
+    .gradient-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, rgba(74,144,226,0.08), transparent 60%), radial-gradient(circle at 80% 70%, rgba(255,107,107,0.08), transparent 60%); z-index: -1; pointer-events: none; }
+    .container { max-width: 1400px; margin: 0 auto; position: relative; z-index: 2; padding: 0 1.5rem; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin: 1rem 0 2rem; padding: 0.8rem 2rem; background: rgba(10,20,35,0.4); backdrop-filter: blur(20px); border-radius: 3rem; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .logo { display: flex; align-items: center; gap: 0.8rem; text-decoration: none; transition: all 0.3s ease; }
     .logo:hover { transform: scale(1.02); }
-    
-    .logo-icon {
-      font-size: 2rem;
-      color: #4A90E2;
-      animation: float 3s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-    
-    .logo h1 {
-      font-size: 1.8rem;
-      background: linear-gradient(135deg, #4A90E2, #FF6B6B, #FFB347);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-    
-    .logo span {
-      font-size: 0.7rem;
-      background: rgba(74,144,226,0.2);
-      padding: 0.2rem 0.6rem;
-      border-radius: 2rem;
-      margin-left: 0.5rem;
-      color: #4A90E2;
-    }
-    
-    .search-box {
-      position: relative;
-      width: 280px;
-    }
-    
-    .search-box input {
-      width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 3rem;
-      padding: 0.7rem 1rem 0.7rem 2.8rem;
-      color: white;
-      font-size: 0.9rem;
-      transition: all 0.3s;
-    }
-    
-    .search-box input:focus {
-      outline: none;
-      border-color: #4A90E2;
-      box-shadow: 0 0 0 3px rgba(74,144,226,0.2);
-      background: rgba(255,255,255,0.1);
-    }
-    
-    .search-box i {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #4A90E2;
-    }
-    
-    /* Hero */
-    .hero {
-      text-align: center;
-      margin: 3rem 0 2rem;
-      animation: fadeInUp 0.8s ease;
-    }
-    
-    .hero-badge {
-      display: inline-block;
-      background: rgba(74,144,226,0.15);
-      backdrop-filter: blur(8px);
-      padding: 0.4rem 1.2rem;
-      border-radius: 3rem;
-      font-size: 0.8rem;
-      margin-bottom: 1.5rem;
-      border: 1px solid rgba(74,144,226,0.3);
-    }
-    
-    .hero h2 {
-      font-size: 3.2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff, #4A90E2, #FFB347);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      margin-bottom: 1rem;
-      letter-spacing: -1px;
-    }
-    
-    .hero p {
-      font-size: 1.1rem;
-      opacity: 0.8;
-      max-width: 550px;
-      margin: 0 auto;
-    }
-    
-    .stats {
-      display: flex;
-      justify-content: center;
-      gap: 2.5rem;
-      flex-wrap: wrap;
-      margin: 2rem 0;
-    }
-    
-    .stat {
-      text-align: center;
-      background: rgba(255,255,255,0.03);
-      padding: 0.8rem 1.5rem;
-      border-radius: 2rem;
-      backdrop-filter: blur(4px);
-    }
-    
-    .stat-number {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: #FFB347;
-    }
-    
-    .stat-label {
-      font-size: 0.75rem;
-      opacity: 0.7;
-    }
-    
-    .badges {
-      display: flex;
-      justify-content: center;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-      margin: 1rem 0;
-    }
-    
-    .badge {
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(4px);
-      padding: 0.4rem 1rem;
-      border-radius: 40px;
-      font-size: 0.75rem;
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: all 0.3s;
-    }
-    
-    .badge:hover {
-      border-color: #4A90E2;
-      transform: translateY(-2px);
-    }
-    
-    /* Tools Grid */
-    .section-title {
-      text-align: center;
-      font-size: 1.8rem;
-      margin: 3rem 0 1.5rem;
-      font-weight: 600;
-    }
-    
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 3rem;
-    }
-    
-    .tool-card {
-      background: rgba(15, 25, 45, 0.5);
-      backdrop-filter: blur(12px);
-      border-radius: 1.5rem;
-      border: 1px solid rgba(255,255,255,0.08);
-      padding: 1.5rem;
-      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-      text-decoration: none;
-      color: inherit;
-      display: block;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .tool-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
-      transition: left 0.5s;
-    }
-    
+    .logo-icon { font-size: 2rem; color: #4A90E2; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .logo h1 { font-size: 1.8rem; background: linear-gradient(135deg, #4A90E2, #FF6B6B, #FFB347); background-clip: text; -webkit-background-clip: text; color: transparent; font-weight: 800; letter-spacing: -0.5px; }
+    .logo span { font-size: 0.7rem; background: rgba(74,144,226,0.2); padding: 0.2rem 0.6rem; border-radius: 2rem; margin-left: 0.5rem; color: #4A90E2; }
+    .search-box { position: relative; width: 280px; }
+    .search-box input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 3rem; padding: 0.7rem 1rem 0.7rem 2.8rem; color: white; font-size: 0.9rem; transition: all 0.3s; }
+    .search-box input:focus { outline: none; border-color: #4A90E2; box-shadow: 0 0 0 3px rgba(74,144,226,0.2); background: rgba(255,255,255,0.1); }
+    .search-box i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #4A90E2; }
+    .hero { text-align: center; margin: 3rem 0 2rem; animation: fadeInUp 0.8s ease; }
+    .hero-badge { display: inline-block; background: rgba(74,144,226,0.15); backdrop-filter: blur(8px); padding: 0.4rem 1.2rem; border-radius: 3rem; font-size: 0.8rem; margin-bottom: 1.5rem; border: 1px solid rgba(74,144,226,0.3); }
+    .hero h2 { font-size: 3.2rem; font-weight: 800; background: linear-gradient(135deg, #fff, #4A90E2, #FFB347); background-clip: text; -webkit-background-clip: text; color: transparent; margin-bottom: 1rem; letter-spacing: -1px; }
+    .hero p { font-size: 1.1rem; opacity: 0.8; max-width: 550px; margin: 0 auto; }
+    .stats { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; margin: 2rem 0; }
+    .stat { text-align: center; background: rgba(255,255,255,0.03); padding: 0.8rem 1.5rem; border-radius: 2rem; backdrop-filter: blur(4px); }
+    .stat-number { font-size: 1.8rem; font-weight: 800; color: #FFB347; }
+    .stat-label { font-size: 0.75rem; opacity: 0.7; }
+    .badges { display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap; margin: 1rem 0; }
+    .badge { background: rgba(255,255,255,0.04); backdrop-filter: blur(4px); padding: 0.4rem 1rem; border-radius: 40px; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+    .badge:hover { border-color: #4A90E2; transform: translateY(-2px); }
+    .section-title { text-align: center; font-size: 1.8rem; margin: 3rem 0 1.5rem; font-weight: 600; }
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+    .tool-card { background: rgba(15,25,45,0.5); backdrop-filter: blur(12px); border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.08); padding: 1.5rem; transition: all 0.3s cubic-bezier(0.2,0.9,0.4,1.1); text-decoration: none; color: inherit; display: block; position: relative; overflow: hidden; }
+    .tool-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent); transition: left 0.5s; }
     .tool-card:hover::before { left: 100%; }
-    
-    .tool-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(74,144,226,0.4);
-      background: rgba(25, 35, 55, 0.7);
-    }
-    
-    .tool-icon {
-      font-size: 1.8rem;
-      background: linear-gradient(145deg, #4A90E2, #FF6B6B);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      margin-bottom: 0.8rem;
-      display: inline-block;
-    }
-    
-    .tool-card h3 {
-      font-size: 1.1rem;
-      margin: 0.5rem 0;
-      font-weight: 600;
-    }
-    
-    .tool-card p {
-      font-size: 0.8rem;
-      opacity: 0.7;
-      line-height: 1.4;
-    }
-    
-    .tool-tag {
-      display: inline-block;
-      background: rgba(74,144,226,0.15);
-      padding: 0.15rem 0.6rem;
-      border-radius: 1rem;
-      font-size: 0.65rem;
-      margin-top: 0.6rem;
-      color: #4A90E2;
-    }
-    
-    /* Footer - Enhanced */
-    footer {
-      margin-top: 4rem;
-      background: rgba(5, 11, 20, 0.8);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      padding: 3rem 0 1.5rem;
-    }
-    
-    .footer-content {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-    }
-    
-    .footer-section h4 {
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      color: #FFB347;
-    }
-    
-    .footer-section p {
-      font-size: 0.8rem;
-      opacity: 0.7;
-      line-height: 1.5;
-    }
-    
-    .footer-section a {
-      display: block;
-      color: #8892b0;
-      text-decoration: none;
-      font-size: 0.8rem;
-      margin: 0.5rem 0;
-      transition: color 0.2s;
-    }
-    
-    .footer-section a:hover {
-      color: #4A90E2;
-    }
-    
-    .social-links {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    
-    .social-links a {
-      width: 35px;
-      height: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255,255,255,0.05);
-      border-radius: 50%;
-      transition: all 0.3s;
-    }
-    
-    .social-links a:hover {
-      background: #4A90E2;
-      transform: translateY(-3px);
-    }
-    
-    .footer-bottom {
-      text-align: center;
-      padding-top: 2rem;
-      margin-top: 2rem;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      font-size: 0.75rem;
-      opacity: 0.6;
-    }
-    
-    .heart {
-      color: #FF6B6B;
-    }
-    
-    .made-by {
-      margin-top: 0.5rem;
-      font-size: 0.7rem;
-    }
-    
-    /* No Results */
-    .no-results {
-      grid-column: 1/-1;
-      text-align: center;
-      padding: 3rem;
-      background: rgba(255,255,255,0.03);
-      border-radius: 1.5rem;
-    }
-    
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    @media (max-width: 768px) {
-      .container { padding: 0 1rem; }
-      .top-bar { flex-direction: column; align-items: stretch; padding: 1rem; }
-      .search-box { width: 100%; }
-      .hero h2 { font-size: 2rem; }
-      .tools-grid { gap: 1rem; }
-      .footer-content { grid-template-columns: 1fr; text-align: center; }
-      .social-links { justify-content: center; }
-    }
-    
+    .tool-card:hover { transform: translateY(-5px); border-color: rgba(74,144,226,0.4); background: rgba(25,35,55,0.7); }
+    .tool-icon { font-size: 1.8rem; background: linear-gradient(145deg, #4A90E2, #FF6B6B); background-clip: text; -webkit-background-clip: text; color: transparent; margin-bottom: 0.8rem; display: inline-block; }
+    .tool-card h3 { font-size: 1.1rem; margin: 0.5rem 0; font-weight: 600; }
+    .tool-card p { font-size: 0.8rem; opacity: 0.7; line-height: 1.4; }
+    .tool-tag { display: inline-block; background: rgba(74,144,226,0.15); padding: 0.15rem 0.6rem; border-radius: 1rem; font-size: 0.65rem; margin-top: 0.6rem; color: #4A90E2; }
+    .tool-tag-new { background: rgba(255,107,107,0.2); color: #FF6B6B; }
+    footer { margin-top: 4rem; background: rgba(5,11,20,0.8); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.08); padding: 3rem 0 1.5rem; }
+    .footer-content { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+    .footer-section h4 { font-size: 1rem; margin-bottom: 1rem; color: #FFB347; }
+    .footer-section p { font-size: 0.8rem; opacity: 0.7; line-height: 1.5; }
+    .footer-section a { display: block; color: #8892b0; text-decoration: none; font-size: 0.8rem; margin: 0.5rem 0; transition: color 0.2s; }
+    .footer-section a:hover { color: #4A90E2; }
+    .social-links { display: flex; gap: 1rem; margin-top: 1rem; }
+    .social-links a { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 50%; transition: all 0.3s; }
+    .social-links a:hover { background: #4A90E2; transform: translateY(-3px); }
+    .footer-bottom { text-align: center; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; opacity: 0.6; }
+    .heart { color: #FF6B6B; }
+    .no-results { grid-column: 1/-1; text-align: center; padding: 3rem; background: rgba(255,255,255,0.03); border-radius: 1.5rem; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 768px) { .container { padding: 0 1rem; } .top-bar { flex-direction: column; align-items: stretch; padding: 1rem; } .search-box { width: 100%; } .hero h2 { font-size: 2rem; } .tools-grid { gap: 1rem; } .footer-content { grid-template-columns: 1fr; text-align: center; } .social-links { justify-content: center; } }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #0a0f1a; }
     ::-webkit-scrollbar-thumb { background: #4A90E2; border-radius: 3px; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1c1c1e; backdrop-filter: blur(12px); padding: 0.6rem 1.2rem; border-radius: 40px; color: white; z-index: 1000; font-size: 0.85rem; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
   </style>
 </head>
 <body>
-
 <canvas id="particleCanvas"></canvas>
 <div class="gradient-overlay"></div>
-
 <div class="container">
   <div class="top-bar">
-    <a href="/" class="logo">
-      <i class="fas fa-cloud-upload-alt logo-icon"></i>
-      <h1>PDFAir<span>Beta</span></h1>
-    </a>
-    <div class="search-box">
-      <i class="fas fa-search"></i>
-      <input type="text" id="toolSearch" placeholder="Search tools... (Ctrl+K)">
-    </div>
+    <a href="/" class="logo"><i class="fas fa-cloud-upload-alt logo-icon"></i><h1>PDFAir<span>Beta</span></h1></a>
+    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="toolSearch" placeholder="Search 27+ tools... (Ctrl+K)"></div>
   </div>
-
   <div class="hero">
-    <div class="hero-badge">
-      <i class="fas fa-shield-alt"></i> 100% Client-Side • No Uploads
-    </div>
+    <div class="hero-badge"><i class="fas fa-shield-alt"></i> 100% Client-Side • No Uploads</div>
     <h2>Your PDFs, Take Flight</h2>
-    <p>24+ professional PDF tools that work entirely in your browser</p>
-    
+    <p>27+ professional PDF tools that work entirely in your browser</p>
     <div class="stats">
-      <div class="stat"><div class="stat-number">24+</div><div class="stat-label">PDF Tools</div></div>
+      <div class="stat"><div class="stat-number">27+</div><div class="stat-label">PDF Tools</div></div>
       <div class="stat"><div class="stat-number">100%</div><div class="stat-label">Private</div></div>
       <div class="stat"><div class="stat-number">0</div><div class="stat-label">Uploads</div></div>
       <div class="stat"><div class="stat-number">∞</div><div class="stat-label">Free</div></div>
     </div>
-    
     <div class="badges">
       <span class="badge"><i class="fas fa-lock"></i> Client‑Side</span>
       <span class="badge"><i class="fas fa-bolt"></i> Blazing Fast</span>
       <span class="badge"><i class="fas fa-shield-alt"></i> GDPR Compliant</span>
       <span class="badge"><i class="fas fa-globe"></i> Works Offline</span>
+      <span class="badge"><i class="fas fa-camera"></i> Scan to PDF</span>
+      <span class="badge"><i class="fas fa-language"></i> OCR PDF</span>
     </div>
   </div>
-
   <h2 class="section-title">✈️ All Tools</h2>
   <div class="tools-grid" id="toolsGrid"></div>
 </div>
-
-<!-- Enhanced Footer -->
 <footer>
   <div class="footer-content">
-    <div class="footer-section">
-      <h4><i class="fas fa-cloud-upload-alt"></i> PDFAir</h4>
-      <p>Your documents deserve the best. PDFAir provides professional PDF tools that respect your privacy — no uploads, no servers, no compromises.</p>
-      <div class="social-links">
-        <a href="#"><i class="fab fa-github"></i></a>
-        <a href="#"><i class="fab fa-twitter"></i></a>
-        <a href="#"><i class="fab fa-linkedin"></i></a>
-        <a href="#"><i class="fab fa-product-hunt"></i></a>
-      </div>
-    </div>
-    
-    <div class="footer-section">
-      <h4>Quick Links</h4>
-      <a href="#">All Tools</a>
-      <a href="#">Popular Tools</a>
-      <a href="#">What's New</a>
-      <a href="#">Changelog</a>
-    </div>
-    
-    <div class="footer-section">
-      <h4>Support</h4>
-      <a href="#">FAQ</a>
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
-      <a href="#">Contact</a>
-    </div>
-    
-    <div class="footer-section">
-      <h4>Newsletter</h4>
-      <p>Get updates about new tools and features</p>
-      <div style="display: flex; margin-top: 0.8rem;">
-        <input type="email" id="footerEmail" placeholder="Your email" style="flex:1; padding:0.5rem; border-radius:2rem 0 0 2rem; border:none; background:rgba(255,255,255,0.1); color:white;">
-        <button id="footerSubscribeBtn" style="padding:0.5rem 1rem; border-radius:0 2rem 2rem 0; border:none; background:#4A90E2; color:white; cursor:pointer;">→</button>
-      </div>
-    </div>
+    <div class="footer-section"><h4><i class="fas fa-cloud-upload-alt"></i> PDFAir</h4><p>Your documents deserve the best. PDFAir provides professional PDF tools that respect your privacy — no uploads, no servers, no compromises.</p><div class="social-links"><a href="#"><i class="fab fa-github"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-linkedin"></i></a><a href="#"><i class="fab fa-product-hunt"></i></a></div></div>
+    <div class="footer-section"><h4>Quick Links</h4><a href="#">All Tools</a><a href="#">Popular Tools</a><a href="#">What's New</a><a href="#">Changelog</a></div>
+    <div class="footer-section"><h4>Support</h4><a href="#">FAQ</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Contact</a></div>
+    <div class="footer-section"><h4>Newsletter</h4><p>Get updates about new tools and features</p><div style="display: flex; margin-top: 0.8rem;"><input type="email" id="footerEmail" placeholder="Your email" style="flex:1; padding:0.5rem; border-radius:2rem 0 0 2rem; border:none; background:rgba(255,255,255,0.1); color:white;"><button id="footerSubscribeBtn" style="padding:0.5rem 1rem; border-radius:0 2rem 2rem 0; border:none; background:#4A90E2; color:white; cursor:pointer;">→</button></div></div>
   </div>
-  
-  <div class="footer-bottom">
-    <p>Made with <i class="fas fa-heart heart"></i> by <strong>Ram</strong> — for you, for everyone, for free.</p>
-    <p class="made-by">© 2026 PDFAir. All operations are local; your files never leave your device.</p>
-  </div>
+  <div class="footer-bottom"><p>Made with <i class="fas fa-heart heart"></i> by <strong>Ram</strong> — for you, for everyone, for free.</p><p class="made-by">© 2026 PDFAir. All operations are local; your files never leave your device.</p></div>
 </footer>
-
 <script>
-  // ==================== PARTICLE SYSTEM ====================
+  // Particle System
   const canvas = document.getElementById('particleCanvas');
   const ctx = canvas.getContext('2d');
-  let width, height;
-  let particles = [];
-  let mouseX = null, mouseY = null;
-  let mouseRadius = 150;
-  
+  let width, height, particles = [], mouseX = null, mouseY = null, mouseRadius = 150;
   function initParticles() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-    
+    width = window.innerWidth; height = window.innerHeight;
+    canvas.width = width; canvas.height = height;
     const particleCount = Math.min(150, Math.floor(width * height / 8000));
     particles = [];
-    
     for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        radius: Math.random() * 2 + 1,
-        alpha: Math.random() * 0.5 + 0.2,
-        pulseSpeed: 0.01 + Math.random() * 0.02,
-        pulsePhase: Math.random() * Math.PI * 2,
-        originalX: Math.random() * width,
-        originalY: Math.random() * height,
-        returnSpeed: 0.005
-      });
+      particles.push({ x: Math.random() * width, y: Math.random() * height, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5, radius: Math.random() * 2 + 1, alpha: Math.random() * 0.5 + 0.2, pulseSpeed: 0.01 + Math.random() * 0.02, pulsePhase: Math.random() * Math.PI * 2, originalX: Math.random() * width, originalY: Math.random() * height, returnSpeed: 0.005 });
     }
   }
-  
   function drawParticles() {
     if (!ctx) return;
     ctx.clearRect(0, 0, width, height);
-    
-    // Update and draw particles
     for (let p of particles) {
-      // Pulse effect
       const pulse = Math.sin(Date.now() * p.pulseSpeed + p.pulsePhase) * 0.3 + 0.7;
       const currentAlpha = Math.min(p.alpha * pulse, 0.8);
-      
-      // Mouse interaction
       if (mouseX !== null && mouseY !== null) {
-        const dx = p.x - mouseX;
-        const dy = p.y - mouseY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < mouseRadius) {
-          const angle = Math.atan2(dy, dx);
-          const force = (mouseRadius - dist) / mouseRadius * 0.5;
-          p.vx += Math.cos(angle) * force;
-          p.vy += Math.sin(angle) * force;
-        }
+        const dx = p.x - mouseX, dy = p.y - mouseY, dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < mouseRadius) { const angle = Math.atan2(dy, dx), force = (mouseRadius - dist) / mouseRadius * 0.5; p.vx += Math.cos(angle) * force; p.vy += Math.sin(angle) * force; }
       }
-      
-      // Return to original position
       p.vx += (p.originalX - p.x) * p.returnSpeed;
       p.vy += (p.originalY - p.y) * p.returnSpeed;
-      
-      // Apply velocity
-      p.x += p.vx;
-      p.y += p.vy;
-      
-      // Damping
-      p.vx *= 0.98;
-      p.vy *= 0.98;
-      
-      // Boundary check - wrap around
+      p.x += p.vx; p.y += p.vy;
+      p.vx *= 0.98; p.vy *= 0.98;
       if (p.x < 0) { p.x = width; p.originalX = width; }
       if (p.x > width) { p.x = 0; p.originalX = 0; }
       if (p.y < 0) { p.y = height; p.originalY = height; }
       if (p.y > height) { p.y = 0; p.originalY = 0; }
-      
-      // Draw particle
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(74, 144, 226, ${currentAlpha * 0.6})`;
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(74, 144, 226, ${currentAlpha * 0.6})`; ctx.fill();
     }
-    
-    // Draw connections between nearby particles
-    ctx.beginPath();
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 120) {
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          const opacity = (1 - dist / 120) * 0.15;
-          ctx.strokeStyle = `rgba(74, 144, 226, ${opacity})`;
-          ctx.stroke();
-        }
+        const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); const opacity = (1 - dist / 120) * 0.15; ctx.strokeStyle = `rgba(74, 144, 226, ${opacity})`; ctx.stroke(); }
       }
     }
-    
     requestAnimationFrame(drawParticles);
   }
-  
-  // Mouse tracking for particle interaction
-  window.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-  
-  window.addEventListener('mouseleave', () => {
-    mouseX = null;
-    mouseY = null;
-  });
-  
-  window.addEventListener('resize', () => {
-    initParticles();
-  });
-  
-  initParticles();
-  drawParticles();
-  
-  // ==================== TOOLS DATA ====================
+  window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+  window.addEventListener('mouseleave', () => { mouseX = null; mouseY = null; });
+  window.addEventListener('resize', () => initParticles());
+  initParticles(); drawParticles();
+
+  // Tools Data (27 tools including the 3 new ones)
   const tools = [
     { name: "Merge PDF", desc: "Combine multiple PDFs into one", icon: "fas fa-object-group", keywords: "combine join merge documents", url: "merge.html", popular: true },
     { name: "Split PDF", desc: "Extract pages or split every page", icon: "fas fa-cut", keywords: "divide separate extract pages", url: "split.html", popular: true },
@@ -662,7 +187,10 @@
     { name: "Optimize PDF", desc: "Remove unused objects", icon: "fas fa-rocket", keywords: "optimize clean repair", url: "optimize.html" },
     { name: "Grayscale PDF", desc: "Convert to grayscale", icon: "fas fa-adjust", keywords: "black white monochrome", url: "grayscale.html" },
     { name: "Crop PDF", desc: "Crop pages to a rectangle", icon: "fas fa-crop-alt", keywords: "crop margins trim", url: "crop.html" },
-    { name: "Add Header/Footer", desc: "Add custom header/footer", icon: "fas fa-heading", keywords: "header footer stamp", url: "headerfooter.html" }
+    { name: "Add Header/Footer", desc: "Add custom header/footer", icon: "fas fa-heading", keywords: "header footer stamp", url: "headerfooter.html" },
+    { name: "Scan to PDF", desc: "Use camera to scan documents and convert to PDF", icon: "fas fa-camera", keywords: "scan document camera photo to pdf", url: "scantopdf.html", isNew: true },
+    { name: "OCR PDF", desc: "Extract text from scanned documents and images", icon: "fas fa-language", keywords: "ocr extract text image to text", url: "ocrpdf.html", isNew: true },
+    { name: "PDF Form Filler", desc: "Fill out PDF forms digitally", icon: "fas fa-file-signature", keywords: "fill form complete pdf form", url: "formfiller.html", isNew: true }
   ];
 
   const grid = document.getElementById('toolsGrid');
@@ -671,142 +199,47 @@
   function renderTools(filter = "") {
     grid.innerHTML = "";
     const searchTerm = filter.toLowerCase();
-    const filtered = tools.filter(t => 
-      t.name.toLowerCase().includes(searchTerm) || 
-      t.desc.toLowerCase().includes(searchTerm) ||
-      t.keywords.toLowerCase().includes(searchTerm)
-    );
-    
-    if (filtered.length === 0) {
-      grid.innerHTML = '<div class="no-results"><i class="fas fa-search" style="font-size: 2rem; opacity: 0.5; margin-bottom: 1rem; display: block;"></i><h3>No tools found</h3><p>Try "merge", "compress", or "convert"</p></div>';
-      return;
-    }
-    
+    const filtered = tools.filter(t => t.name.toLowerCase().includes(searchTerm) || t.desc.toLowerCase().includes(searchTerm) || t.keywords.toLowerCase().includes(searchTerm));
+    if (filtered.length === 0) { grid.innerHTML = '<div class="no-results"><i class="fas fa-search" style="font-size: 2rem; opacity: 0.5; margin-bottom: 1rem; display: block;"></i><h3>No tools found</h3><p>Try "merge", "compress", "scan", or "ocr"</p></div>'; return; }
     filtered.forEach(tool => {
-      const card = document.createElement('a'); 
-      card.className = 'tool-card'; 
-      card.href = tool.url;
-      card.innerHTML = `
-        <i class="${tool.icon} tool-icon"></i>
-        <h3>${tool.name}</h3>
-        <p>${tool.desc}</p>
-        ${tool.popular ? '<span class="tool-tag"><i class="fas fa-fire"></i> Popular</span>' : ''}
-      `;
+      const card = document.createElement('a'); card.className = 'tool-card'; card.href = tool.url;
+      let tagHtml = '';
+      if (tool.popular) tagHtml = '<span class="tool-tag"><i class="fas fa-fire"></i> Popular</span>';
+      if (tool.isNew) tagHtml = '<span class="tool-tag tool-tag-new"><i class="fas fa-star"></i> New</span>';
+      card.innerHTML = `<i class="${tool.icon} tool-icon"></i><h3>${tool.name}</h3><p>${tool.desc}</p>${tagHtml}`;
       grid.appendChild(card);
     });
   }
-  
   renderTools();
+  searchInput.addEventListener('input', (e) => renderTools(e.target.value.toLowerCase()));
+  document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); searchInput.focus(); } });
   
-  searchInput.addEventListener('input', (e) => {
-    renderTools(e.target.value.toLowerCase());
-  });
-  
-  // Ctrl+K shortcut
-  document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-      e.preventDefault();
-      searchInput.focus();
-    }
-  });
-  
-  // Footer newsletter
   document.getElementById('footerSubscribeBtn').addEventListener('click', () => {
     const email = document.getElementById('footerEmail').value;
-    if (email && email.includes('@')) {
-      showToast('🎉 Thanks for subscribing!');
-      document.getElementById('footerEmail').value = '';
-      localStorage.setItem('pdfair_subscriber', email);
-    } else {
-      showToast('Please enter a valid email', true);
-    }
+    if (email && email.includes('@')) { showToast('🎉 Thanks for subscribing!'); document.getElementById('footerEmail').value = ''; localStorage.setItem('pdfair_subscriber', email); } 
+    else { showToast('Please enter a valid email', true); }
   });
   
   function showToast(msg, isErr = false) {
-    let t = document.querySelector('.toast');
-    if (t) t.remove();
-    let div = document.createElement('div');
-    div.className = 'toast';
+    let t = document.querySelector('.toast'); if (t) t.remove();
+    let div = document.createElement('div'); div.className = 'toast';
     div.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
-    div.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: ${isErr ? '#ff3b30' : '#1c1c1e'};
-      backdrop-filter: blur(12px);
-      padding: 0.6rem 1.2rem;
-      border-radius: 40px;
-      color: white;
-      z-index: 1000;
-      font-size: 0.85rem;
-      animation: slideUp 0.3s ease;
-    `;
+    div.style.background = isErr ? '#ff3b30' : '#1c1c1e';
     document.body.appendChild(div);
     setTimeout(() => div.remove(), 3000);
   }
   
-  // Counter animation
   const counters = document.querySelectorAll('.stat-number');
-  counters.forEach(counter => {
-    const target = counter.innerText;
-    let current = 0;
-    const increment = parseInt(target) / 40;
-    const updateCounter = () => {
-      current += increment;
-      if (current < parseInt(target)) {
-        counter.innerText = Math.floor(current);
-        requestAnimationFrame(updateCounter);
-      } else {
-        counter.innerText = target;
-      }
-    };
-    updateCounter();
-  });
+  counters.forEach(counter => { const target = counter.innerText; let current = 0; const increment = parseInt(target) / 40; const updateCounter = () => { current += increment; if (current < parseInt(target)) { counter.innerText = Math.floor(current); requestAnimationFrame(updateCounter); } else { counter.innerText = target; } }; updateCounter(); });
 </script>
-
-<style>
-  .toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1c1c1e;
-    backdrop-filter: blur(12px);
-    padding: 0.6rem 1.2rem;
-    border-radius: 40px;
-    color: white;
-    z-index: 1000;
-    font-size: 0.85rem;
-  }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0); }
-  }
-</style>
-  <!-- Hidden internal links for Google crawlers -->
-<div style="display: none;">
-  <a href="/merge.html">Merge PDF</a>
-  <a href="/split.html">Split PDF</a>
-  <a href="/compress.html">Compress PDF</a>
-  <a href="/rotate.html">Rotate PDF</a>
-  <a href="/protect.html">Protect PDF</a>
-  <a href="/pdftoimages.html">PDF to Images</a>
-  <a href="/imagestopdf.html">Images to PDF</a>
-</div>
-  <!-- SEO CONTENT FOR GOOGLE - DO NOT DELETE -->
+<!-- Hidden SEO Content & Internal Links -->
 <div style="display: none;" aria-hidden="true">
-  <h1>PDFAir - Free PDF Tools Online</h1>
-  <p>PDFAir is the ultimate free PDF toolkit with over 24 professional PDF tools. All tools work directly in your browser with no file uploads required.</p>
-  
-  <h2>Popular PDF Tools</h2>
-  <p>Merge PDF files together into a single document. Split PDF pages into separate files. Compress PDF to reduce file size while maintaining quality. Convert PDF to images or images to PDF. Add watermarks, page numbers, signatures, and QR codes. Protect PDF with passwords or unlock protected PDFs. Rotate, crop, extract, delete, and reorder PDF pages.</p>
-  
-  <h2>Why Choose PDFAir?</h2>
-  <p>PDFAir is 100% free with no limits. All processing happens locally in your browser - your files never leave your device. No registration required. Works on all devices including Windows, Mac, Linux, Android, and iPhone.</p>
-  
-  <h2>Complete List of PDF Tools</h2>
-  <p>Merge PDF, Split PDF, Compress PDF, Advanced Compress, Rotate PDF, Extract Pages, Add Watermark, Add Page Numbers, Delete Pages, Protect PDF, Unlock PDF, PDF to Images, Images to PDF, Add Signature, Page Reorder, Remove Metadata, PDF to Text, Add QR Code, Flatten PDF, Optimize PDF, Grayscale PDF, Crop PDF, Add Header and Footer.</p>
+  <h1>PDFAir - Free PDF Tools Online</h1><p>PDFAir is the ultimate free PDF toolkit with over 27 professional PDF tools. All tools work directly in your browser with no file uploads required.</p>
+  <h2>Popular PDF Tools</h2><p>Merge PDF files together into a single document. Split PDF pages into separate files. Compress PDF to reduce file size while maintaining quality. Convert PDF to images or images to PDF. Add watermarks, page numbers, signatures, and QR codes. Protect PDF with passwords or unlock protected PDFs. Rotate, crop, extract, delete, and reorder PDF pages.</p>
+  <h2>New Advanced Tools</h2><p>Scan to PDF - Use your camera to scan documents and convert to PDF. OCR PDF - Extract text from scanned images and documents. PDF Form Filler - Fill out PDF forms digitally with text and signatures.</p>
+  <h2>Why Choose PDFAir?</h2><p>PDFAir is 100% free with no limits. All processing happens locally in your browser - your files never leave your device. No registration required. Works on all devices including Windows, Mac, Linux, Android, and iPhone.</p>
+  <h2>Complete List of PDF Tools</h2><p>Merge PDF, Split PDF, Compress PDF, Advanced Compress, Rotate PDF, Extract Pages, Add Watermark, Add Page Numbers, Delete Pages, Protect PDF, Unlock PDF, PDF to Images, Images to PDF, Add Signature, Page Reorder, Remove Metadata, PDF to Text, Add QR Code, Flatten PDF, Optimize PDF, Grayscale PDF, Crop PDF, Add Header and Footer, Scan to PDF, OCR PDF, PDF Form Filler.</p>
+  <a href="/merge.html">Merge PDF</a><a href="/split.html">Split PDF</a><a href="/compress.html">Compress PDF</a><a href="/rotate.html">Rotate PDF</a><a href="/protect.html">Protect PDF</a><a href="/pdftoimages.html">PDF to Images</a><a href="/imagestopdf.html">Images to PDF</a><a href="/scantopdf.html">Scan to PDF</a><a href="/ocrpdf.html">OCR PDF</a><a href="/formfiller.html">PDF Form Filler</a>
 </div>
 </body>
 </html>
