@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add QR Code – Convertulo</title>
+  <script src="https://unpkg.com/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <style>/* same CSS block */</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-qrcode"></i><h1>Add QR Code</h1></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo"></div>
+    <input type="text" id="qrText" placeholder="QR code content (URL or text)" value="https://convertulo.vercel.app">
+    <div id="qrPreview" style="margin:0.5rem 0; text-align:center;"></div>
+    <button id="addQrBtn" class="btn-primary">Add QR Code to First Page</button>
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
+  </div>
+</div>
+<script>
+  let qrFile = null;
+  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfo = document.getElementById('fileInfo'), qrText = document.getElementById('qrText'), qrPreview = document.getElementById('qrPreview'), addQrBtn = document.getElementById('addQrBtn');
+  async function generateQRCode(text) {
+    return new Promise((resolve, reject) => {
+      QRCode.toDataURL(text, { errorCorrectionLevel: 'H' }, (err, url) => {
+        if(err) reject(err);
+        else resolve(url);
+      });
+    });
+  }
+  qrText.addEventListener('input', async () => {
+    try {
+      const url = await generateQRCode(qrText.value);
+      qrPreview.innerHTML = `<img src="${url}" style="max-width:150px; border-radius:1rem;">`;
+    } catch(e) { qrPreview.innerHTML = 'Invalid QR data'; }
+  });
+  qrText.dispatchEvent(new Event('input'));
+  function setFile(file) { qrFile = file; fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
+  function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if(f) { setFile(f); showToast(`Ready to add QR`); } else showToast('PDF required', true); }
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { handleDrop(e.target.files); fileInput.value = ''; });
+  addQrBtn.addEventListener('click', async () => {
+    if(!qrFile) { showToast('Select a PDF', true); return; }
+    addQrBtn.disabled = true; const orig = addQrBtn.innerHTML; addQrBtn.innerHTML = '<span class="spinner"></span> Adding QR...';
+    try {
+      const qrDataUrl = await generateQRCode(qrText.value);
+      const qrImgBuf = await fetch(qrDataUrl).then(r => r.arrayBuffer());
+      const doc = await loadPdf(qrFile);
+      const qrImage = await doc.embedPng(qrImgBuf);
+      const page = doc.getPages()[0];
+      const { width, height } = page.getSize();
+      const qrSize = 100;
+      page.drawImage(qrImage, { x: width - qrSize - 20, y: 20, width: qrSize, height: qrSize });
+      await saveAndDownload(doc, `qr_${qrFile.name}`);
+      showToast(`✅ QR code added`);
+    } catch(e) { showToast('QR error: ' + e.message, true); }
+    finally { addQrBtn.disabled = false; addQrBtn.innerHTML = orig; }
+  });
+</script>
+</body>
+</html>
