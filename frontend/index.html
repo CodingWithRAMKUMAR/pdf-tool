@@ -27,50 +27,46 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at 10% 20%, #0f172a, #020617);
-      min-height: 100vh;
+      background: #050b14;
+      color: #eef2ff;
       padding: 2rem 1rem;
-      color: #f1f5f9;
       position: relative;
+      overflow-x: hidden;
     }
 
-    /* Animated background gradient */
+    /* Animated gradient background */
     body::before {
-      content: '';
-      position: fixed;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255, 180, 71, 0.08), rgba(99, 102, 241, 0.08));
-      animation: rotate 40s linear infinite;
-      z-index: -2;
-      pointer-events: none;
-    }
-
-    @keyframes rotate {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    body::after {
       content: '';
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(ellipse at 70% 30%, rgba(255, 107, 107, 0.08), transparent 60%);
+      background: radial-gradient(ellipse at 20% 30%, rgba(0, 150, 255, 0.15), transparent 70%),
+                  radial-gradient(ellipse at 80% 70%, rgba(255, 100, 150, 0.15), transparent 70%);
+      z-index: -2;
       pointer-events: none;
+    }
+
+    /* Particle canvas */
+    #particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       z-index: -1;
+      pointer-events: none;
     }
 
     .container {
       max-width: 1400px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
-    /* Top bar with glass effect */
+    /* Glassmorphic header with glow */
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -78,12 +74,12 @@
       flex-wrap: wrap;
       gap: 1rem;
       margin-bottom: 2rem;
-      padding: 1rem 1.5rem;
-      background: rgba(15, 23, 42, 0.5);
-      backdrop-filter: blur(16px);
+      padding: 1rem 1.8rem;
+      background: rgba(10, 20, 35, 0.4);
+      backdrop-filter: blur(20px);
       border-radius: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.05);
     }
 
     .logo h1 {
@@ -93,7 +89,7 @@
       -webkit-background-clip: text;
       color: transparent;
       font-weight: 800;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-shadow: 0 0 20px rgba(255,107,107,0.3);
     }
 
     .search-box {
@@ -103,21 +99,21 @@
 
     .search-box input {
       width: 100%;
-      background: rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.2);
       border-radius: 3rem;
-      padding: 0.6rem 1rem 0.6rem 2.5rem;
+      padding: 0.7rem 1rem 0.7rem 2.8rem;
       color: white;
       font-size: 0.9rem;
-      backdrop-filter: blur(8px);
-      transition: all 0.2s;
+      backdrop-filter: blur(4px);
+      transition: all 0.3s;
     }
 
     .search-box input:focus {
       outline: none;
       border-color: #ff6b6b;
-      background: rgba(255,255,255,0.15);
-      box-shadow: 0 0 0 3px rgba(255,107,107,0.2);
+      box-shadow: 0 0 0 3px rgba(255,107,107,0.3);
+      background: rgba(255,255,255,0.1);
     }
 
     .search-box i {
@@ -128,118 +124,123 @@
       color: #ffb347;
     }
 
-    /* Hero section */
     .hero {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
     }
 
     .hero p {
       font-size: 1rem;
-      opacity: 0.9;
-      background: rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.3);
       display: inline-block;
-      padding: 0.3rem 1.2rem;
-      border-radius: 2rem;
-      backdrop-filter: blur(4px);
+      padding: 0.4rem 1.5rem;
+      border-radius: 3rem;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
     .badges {
       display: flex;
       justify-content: center;
-      gap: 0.8rem;
+      gap: 1rem;
       flex-wrap: wrap;
-      margin: 1rem 0;
+      margin: 1.5rem 0;
     }
 
     .badge {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
       backdrop-filter: blur(4px);
-      padding: 0.3rem 1rem;
+      padding: 0.4rem 1.2rem;
       border-radius: 40px;
       font-size: 0.8rem;
-      border: 1px solid rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.15);
       transition: 0.2s;
     }
 
     .badge:hover {
       border-color: #ffb347;
-      background: rgba(255,180,71,0.1);
+      transform: translateY(-2px);
     }
 
-    /* Tool cards grid */
+    /* Advanced tool grid with 3D cards */
     .tools-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.8rem;
+      gap: 2rem;
       margin-bottom: 3rem;
+      perspective: 1000px;
     }
 
-    /* Enhanced glass card */
     .tool-card {
-      background: rgba(20, 25, 50, 0.6);
+      background: rgba(15, 25, 45, 0.5);
       backdrop-filter: blur(12px);
-      border-radius: 1.8rem;
-      border: 1px solid rgba(255,255,255,0.2);
-      padding: 1.5rem;
-      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      border-radius: 2rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 1.8rem;
+      transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
       text-decoration: none;
       color: inherit;
       display: block;
       position: relative;
-      overflow: hidden;
+      transform-style: preserve-3d;
+      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2);
     }
 
-    .tool-card::before {
+    .tool-card::after {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(120deg, rgba(255,180,71,0.1), rgba(255,107,107,0.1));
+      inset: 0;
+      border-radius: 2rem;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(255,180,71,0.4), rgba(255,107,107,0.4));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
       opacity: 0;
       transition: opacity 0.3s;
+      pointer-events: none;
     }
 
     .tool-card:hover {
-      transform: translateY(-6px);
-      border-color: #ffb347;
-      box-shadow: 0 20px 30px -12px rgba(0,0,0,0.4);
+      transform: translateY(-8px) rotateX(2deg);
+      background: rgba(25, 35, 55, 0.7);
+      border-color: rgba(255,180,71,0.6);
+      box-shadow: 0 25px 35px -12px rgba(0,0,0,0.4);
     }
 
-    .tool-card:hover::before {
+    .tool-card:hover::after {
       opacity: 1;
     }
 
     .tool-card i {
-      font-size: 2rem;
+      font-size: 2.2rem;
       background: linear-gradient(145deg, #ffb347, #ff6b6b);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.8rem;
       display: inline-block;
       transition: transform 0.2s;
     }
 
     .tool-card:hover i {
-      transform: scale(1.05);
+      transform: scale(1.1);
     }
 
     .tool-card h2 {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       margin: 0.5rem 0;
       font-weight: 600;
+      letter-spacing: -0.01em;
     }
 
     .tool-card p {
       font-size: 0.85rem;
       opacity: 0.8;
-      line-height: 1.4;
+      line-height: 1.5;
     }
 
-    /* Footer */
     footer {
       text-align: center;
       margin-top: 2rem;
@@ -262,20 +263,24 @@
       .top-bar {
         flex-direction: column;
         align-items: stretch;
+        padding: 1rem;
       }
       .search-box {
         width: 100%;
       }
-      .hero h1 {
-        font-size: 2rem;
-      }
       .tools-grid {
         gap: 1rem;
+      }
+      .tool-card {
+        padding: 1.2rem;
       }
     }
   </style>
 </head>
 <body>
+
+<canvas id="particles"></canvas>
+
 <div class="container">
   <div class="top-bar">
     <div class="logo">
@@ -296,9 +301,7 @@
     </div>
   </div>
 
-  <div class="tools-grid" id="toolsGrid">
-    <!-- Cards will be generated by JavaScript -->
-  </div>
+  <div class="tools-grid" id="toolsGrid"></div>
 
   <footer>
     <p>Made with <i class="fas fa-heart heart"></i> by Ram — for you, for everyone, for free.</p>
@@ -307,6 +310,56 @@
 </div>
 
 <script>
+  // Particles animation (simple, lightweight)
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  let particles = [];
+
+  function initParticles() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    particles = [];
+    const particleCount = Math.min(80, Math.floor(width * height / 15000));
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 3 + 1,
+        alpha: Math.random() * 0.5 + 0.2,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+      });
+    }
+  }
+
+  function drawParticles() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, width, height);
+    for (let p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 180, 71, ${p.alpha})`;
+      ctx.fill();
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0) p.x = width;
+      if (p.x > width) p.x = 0;
+      if (p.y < 0) p.y = height;
+      if (p.y > height) p.y = 0;
+    }
+    requestAnimationFrame(drawParticles);
+  }
+
+  window.addEventListener('resize', () => {
+    initParticles();
+  });
+  initParticles();
+  drawParticles();
+
+  // Tool definitions
   const tools = [
     { name: "Merge PDF", desc: "Combine multiple PDFs into one file", icon: "fas fa-object-group", url: "merge.html" },
     { name: "Split PDF", desc: "Extract pages or split every page", icon: "fas fa-cut", url: "split.html" },
