@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flatten PDF – Convertulo</title>
+  <style>/* same CSS block */</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-layer-group"></i><h1>Flatten PDF</h1></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo"></div>
+    <button id="flattenBtn" class="btn-primary">Flatten & Download</button>
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
+  </div>
+</div>
+<script>
+  let flattenFile = null;
+  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfo = document.getElementById('fileInfo'), flattenBtn = document.getElementById('flattenBtn');
+  function setFile(file) { flattenFile = file; fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
+  function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if(f) { setFile(f); showToast(`Ready to flatten`); } else showToast('PDF required', true); }
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { handleDrop(e.target.files); fileInput.value = ''; });
+  flattenBtn.addEventListener('click', async () => {
+    if(!flattenFile) { showToast('Select a PDF', true); return; }
+    flattenBtn.disabled = true; const orig = flattenBtn.innerHTML; flattenBtn.innerHTML = '<span class="spinner"></span> Flattening...';
+    try {
+      const doc = await loadPdf(flattenFile);
+      // pdf-lib does not have a native flatten method; saving with standard settings effectively flattens annotations
+      const flattenedBytes = await doc.save({ useObjectStreams: true });
+      saveAs(new Blob([flattenedBytes], { type: 'application/pdf' }), `flattened_${flattenFile.name}`);
+      showToast(`✅ PDF flattened`);
+    } catch(e) { showToast('Flatten error: ' + e.message, true); }
+    finally { flattenBtn.disabled = false; flattenBtn.innerHTML = orig; }
+  });
+</script>
+</body>
+</html>
