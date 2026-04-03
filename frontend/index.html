@@ -3,86 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>PaperFly | The Ultimate PDF Toolkit – 24+ Free Tools, No Uploads</title>
-  <meta name="description" content="PaperFly: 24+ free PDF tools – merge, split, compress, rotate, watermark, sign, convert, protect & more. 100% client-side, no uploads, completely private. The fastest PDF toolkit on the web.">
-  <meta name="keywords" content="PDF tools, free PDF editor, merge PDF, compress PDF, PDF to images, PDF toolkit, PaperFly, no upload PDF, private PDF tools">
-  <meta name="author" content="PaperFly">
+  <title>PDFAir | The Ultimate PDF Toolkit – 24+ Free Tools, No Uploads</title>
+  <meta name="description" content="PDFAir: 24+ free PDF tools – merge, split, compress, rotate, watermark, sign, convert, protect & more. 100% client-side, no uploads, completely private.">
+  <meta name="keywords" content="PDF tools, free PDF editor, merge PDF, compress PDF, PDF to images, PDF toolkit, PDFAir, no upload PDF">
+  <meta name="author" content="Ram">
   <meta name="robots" content="index, follow">
-  <meta name="googlebot" content="index, follow">
-  <meta property="og:title" content="PaperFly | The Ultimate PDF Toolkit">
-  <meta property="og:description" content="24+ free PDF tools. No uploads. 100% private. Merge, split, compress, rotate, and more.">
+  <meta property="og:title" content="PDFAir | Ultimate PDF Toolkit">
+  <meta property="og:description" content="24+ free PDF tools. No uploads. 100% private.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://paperfly.vercel.app">
-  <meta property="og:image" content="https://paperfly.vercel.app/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="PaperFly – Free PDF Tools">
-  <meta name="twitter:description" content="24+ PDF tools that work entirely in your browser. No uploads, no privacy concerns.">
-  <link rel="canonical" href="https://paperfly.vercel.app">
+  <link rel="canonical" href="https://pdfair.vercel.app">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0a0f1a 0%, #0a1a2e 50%, #0a0f1a 100%);
+      background: #050b14;
       color: #eef2ff;
       overflow-x: hidden;
       position: relative;
     }
     
-    /* Animated Background */
-    .animated-bg {
+    /* Canvas Particle Background */
+    #particleCanvas {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       z-index: -2;
-      overflow: hidden;
-    }
-    
-    .cloud {
-      position: absolute;
-      background: rgba(255,255,255,0.03);
-      border-radius: 50%;
-      animation: float linear infinite;
-    }
-    
-    @keyframes float {
-      0% { transform: translateX(-100%) translateY(0); }
-      100% { transform: translateX(100vw) translateY(-20px); }
-    }
-    
-    .paper-plane {
-      position: fixed;
-      font-size: 2rem;
-      opacity: 0.1;
       pointer-events: none;
-      animation: fly 20s linear infinite;
-      z-index: -1;
     }
     
-    @keyframes fly {
-      0% { transform: translateX(-10%) translateY(30%) rotate(0deg); }
-      50% { transform: translateX(50%) translateY(0%) rotate(10deg); }
-      100% { transform: translateX(110%) translateY(30%) rotate(0deg); }
-    }
-    
-    .bg-gradient {
+    /* Gradient Overlay */
+    .gradient-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: radial-gradient(circle at 20% 30%, rgba(74,144,226,0.08), transparent 60%),
-                  radial-gradient(circle at 80% 70%, rgba(255,107,107,0.08), transparent 60%),
-                  radial-gradient(circle at 50% 50%, rgba(255,180,71,0.05), transparent 70%);
+                  radial-gradient(circle at 80% 70%, rgba(255,107,107,0.08), transparent 60%);
       z-index: -1;
       pointer-events: none;
     }
     
-    .container { max-width: 1400px; margin: 0 auto; position: relative; z-index: 2; padding: 0 1.5rem; }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      padding: 0 1.5rem;
+    }
     
     /* Header */
     .top-bar {
@@ -93,11 +71,11 @@
       gap: 1rem;
       margin: 1rem 0 2rem;
       padding: 0.8rem 2rem;
-      background: rgba(10, 20, 35, 0.5);
+      background: rgba(10, 20, 35, 0.4);
       backdrop-filter: blur(20px);
       border-radius: 3rem;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
     }
     
     .logo {
@@ -105,17 +83,18 @@
       align-items: center;
       gap: 0.8rem;
       text-decoration: none;
-      transition: transform 0.3s ease;
+      transition: all 0.3s ease;
     }
     
-    .logo:hover { transform: scale(1.05); }
+    .logo:hover { transform: scale(1.02); }
     
     .logo-icon {
-      font-size: 2.2rem;
-      animation: float-icon 3s ease-in-out infinite;
+      font-size: 2rem;
+      color: #4A90E2;
+      animation: float 3s ease-in-out infinite;
     }
     
-    @keyframes float-icon {
+    @keyframes float {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-5px); }
     }
@@ -131,36 +110,35 @@
     }
     
     .logo span {
-      font-size: 0.8rem;
-      background: rgba(255,107,107,0.2);
+      font-size: 0.7rem;
+      background: rgba(74,144,226,0.2);
       padding: 0.2rem 0.6rem;
       border-radius: 2rem;
       margin-left: 0.5rem;
-      color: #FFB347;
+      color: #4A90E2;
     }
     
     .search-box {
       position: relative;
-      width: 300px;
+      width: 280px;
     }
     
     .search-box input {
       width: 100%;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
       border-radius: 3rem;
       padding: 0.7rem 1rem 0.7rem 2.8rem;
       color: white;
       font-size: 0.9rem;
-      backdrop-filter: blur(8px);
-      transition: all 0.3s ease;
+      transition: all 0.3s;
     }
     
     .search-box input:focus {
       outline: none;
-      border-color: #FF6B6B;
-      box-shadow: 0 0 0 3px rgba(255,107,107,0.2);
-      background: rgba(255,255,255,0.15);
+      border-color: #4A90E2;
+      box-shadow: 0 0 0 3px rgba(74,144,226,0.2);
+      background: rgba(255,255,255,0.1);
     }
     
     .search-box i {
@@ -168,10 +146,10 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: #FFB347;
+      color: #4A90E2;
     }
     
-    /* Hero Section */
+    /* Hero */
     .hero {
       text-align: center;
       margin: 3rem 0 2rem;
@@ -180,7 +158,7 @@
     
     .hero-badge {
       display: inline-block;
-      background: rgba(74,144,226,0.2);
+      background: rgba(74,144,226,0.15);
       backdrop-filter: blur(8px);
       padding: 0.4rem 1.2rem;
       border-radius: 3rem;
@@ -190,7 +168,7 @@
     }
     
     .hero h2 {
-      font-size: 3rem;
+      font-size: 3.2rem;
       font-weight: 800;
       background: linear-gradient(135deg, #fff, #4A90E2, #FFB347);
       background-clip: text;
@@ -201,81 +179,84 @@
     }
     
     .hero p {
-      font-size: 1.2rem;
-      opacity: 0.9;
-      max-width: 600px;
+      font-size: 1.1rem;
+      opacity: 0.8;
+      max-width: 550px;
       margin: 0 auto;
     }
     
     .stats {
       display: flex;
       justify-content: center;
-      gap: 2rem;
+      gap: 2.5rem;
       flex-wrap: wrap;
       margin: 2rem 0;
     }
     
     .stat {
       text-align: center;
+      background: rgba(255,255,255,0.03);
+      padding: 0.8rem 1.5rem;
+      border-radius: 2rem;
+      backdrop-filter: blur(4px);
     }
     
     .stat-number {
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: 800;
       color: #FFB347;
     }
     
     .stat-label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       opacity: 0.7;
     }
     
     .badges {
       display: flex;
       justify-content: center;
-      gap: 1rem;
+      gap: 0.8rem;
       flex-wrap: wrap;
       margin: 1rem 0;
     }
     
     .badge {
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.04);
       backdrop-filter: blur(4px);
-      padding: 0.5rem 1.2rem;
+      padding: 0.4rem 1rem;
       border-radius: 40px;
-      font-size: 0.85rem;
-      border: 1px solid rgba(255,255,255,0.15);
-      transition: all 0.3s ease;
+      font-size: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
     }
     
     .badge:hover {
-      border-color: #FFB347;
+      border-color: #4A90E2;
       transform: translateY(-2px);
-      background: rgba(255,180,71,0.1);
     }
     
     /* Tools Grid */
     .section-title {
       text-align: center;
-      font-size: 2rem;
+      font-size: 1.8rem;
       margin: 3rem 0 1.5rem;
-      font-weight: 700;
+      font-weight: 600;
     }
     
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1.5rem;
       margin-bottom: 3rem;
     }
     
     .tool-card {
-      background: rgba(15, 25, 45, 0.6);
+      background: rgba(15, 25, 45, 0.5);
       backdrop-filter: blur(12px);
       border-radius: 1.5rem;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.08);
       padding: 1.5rem;
-      transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
       text-decoration: none;
       color: inherit;
       display: block;
@@ -290,135 +271,131 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-      transition: left 0.5s ease;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+      transition: left 0.5s;
     }
     
     .tool-card:hover::before { left: 100%; }
     
     .tool-card:hover {
-      transform: translateY(-8px);
-      background: rgba(25, 35, 55, 0.9);
-      border-color: rgba(74,144,226,0.5);
-      box-shadow: 0 20px 40px -12px rgba(0,0,0,0.3);
+      transform: translateY(-5px);
+      border-color: rgba(74,144,226,0.4);
+      background: rgba(25, 35, 55, 0.7);
     }
     
     .tool-icon {
-      font-size: 2rem;
-      background: linear-gradient(145deg, #4A90E2, #FF6B6B, #FFB347);
+      font-size: 1.8rem;
+      background: linear-gradient(145deg, #4A90E2, #FF6B6B);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
       margin-bottom: 0.8rem;
       display: inline-block;
-      transition: transform 0.3s ease;
     }
     
-    .tool-card:hover .tool-icon { transform: scale(1.1) rotate(5deg); }
-    
     .tool-card h3 {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       margin: 0.5rem 0;
       font-weight: 600;
     }
     
     .tool-card p {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       opacity: 0.7;
       line-height: 1.4;
     }
     
     .tool-tag {
       display: inline-block;
-      background: rgba(74,144,226,0.2);
-      padding: 0.2rem 0.6rem;
+      background: rgba(74,144,226,0.15);
+      padding: 0.15rem 0.6rem;
       border-radius: 1rem;
-      font-size: 0.7rem;
-      margin-top: 0.8rem;
+      font-size: 0.65rem;
+      margin-top: 0.6rem;
       color: #4A90E2;
     }
     
-    /* Newsletter Section */
-    .newsletter {
-      background: linear-gradient(135deg, rgba(74,144,226,0.1), rgba(255,107,107,0.1));
-      border-radius: 2rem;
-      padding: 3rem;
-      text-align: center;
-      margin: 3rem 0;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    .newsletter h3 {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .newsletter p {
-      opacity: 0.7;
-      margin-bottom: 1.5rem;
-    }
-    
-    .newsletter-form {
-      display: flex;
-      gap: 1rem;
-      max-width: 500px;
-      margin: 0 auto;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    
-    .newsletter-form input {
-      flex: 1;
-      padding: 0.8rem 1.2rem;
-      border-radius: 2rem;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(0,0,0,0.3);
-      color: white;
-    }
-    
-    .newsletter-form button {
-      padding: 0.8rem 1.5rem;
-      border-radius: 2rem;
-      background: linear-gradient(135deg, #4A90E2, #FF6B6B);
-      border: none;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    
-    .newsletter-form button:hover { transform: scale(1.05); }
-    
-    /* Footer */
+    /* Footer - Enhanced */
     footer {
-      text-align: center;
-      margin-top: 3rem;
-      padding: 2rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      font-size: 0.8rem;
+      margin-top: 4rem;
+      background: rgba(5, 11, 20, 0.8);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 3rem 0 1.5rem;
     }
     
-    .footer-links {
-      display: flex;
-      justify-content: center;
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 2rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
     }
     
-    .footer-links a {
-      color: #4A90E2;
+    .footer-section h4 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: #FFB347;
+    }
+    
+    .footer-section p {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      line-height: 1.5;
+    }
+    
+    .footer-section a {
+      display: block;
+      color: #8892b0;
       text-decoration: none;
+      font-size: 0.8rem;
+      margin: 0.5rem 0;
       transition: color 0.2s;
     }
     
-    .footer-links a:hover { color: #FFB347; }
+    .footer-section a:hover {
+      color: #4A90E2;
+    }
     
-    .heart { color: #FF6B6B; }
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
     
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
+    .social-links a {
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+    
+    .social-links a:hover {
+      background: #4A90E2;
+      transform: translateY(-3px);
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+    
+    .heart {
+      color: #FF6B6B;
+    }
+    
+    .made-by {
+      margin-top: 0.5rem;
+      font-size: 0.7rem;
     }
     
     /* No Results */
@@ -426,59 +403,53 @@
       grid-column: 1/-1;
       text-align: center;
       padding: 3rem;
-      background: rgba(255,255,255,0.05);
-      border-radius: 2rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 1.5rem;
     }
     
-    /* Responsive */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
     @media (max-width: 768px) {
       .container { padding: 0 1rem; }
       .top-bar { flex-direction: column; align-items: stretch; padding: 1rem; }
       .search-box { width: 100%; }
       .hero h2 { font-size: 2rem; }
-      .tools-grid { grid-template-columns: 1fr; gap: 1rem; }
-      .newsletter { padding: 1.5rem; }
-      .stats { gap: 1rem; }
-      .stat-number { font-size: 1.5rem; }
+      .tools-grid { gap: 1rem; }
+      .footer-content { grid-template-columns: 1fr; text-align: center; }
+      .social-links { justify-content: center; }
     }
     
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #0a0f1a; }
-    ::-webkit-scrollbar-thumb { background: #4A90E2; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #FF6B6B; }
-    
-    /* Loading skeleton */
-    .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 1rem; }
-    @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    ::-webkit-scrollbar-thumb { background: #4A90E2; border-radius: 3px; }
   </style>
 </head>
 <body>
-<div class="animated-bg">
-  <div class="paper-plane" style="top: 10%; left: -10%; animation-duration: 25s;">✈️</div>
-  <div class="paper-plane" style="top: 40%; left: -20%; animation-duration: 30s; animation-delay: 5s;">📄</div>
-  <div class="paper-plane" style="top: 70%; left: -15%; animation-duration: 20s; animation-delay: 2s;">🚀</div>
-</div>
-<div class="bg-gradient"></div>
+
+<canvas id="particleCanvas"></canvas>
+<div class="gradient-overlay"></div>
 
 <div class="container">
   <div class="top-bar">
     <a href="/" class="logo">
-      <i class="fas fa-paper-plane logo-icon"></i>
-      <h1>PaperFly<span>Beta</span></h1>
+      <i class="fas fa-cloud-upload-alt logo-icon"></i>
+      <h1>PDFAir<span>Beta</span></h1>
     </a>
     <div class="search-box">
       <i class="fas fa-search"></i>
-      <input type="text" id="toolSearch" placeholder="Search 24+ tools...">
+      <input type="text" id="toolSearch" placeholder="Search tools... (Ctrl+K)">
     </div>
   </div>
 
   <div class="hero">
     <div class="hero-badge">
-      <i class="fas fa-shield-alt"></i> 100% Client-Side • No Uploads • Private
+      <i class="fas fa-shield-alt"></i> 100% Client-Side • No Uploads
     </div>
     <h2>Your PDFs, Take Flight</h2>
-    <p>24+ professional PDF tools that work entirely in your browser. Fast, free, and completely private.</p>
+    <p>24+ professional PDF tools that work entirely in your browser</p>
     
     <div class="stats">
       <div class="stat"><div class="stat-number">24+</div><div class="stat-label">PDF Tools</div></div>
@@ -488,7 +459,7 @@
     </div>
     
     <div class="badges">
-      <span class="badge"><i class="fas fa-lock"></i> Client‑Side Processing</span>
+      <span class="badge"><i class="fas fa-lock"></i> Client‑Side</span>
       <span class="badge"><i class="fas fa-bolt"></i> Blazing Fast</span>
       <span class="badge"><i class="fas fa-shield-alt"></i> GDPR Compliant</span>
       <span class="badge"><i class="fas fa-globe"></i> Works Offline</span>
@@ -497,55 +468,201 @@
 
   <h2 class="section-title">✈️ All Tools</h2>
   <div class="tools-grid" id="toolsGrid"></div>
+</div>
 
-  <div class="newsletter">
-    <h3><i class="fas fa-envelope"></i> Never Miss an Update</h3>
-    <p>Get notified about new tools and features (no spam, ever)</p>
-    <div class="newsletter-form">
-      <input type="email" placeholder="Your email address" id="newsletterEmail">
-      <button id="newsletterBtn">Subscribe <i class="fas fa-paper-plane"></i></button>
+<!-- Enhanced Footer -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-section">
+      <h4><i class="fas fa-cloud-upload-alt"></i> PDFAir</h4>
+      <p>Your documents deserve the best. PDFAir provides professional PDF tools that respect your privacy — no uploads, no servers, no compromises.</p>
+      <div class="social-links">
+        <a href="#"><i class="fab fa-github"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+        <a href="#"><i class="fab fa-product-hunt"></i></a>
+      </div>
     </div>
-  </div>
-
-  <footer>
-    <div class="footer-links">
-      <a href="#">About PaperFly</a>
+    
+    <div class="footer-section">
+      <h4>Quick Links</h4>
+      <a href="#">All Tools</a>
+      <a href="#">Popular Tools</a>
+      <a href="#">What's New</a>
+      <a href="#">Changelog</a>
+    </div>
+    
+    <div class="footer-section">
+      <h4>Support</h4>
+      <a href="#">FAQ</a>
       <a href="#">Privacy Policy</a>
       <a href="#">Terms of Service</a>
       <a href="#">Contact</a>
-      <a href="#">GitHub</a>
     </div>
-    <p>Made with <i class="fas fa-heart heart"></i> by PaperFly — Your documents, your privacy, our mission.</p>
-    <p class="copyright">© 2026 PaperFly. All operations are local; your files never leave your device.</p>
-  </footer>
-</div>
+    
+    <div class="footer-section">
+      <h4>Newsletter</h4>
+      <p>Get updates about new tools and features</p>
+      <div style="display: flex; margin-top: 0.8rem;">
+        <input type="email" id="footerEmail" placeholder="Your email" style="flex:1; padding:0.5rem; border-radius:2rem 0 0 2rem; border:none; background:rgba(255,255,255,0.1); color:white;">
+        <button id="footerSubscribeBtn" style="padding:0.5rem 1rem; border-radius:0 2rem 2rem 0; border:none; background:#4A90E2; color:white; cursor:pointer;">→</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer-bottom">
+    <p>Made with <i class="fas fa-heart heart"></i> by <strong>Ram</strong> — for you, for everyone, for free.</p>
+    <p class="made-by">© 2026 PDFAir. All operations are local; your files never leave your device.</p>
+  </div>
+</footer>
 
 <script>
-  // Tools Data (SEO optimized with keywords)
+  // ==================== PARTICLE SYSTEM ====================
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  let particles = [];
+  let mouseX = null, mouseY = null;
+  let mouseRadius = 150;
+  
+  function initParticles() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    
+    const particleCount = Math.min(150, Math.floor(width * height / 8000));
+    particles = [];
+    
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        radius: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.5 + 0.2,
+        pulseSpeed: 0.01 + Math.random() * 0.02,
+        pulsePhase: Math.random() * Math.PI * 2,
+        originalX: Math.random() * width,
+        originalY: Math.random() * height,
+        returnSpeed: 0.005
+      });
+    }
+  }
+  
+  function drawParticles() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, width, height);
+    
+    // Update and draw particles
+    for (let p of particles) {
+      // Pulse effect
+      const pulse = Math.sin(Date.now() * p.pulseSpeed + p.pulsePhase) * 0.3 + 0.7;
+      const currentAlpha = Math.min(p.alpha * pulse, 0.8);
+      
+      // Mouse interaction
+      if (mouseX !== null && mouseY !== null) {
+        const dx = p.x - mouseX;
+        const dy = p.y - mouseY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < mouseRadius) {
+          const angle = Math.atan2(dy, dx);
+          const force = (mouseRadius - dist) / mouseRadius * 0.5;
+          p.vx += Math.cos(angle) * force;
+          p.vy += Math.sin(angle) * force;
+        }
+      }
+      
+      // Return to original position
+      p.vx += (p.originalX - p.x) * p.returnSpeed;
+      p.vy += (p.originalY - p.y) * p.returnSpeed;
+      
+      // Apply velocity
+      p.x += p.vx;
+      p.y += p.vy;
+      
+      // Damping
+      p.vx *= 0.98;
+      p.vy *= 0.98;
+      
+      // Boundary check - wrap around
+      if (p.x < 0) { p.x = width; p.originalX = width; }
+      if (p.x > width) { p.x = 0; p.originalX = 0; }
+      if (p.y < 0) { p.y = height; p.originalY = height; }
+      if (p.y > height) { p.y = 0; p.originalY = 0; }
+      
+      // Draw particle
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(74, 144, 226, ${currentAlpha * 0.6})`;
+      ctx.fill();
+    }
+    
+    // Draw connections between nearby particles
+    ctx.beginPath();
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          const opacity = (1 - dist / 120) * 0.15;
+          ctx.strokeStyle = `rgba(74, 144, 226, ${opacity})`;
+          ctx.stroke();
+        }
+      }
+    }
+    
+    requestAnimationFrame(drawParticles);
+  }
+  
+  // Mouse tracking for particle interaction
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+  
+  window.addEventListener('mouseleave', () => {
+    mouseX = null;
+    mouseY = null;
+  });
+  
+  window.addEventListener('resize', () => {
+    initParticles();
+  });
+  
+  initParticles();
+  drawParticles();
+  
+  // ==================== TOOLS DATA ====================
   const tools = [
-    { name: "Merge PDF", desc: "Combine multiple PDFs into one document seamlessly", icon: "fas fa-object-group", keywords: "combine pdf, join pdf, merge documents", url: "merge.html", popular: true },
-    { name: "Split PDF", desc: "Extract pages or split every page into separate files", icon: "fas fa-cut", keywords: "divide pdf, separate pages, extract pages", url: "split.html", popular: true },
-    { name: "Compress PDF", desc: "Reduce file size while maintaining quality", icon: "fas fa-compress", keywords: "shrink pdf, reduce size, optimize pdf", url: "compress.html", popular: true },
-    { name: "Advanced Compress", desc: "Set target size & quality for maximum compression", icon: "fas fa-chart-line", keywords: "advanced compression, custom size", url: "advcompress.html" },
-    { name: "Rotate PDF", desc: "Rotate pages 90°, 180°, or 270° permanently", icon: "fas fa-sync-alt", keywords: "turn pdf, flip pages, landscape to portrait", url: "rotate.html" },
-    { name: "Extract Pages", desc: "Save a custom page range as a new PDF", icon: "fas fa-arrow-right", keywords: "extract range, save pages, subset pdf", url: "extract.html" },
-    { name: "Watermark", desc: "Add text watermark to protect your documents", icon: "fas fa-water", keywords: "add watermark, copyright, protect document", url: "watermark.html" },
-    { name: "Add Page Numbers", desc: "Custom format page numbers to any position", icon: "fas fa-hashtag", keywords: "page numbering, insert numbers, paginate", url: "pagenumbers.html" },
-    { name: "Delete Pages", desc: "Remove unwanted pages from your PDF", icon: "fas fa-trash-alt", keywords: "remove pages, delete pages, clean pdf", url: "delete.html" },
-    { name: "Protect PDF", desc: "Encrypt with password for security", icon: "fas fa-lock", keywords: "password protect, encrypt pdf, secure document", url: "protect.html", popular: true },
-    { name: "Unlock PDF", desc: "Remove password protection (if you know it)", icon: "fas fa-unlock-alt", keywords: "decrypt pdf, remove password, unlock document", url: "unlock.html" },
-    { name: "PDF to Images", desc: "Convert each page to PNG or JPG format", icon: "fas fa-images", keywords: "pdf to png, pdf to jpg, extract images", url: "pdftoimages.html", popular: true },
-    { name: "Images to PDF", desc: "Combine multiple images into a single PDF", icon: "fas fa-file-image", keywords: "jpg to pdf, png to pdf, image converter", url: "imagestopdf.html", popular: true },
-    { name: "Add Signature", desc: "Draw & place signature on your document", icon: "fas fa-pen-fancy", keywords: "digital signature, sign pdf, e-signature", url: "signature.html" },
-    { name: "Page Reorder", desc: "Drag & drop or custom order to rearrange pages", icon: "fas fa-arrows-alt", keywords: "rearrange pages, sort pages, organize pdf", url: "reorder.html" },
-    { name: "Remove Metadata", desc: "Strip all hidden metadata for privacy", icon: "fas fa-info-circle", keywords: "clean metadata, remove author, privacy", url: "metadata.html" },
-    { name: "PDF to Text", desc: "Extract all text content from PDF", icon: "fas fa-file-alt", keywords: "extract text, pdf to txt, ocr alternative", url: "pdftotext.html" },
-    { name: "Add QR Code", desc: "Stamp a QR code on your PDF pages", icon: "fas fa-qrcode", keywords: "qr stamp, add qr, embed code", url: "addqrcode.html" },
-    { name: "Flatten PDF", desc: "Flatten form fields & annotations permanently", icon: "fas fa-layer-group", keywords: "flatten forms, merge layers, finalize", url: "flatten.html" },
-    { name: "Optimize PDF", desc: "Remove unused objects and optimize structure", icon: "fas fa-rocket", keywords: "optimize size, clean pdf, repair", url: "optimize.html" },
-    { name: "Grayscale PDF", desc: "Convert entire document to grayscale", icon: "fas fa-adjust", keywords: "black and white, remove color, monochrome", url: "grayscale.html" },
-    { name: "Crop PDF", desc: "Crop pages to a custom rectangle area", icon: "fas fa-crop-alt", keywords: "crop margins, trim pdf, cut pages", url: "crop.html" },
-    { name: "Add Header/Footer", desc: "Add custom header and footer text", icon: "fas fa-heading", keywords: "header footer, add text, stamp", url: "headerfooter.html" }
+    { name: "Merge PDF", desc: "Combine multiple PDFs into one", icon: "fas fa-object-group", keywords: "combine join merge documents", url: "merge.html", popular: true },
+    { name: "Split PDF", desc: "Extract pages or split every page", icon: "fas fa-cut", keywords: "divide separate extract pages", url: "split.html", popular: true },
+    { name: "Compress PDF", desc: "Reduce file size while maintaining quality", icon: "fas fa-compress", keywords: "shrink reduce optimize size", url: "compress.html", popular: true },
+    { name: "Advanced Compress", desc: "Set target size & quality", icon: "fas fa-chart-line", keywords: "advanced compression custom", url: "advcompress.html" },
+    { name: "Rotate PDF", desc: "Rotate pages 90°, 180°, 270°", icon: "fas fa-sync-alt", keywords: "turn flip landscape portrait", url: "rotate.html" },
+    { name: "Extract Pages", desc: "Save a custom page range", icon: "fas fa-arrow-right", keywords: "extract range subset", url: "extract.html" },
+    { name: "Watermark", desc: "Add text watermark to protect", icon: "fas fa-water", keywords: "copyright protect stamp", url: "watermark.html" },
+    { name: "Add Page Numbers", desc: "Custom format page numbers", icon: "fas fa-hashtag", keywords: "numbering paginate insert", url: "pagenumbers.html" },
+    { name: "Delete Pages", desc: "Remove unwanted pages", icon: "fas fa-trash-alt", keywords: "remove delete clean", url: "delete.html" },
+    { name: "Protect PDF", desc: "Encrypt with password", icon: "fas fa-lock", keywords: "password secure encrypt", url: "protect.html", popular: true },
+    { name: "Unlock PDF", desc: "Remove password protection", icon: "fas fa-unlock-alt", keywords: "decrypt remove password", url: "unlock.html" },
+    { name: "PDF to Images", desc: "Convert each page to PNG/JPG", icon: "fas fa-images", keywords: "png jpg extract images", url: "pdftoimages.html", popular: true },
+    { name: "Images to PDF", desc: "Combine images into PDF", icon: "fas fa-file-image", keywords: "jpg png image converter", url: "imagestopdf.html", popular: true },
+    { name: "Add Signature", desc: "Draw & place signature", icon: "fas fa-pen-fancy", keywords: "digital sign e-signature", url: "signature.html" },
+    { name: "Page Reorder", desc: "Drag & drop to reorder", icon: "fas fa-arrows-alt", keywords: "rearrange sort organize", url: "reorder.html" },
+    { name: "Remove Metadata", desc: "Strip all hidden metadata", icon: "fas fa-info-circle", keywords: "clean author privacy", url: "metadata.html" },
+    { name: "PDF to Text", desc: "Extract text from PDF", icon: "fas fa-file-alt", keywords: "extract text txt", url: "pdftotext.html" },
+    { name: "Add QR Code", desc: "Stamp a QR code on PDF", icon: "fas fa-qrcode", keywords: "qr stamp embed", url: "addqrcode.html" },
+    { name: "Flatten PDF", desc: "Flatten forms & annotations", icon: "fas fa-layer-group", keywords: "flatten forms merge layers", url: "flatten.html" },
+    { name: "Optimize PDF", desc: "Remove unused objects", icon: "fas fa-rocket", keywords: "optimize clean repair", url: "optimize.html" },
+    { name: "Grayscale PDF", desc: "Convert to grayscale", icon: "fas fa-adjust", keywords: "black white monochrome", url: "grayscale.html" },
+    { name: "Crop PDF", desc: "Crop pages to a rectangle", icon: "fas fa-crop-alt", keywords: "crop margins trim", url: "crop.html" },
+    { name: "Add Header/Footer", desc: "Add custom header/footer", icon: "fas fa-heading", keywords: "header footer stamp", url: "headerfooter.html" }
   ];
 
   const grid = document.getElementById('toolsGrid');
@@ -561,7 +678,7 @@
     );
     
     if (filtered.length === 0) {
-      grid.innerHTML = '<div class="no-results"><i class="fas fa-search" style="font-size: 3rem; opacity: 0.5; margin-bottom: 1rem; display: block;"></i><h3>No tools found</h3><p>Try searching for "merge", "compress", or "convert"</p></div>';
+      grid.innerHTML = '<div class="no-results"><i class="fas fa-search" style="font-size: 2rem; opacity: 0.5; margin-bottom: 1rem; display: block;"></i><h3>No tools found</h3><p>Try "merge", "compress", or "convert"</p></div>';
       return;
     }
     
@@ -585,23 +702,30 @@
     renderTools(e.target.value.toLowerCase());
   });
   
-  // Newsletter subscription
-  document.getElementById('newsletterBtn').addEventListener('click', () => {
-    const email = document.getElementById('newsletterEmail').value;
-    if(email && email.includes('@')) {
-      showToast('🎉 Thanks for subscribing! Check your inbox soon.');
-      document.getElementById('newsletterEmail').value = '';
-      // Store in localStorage for future
-      localStorage.setItem('paperfly_subscriber', email);
+  // Ctrl+K shortcut
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      searchInput.focus();
+    }
+  });
+  
+  // Footer newsletter
+  document.getElementById('footerSubscribeBtn').addEventListener('click', () => {
+    const email = document.getElementById('footerEmail').value;
+    if (email && email.includes('@')) {
+      showToast('🎉 Thanks for subscribing!');
+      document.getElementById('footerEmail').value = '';
+      localStorage.setItem('pdfair_subscriber', email);
     } else {
-      showToast('Please enter a valid email address', true);
+      showToast('Please enter a valid email', true);
     }
   });
   
   function showToast(msg, isErr = false) {
-    let t = document.querySelector('.toast'); 
-    if(t) t.remove();
-    let div = document.createElement('div'); 
+    let t = document.querySelector('.toast');
+    if (t) t.remove();
+    let div = document.createElement('div');
     div.className = 'toast';
     div.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
     div.style.cssText = `
@@ -616,35 +740,21 @@
       color: white;
       z-index: 1000;
       font-size: 0.85rem;
+      animation: slideUp 0.3s ease;
     `;
     document.body.appendChild(div);
     setTimeout(() => div.remove(), 3000);
   }
   
-  // Load saved subscriber
-  const savedSub = localStorage.getItem('paperfly_subscriber');
-  if(savedSub) {
-    document.getElementById('newsletterEmail').value = savedSub;
-  }
-  
-  // Add keyboard shortcut (Ctrl+K to focus search)
-  document.addEventListener('keydown', (e) => {
-    if((e.ctrlKey || e.metaKey) && e.key === 'k') {
-      e.preventDefault();
-      searchInput.focus();
-    }
-  });
-  
-  // Animated counter for stats
+  // Counter animation
   const counters = document.querySelectorAll('.stat-number');
   counters.forEach(counter => {
     const target = counter.innerText;
-    counter.innerText = '0';
     let current = 0;
-    const increment = parseInt(target) / 50;
+    const increment = parseInt(target) / 40;
     const updateCounter = () => {
       current += increment;
-      if(current < parseInt(target)) {
+      if (current < parseInt(target)) {
         counter.innerText = Math.floor(current);
         requestAnimationFrame(updateCounter);
       } else {
@@ -668,7 +778,6 @@
     color: white;
     z-index: 1000;
     font-size: 0.85rem;
-    animation: slideUp 0.3s ease;
   }
   @keyframes slideUp {
     from { opacity: 0; transform: translateX(-50%) translateY(20px); }
