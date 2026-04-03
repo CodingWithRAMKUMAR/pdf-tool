@@ -2,907 +2,244 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>AllCutX Pro – 15+ PDF Tools</title>
-  <meta name="description" content="AllCutX Pro: free PDF tools – merge, split, compress, rotate, extract, watermark, page numbers, delete, protect, unlock, advanced compress, PDF to images, images to PDF, add signature, page reorder, remove metadata. 100% private, no uploads.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AllCutX Pro | The Ultimate Free PDF Toolkit</title>
+  <meta name="description" content="AllCutX Pro: the most powerful free online PDF tool. Merge, split, compress, rotate, extract, watermark, add page numbers, delete pages, protect & unlock PDFs. 100% private, no uploads, no signup. SEO optimized.">
+  <meta name="keywords" content="pdf merge, split pdf, compress pdf, rotate pdf, extract pdf pages, watermark pdf, add page numbers, delete pdf pages, encrypt pdf, unlock pdf, free pdf tools online, all-in-one pdf editor">
+  <meta name="author" content="Ram">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://pdf-tool-inky.vercel.app/">
+  <meta property="og:title" content="AllCutX Pro – The Ultimate Free PDF Toolkit">
+  <meta property="og:description" content="Merge, split, compress, watermark, encrypt, and more – all in your browser. No uploads, no limits.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://placehold.co/1200x630/0a1a2a/7aaef0?text=AllCutX">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
-      background: #f5f5f7;
-      color: #1d1d1f;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #0a0f2a 0%, #030618 100%);
+      min-height: 100vh;
       padding: 2rem 1rem;
+      color: #f0f6ff;
     }
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, rgba(255, 100, 150, 0.15), rgba(0, 150, 255, 0.1));
+      pointer-events: none;
+      z-index: -2;
     }
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 3rem;
+    .container { max-width: 1400px; margin: 0 auto; }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
     }
-    .header h1 {
-      font-size: 3rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #007aff, #5856d6);
+    .logo h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #ffb347, #ff6b6b, #4facfe);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      letter-spacing: -0.02em;
+      font-weight: 800;
     }
-    .header p {
-      font-size: 1.1rem;
-      color: #6c6c70;
-      margin-top: 0.5rem;
+    .search-box {
+      position: relative;
+      width: 280px;
     }
-    /* Grid */
+    .search-box input {
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 40px;
+      padding: 0.6rem 1rem 0.6rem 2.5rem;
+      color: white;
+      font-size: 0.9rem;
+      backdrop-filter: blur(5px);
+      transition: 0.2s;
+    }
+    .search-box input:focus {
+      outline: none;
+      border-color: #ff6b6b;
+      background: rgba(255,255,255,0.2);
+    }
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffb347;
+    }
+    .hero {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .hero p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+    .badge {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(4px);
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1.5rem;
+      margin-bottom: 3rem;
     }
-    /* Card */
-    .card {
-      background: rgba(255,255,255,0.8);
-      backdrop-filter: blur(10px);
-      border-radius: 2rem;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-      border: 1px solid rgba(255,255,255,0.5);
-      padding: 1.5rem;
-      transition: all 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1);
-      border-color: rgba(0,122,255,0.3);
-    }
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1.2rem;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      padding-bottom: 0.6rem;
-    }
-    .card-header i {
-      font-size: 1.8rem;
-      color: #007aff;
-    }
-    .card-header h2 {
-      font-size: 1.4rem;
-      font-weight: 600;
-    }
-    .drop-zone {
-      background: rgba(0,0,0,0.02);
-      border: 2px dashed #c6c6c8;
-      border-radius: 1.2rem;
-      padding: 0.8rem;
-      text-align: center;
-      cursor: pointer;
-      margin-bottom: 1rem;
-      transition: 0.2s;
-    }
-    .drop-zone.drag-over {
-      border-color: #007aff;
-      background: rgba(0,122,255,0.05);
-    }
-    .drop-icon {
-      font-size: 1.5rem;
-      color: #8e8e93;
-    }
-    .drop-text {
-      font-size: 0.9rem;
-      color: #6c6c70;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 0.7rem 1rem;
-      border: 1px solid #c6c6c8;
-      border-radius: 1rem;
-      font-size: 0.9rem;
-      background: white;
-      margin: 0.5rem 0;
-      outline: none;
-      transition: 0.2s;
-    }
-    input:focus, select:focus {
-      border-color: #007aff;
-      box-shadow: 0 0 0 3px rgba(0,122,255,0.2);
-    }
-    .btn-primary {
-      background: #007aff;
-      border: none;
-      padding: 0.7rem;
-      border-radius: 2rem;
-      font-weight: 600;
-      width: 100%;
-      cursor: pointer;
-      color: white;
-      margin-top: 0.6rem;
-      transition: 0.2s;
-    }
-    .btn-primary:active {
-      transform: scale(0.98);
-    }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .info-text {
-      font-size: 0.7rem;
-      color: #8e8e93;
-      margin-top: 0.2rem;
-    }
-    .file-list {
-      max-height: 150px;
-      overflow-y: auto;
-      background: rgba(0,0,0,0.02);
-      border-radius: 1rem;
-      margin: 0.5rem 0;
-      padding: 0.3rem;
-    }
-    .file-item {
-      display: flex;
-      justify-content: space-between;
-      background: white;
-      margin: 0.2rem 0;
-      padding: 0.4rem 0.6rem;
-      border-radius: 0.8rem;
-      font-size: 0.75rem;
-      border: 1px solid #e5e5ea;
-    }
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1c1c1e;
+    .tool-card {
+      background: rgba(20, 25, 50, 0.7);
       backdrop-filter: blur(12px);
-      padding: 0.6rem 1.2rem;
-      border-radius: 40px;
-      color: white;
-      z-index: 1000;
-      font-size: 0.85rem;
-      pointer-events: none;
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 1.5rem;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
     }
-    .spinner {
+    .tool-card:hover {
+      transform: translateY(-5px);
+      border-color: #ffb347;
+      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3);
+    }
+    .tool-card i {
+      font-size: 2rem;
+      background: linear-gradient(145deg, #ffb347, #ff6b6b);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
       display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 0.6s linear infinite;
-      margin-right: 6px;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .tool-card h2 {
+      font-size: 1.3rem;
+      margin: 0.5rem 0;
+    }
+    .tool-card p {
+      font-size: 0.85rem;
+      opacity: 0.8;
     }
     footer {
       text-align: center;
-      margin-top: 3rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.2);
       font-size: 0.8rem;
-      color: #8e8e93;
+    }
+    .heart { color: #ff6b6b; }
+    .copyright {
+      margin-top: 0.5rem;
+      opacity: 0.6;
     }
     @media (max-width: 680px) {
-      body { padding: 1rem; }
-      .tools-grid { grid-template-columns: 1fr; }
-      .card { padding: 1rem; }
+      .top-bar { flex-direction: column; align-items: stretch; }
+      .search-box { width: 100%; }
+      .hero h1 { font-size: 2rem; }
     }
   </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <h1>AllCutX Pro ✦</h1>
-    <p>15+ free PDF tools • No uploads • Private • Apple‑grade design</p>
+  <div class="top-bar">
+    <div class="logo">
+      <h1>AllCutX Pro ✦</h1>
+    </div>
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" id="toolSearch" placeholder="Search tool... e.g., watermark, split">
+    </div>
   </div>
-  <div class="tools-grid" id="toolsGrid"></div>
-  <footer>⚡ All operations happen in your browser – your files never leave your device.</footer>
+
+  <div class="hero">
+    <p>10+ PDF Tools • 100% Free • No Uploads • Private</p>
+    <div class="badges">
+      <span class="badge"><i class="fas fa-lock"></i> Client‑Side</span>
+      <span class="badge"><i class="fas fa-bolt"></i> Blazing Fast</span>
+      <span class="badge"><i class="fas fa-shield-alt"></i> No Server</span>
+    </div>
+  </div>
+
+  <div class="tools-grid" id="toolsGrid">
+    <!-- Cards will be generated by JavaScript -->
+  </div>
+
+  <footer>
+    <p>Made with <i class="fas fa-heart heart"></i> by Ram — for you, for everyone, for free.</p>
+    <p class="copyright">© 2026 AllCutX Pro. All operations are local; your files never leave your device.</p>
+  </footer>
 </div>
 
 <script>
-  // --------------------------------------------------------------
-  // Helper functions
-  // --------------------------------------------------------------
-  function showToast(msg, isErr = false) {
-    let t = document.querySelector('.toast'); if (t) t.remove();
-    let div = document.createElement('div'); div.className = 'toast';
-    div.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
-    div.style.background = isErr ? '#ff3b30' : '#1c1c1e';
-    document.body.appendChild(div);
-    setTimeout(() => div.remove(), 3000);
-  }
-  function formatBytes(b) {
-    if (b === 0) return '0 Bytes';
-    const k = 1024;
-    const i = Math.floor(Math.log(b) / Math.log(k));
-    return parseFloat((b / Math.pow(k, i)).toFixed(1)) + ' ' + ['Bytes', 'KB', 'MB'][i];
-  }
-  function escapeHtml(str) {
-    return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]);
-  }
-  async function loadPdf(file) { return await PDFLib.PDFDocument.load(await file.arrayBuffer()); }
-  async function saveAndDownload(pdfDoc, filename) { saveAs(new Blob([await pdfDoc.save()], { type: 'application/pdf' }), filename); }
-  function stripHtml(html) { if (!html) return ''; const tmp = document.createElement('div'); tmp.innerHTML = html; return tmp.textContent || tmp.innerText || ''; }
-  function parseRanges(rangeStr, totalPages) {
-    if (rangeStr.trim() === '*') return Array.from({ length: totalPages }, (_, i) => i + 1);
-    let parts = rangeStr.split(',');
-    let pages = new Set();
-    for (let part of parts) {
-      part = part.trim();
-      if (part.includes('-')) {
-        let [s, e] = part.split('-').map(x => x.trim());
-        let start = parseInt(s);
-        let end = (e === 'end') ? totalPages : parseInt(e);
-        if (isNaN(start) || isNaN(end) || start < 1) continue;
-        if (end > totalPages) end = totalPages;
-        for (let p = start; p <= end; p++) pages.add(p);
-      } else if (part !== '') {
-        let p = parseInt(part);
-        if (!isNaN(p) && p >= 1 && p <= totalPages) pages.add(p);
-      }
-    }
-    return Array.from(pages).sort((a, b) => a - b);
-  }
-
-  // Rasterize PDF to JPEG images and rebuild (used by Advanced Compress)
-  async function rasterizePdf(file, quality) {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdfData = new Uint8Array(arrayBuffer);
-    const loadingTask = pdfjsLib.getDocument({ data: pdfData });
-    const pdfDoc = await loadingTask.promise;
-    const pageCount = pdfDoc.numPages;
-    const newPdf = await PDFLib.PDFDocument.create();
-    for (let i = 1; i <= pageCount; i++) {
-      const page = await pdfDoc.getPage(i);
-      const viewport = page.getViewport({ scale: 1.0 });
-      const canvas = document.createElement('canvas');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      const ctx = canvas.getContext('2d');
-      await page.render({ canvasContext: ctx, viewport }).promise;
-      const jpegBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
-      const jpegBytes = await jpegBlob.arrayBuffer();
-      const image = await newPdf.embedJpg(jpegBytes);
-      const pdfPage = newPdf.addPage([canvas.width, canvas.height]);
-      pdfPage.drawImage(image, { x: 0, y: 0, width: canvas.width, height: canvas.height });
-    }
-    return await newPdf.save();
-  }
-
-  // --------------------------------------------------------------
-  // Tool definitions (each card will be generated dynamically)
-  // --------------------------------------------------------------
   const tools = [
-    {
-      name: "Merge PDF", icon: "fas fa-object-group", desc: "Combine multiple PDFs",
-      html: `<div class="drop-zone" id="mergeDrop"><div class="drop-icon"><i class="fas fa-cloud-upload-alt"></i></div><div class="drop-text">Drop PDFs or click</div></div>
-             <input type="file" id="mergeInput" multiple accept="application/pdf" hidden>
-             <div id="mergeList" class="file-list"></div>
-             <button id="mergeBtn" class="btn-primary">Merge & Download</button>`,
-      init: (card) => {
-        let mergeFiles = [];
-        const drop = card.querySelector('#mergeDrop'), input = card.querySelector('#mergeInput'), listDiv = card.querySelector('#mergeList'), btn = card.querySelector('#mergeBtn');
-        function render() {
-          if (!mergeFiles.length) { listDiv.innerHTML = '<div style="padding:0.4rem;text-align:center;">No PDFs</div>'; return; }
-          listDiv.innerHTML = mergeFiles.map((f, i) => `<div class="file-item"><span>${escapeHtml(f.name)} (${formatBytes(f.size)})</span><button class="remove-file" data-idx="${i}" style="background:none;border:none;color:#ff3b30;cursor:pointer;">✖</button></div>`).join('');
-          card.querySelectorAll('.remove-file').forEach(btn => btn.addEventListener('click', e => { mergeFiles.splice(parseInt(btn.dataset.idx), 1); render(); }));
-        }
-        function addFiles(files) { const pdfs = Array.from(files).filter(f => f.type === 'application/pdf'); if (pdfs.length) { mergeFiles.push(...pdfs); render(); showToast(`➕ Added ${pdfs.length} PDF(s)`); } else showToast('Only PDF files', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); addFiles(e.dataTransfer.files); });
-        input.addEventListener('change', e => { addFiles(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (mergeFiles.length < 2) { showToast('Select at least 2 PDFs', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Merging...';
-          try {
-            const merged = await PDFLib.PDFDocument.create();
-            for (let f of mergeFiles) { const doc = await loadPdf(f); const pages = await merged.copyPages(doc, doc.getPageIndices()); pages.forEach(p => merged.addPage(p)); }
-            await saveAndDownload(merged, `merged_${Date.now()}.pdf`);
-            showToast('✅ Merge successful!');
-          } catch (e) { showToast('Merge error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-        render();
-      }
-    },
-    {
-      name: "Split PDF", icon: "fas fa-cut", desc: "Extract pages",
-      html: `<div class="drop-zone" id="splitDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a PDF</div></div>
-             <input type="file" id="splitInput" accept="application/pdf" hidden>
-             <div id="splitInfo" style="font-size:0.75rem"></div>
-             <input type="text" id="splitRanges" placeholder="e.g., 1-3,5,7-end  or  *" value="*">
-             <div class="info-text">Use "*" to split every page, "end" for last page</div>
-             <button id="splitBtn" class="btn-primary">Split & Download ZIP</button>`,
-      init: (card) => {
-        let splitFile = null;
-        const drop = card.querySelector('#splitDrop'), input = card.querySelector('#splitInput'), info = card.querySelector('#splitInfo'), ranges = card.querySelector('#splitRanges'), btn = card.querySelector('#splitBtn');
-        function setFile(file) { splitFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Split ready: ${f.name}`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!splitFile) { showToast('Select a PDF', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Splitting...';
-          try {
-            const doc = await loadPdf(splitFile);
-            const total = doc.getPageCount();
-            const pages = parseRanges(ranges.value, total);
-            if (pages.length === 0) throw new Error('No valid pages');
-            const zip = new JSZip();
-            for (let p of pages) {
-              const newDoc = await PDFLib.PDFDocument.create();
-              const [page] = await newDoc.copyPages(doc, [p - 1]);
-              newDoc.addPage(page);
-              zip.file(`page_${p}.pdf`, await newDoc.save());
-            }
-            const blob = await zip.generateAsync({ type: 'blob' });
-            saveAs(blob, `split_${Date.now()}.zip`);
-            showToast(`✅ Split into ${pages.length} pages`);
-          } catch (e) { showToast('Split error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Compress PDF", icon: "fas fa-compress", desc: "Basic compression",
-      html: `<div class="drop-zone" id="compressDrop"><div class="drop-icon"><i class="fas fa-file-archive"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="compressInput" accept="application/pdf" hidden>
-             <div id="compressPreview"></div>
-             <button id="compressBtn" class="btn-primary">Optimize & Compress</button>`,
-      init: (card) => {
-        let compressFile = null;
-        const drop = card.querySelector('#compressDrop'), input = card.querySelector('#compressInput'), preview = card.querySelector('#compressPreview'), btn = card.querySelector('#compressBtn');
-        function setFile(file) { compressFile = file; preview.innerHTML = file ? `<span class="info-text">${escapeHtml(file.name)} (${formatBytes(file.size)})</span>` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Ready to compress: ${f.name}`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!compressFile) { showToast('Select a PDF', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Compressing...';
-          try {
-            const doc = await loadPdf(compressFile);
-            const compressedBytes = await doc.save({ useObjectStreams: true });
-            saveAs(new Blob([compressedBytes], { type: 'application/pdf' }), `compressed_${compressFile.name}`);
-            showToast(`✅ Compression done!`);
-          } catch (e) { showToast('Compress error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Advanced Compress", icon: "fas fa-chart-line", desc: "Set target size & quality (rasterize)",
-      html: `<div class="drop-zone" id="advDrop"><div class="drop-icon"><i class="fas fa-file-archive"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="advInput" accept="application/pdf" hidden>
-             <div id="advInfo"></div>
-             <input type="number" id="targetKB" placeholder="Target size (KB)" value="500">
-             <select id="jpegQuality"><option value="0.3">Low (30%)</option><option value="0.5">Medium (50%)</option><option value="0.7">High (70%)</option></select>
-             <button id="advCompressBtn" class="btn-primary">Compress to target</button>
-             <div class="info-text">Uses JPEG rasterization. Lower quality = smaller file. Experiment to hit target.</div>`,
-      init: (card) => {
-        let advFile = null;
-        const drop = card.querySelector('#advDrop'), input = card.querySelector('#advInput'), info = card.querySelector('#advInfo'), targetKB = card.querySelector('#targetKB'), qualitySelect = card.querySelector('#jpegQuality'), btn = card.querySelector('#advCompressBtn');
-        function setFile(file) { advFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Ready for advanced compress`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!advFile) { showToast('Select a PDF', true); return; }
-          const target = parseInt(targetKB.value);
-          if (isNaN(target) || target <= 0) { showToast('Enter valid target size (KB)', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Compressing...';
-          try {
-            const quality = parseFloat(qualitySelect.value);
-            const compressedBytes = await rasterizePdf(advFile, quality);
-            const newSizeKB = compressedBytes.length / 1024;
-            if (newSizeKB > target) {
-              showToast(`⚠️ Compressed size ${newSizeKB.toFixed(1)}KB > target. Try lower quality.`, true);
-            } else {
-              showToast(`✅ Compressed to ${newSizeKB.toFixed(1)}KB`);
-            }
-            saveAs(new Blob([compressedBytes], { type: 'application/pdf' }), `compressed_${advFile.name}`);
-          } catch (e) { showToast('Advanced compress error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Rotate PDF", icon: "fas fa-sync-alt", desc: "Rotate all pages",
-      html: `<div class="drop-zone" id="rotateDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="rotateInput" accept="application/pdf" hidden>
-             <div id="rotateInfo"></div>
-             <select id="rotateAngle"><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select>
-             <button id="rotateBtn" class="btn-primary">Rotate</button>`,
-      init: (card) => {
-        let rotateFile = null;
-        const drop = card.querySelector('#rotateDrop'), input = card.querySelector('#rotateInput'), info = card.querySelector('#rotateInfo'), angleSelect = card.querySelector('#rotateAngle'), btn = card.querySelector('#rotateBtn');
-        function setFile(file) { rotateFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Rotate ready`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!rotateFile) { showToast('Select a PDF', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Rotating...';
-          try {
-            const doc = await loadPdf(rotateFile);
-            const angle = parseInt(angleSelect.value);
-            doc.getPages().forEach(p => p.setRotation(PDFLib.degrees(angle)));
-            await saveAndDownload(doc, `rotated_${rotateFile.name}`);
-            showToast(`✅ Rotated ${angle}°`);
-          } catch (e) { showToast('Rotate error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Extract Pages", icon: "fas fa-arrow-right", desc: "Extract custom range",
-      html: `<div class="drop-zone" id="extractDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="extractInput" accept="application/pdf" hidden>
-             <div id="extractInfo"></div>
-             <input type="text" id="extractRanges" placeholder="e.g., 1-3,5,7-end" value="1-3">
-             <button id="extractBtn" class="btn-primary">Extract</button>`,
-      init: (card) => {
-        let extractFile = null;
-        const drop = card.querySelector('#extractDrop'), input = card.querySelector('#extractInput'), info = card.querySelector('#extractInfo'), ranges = card.querySelector('#extractRanges'), btn = card.querySelector('#extractBtn');
-        function setFile(file) { extractFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Extract ready`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!extractFile) { showToast('Select a PDF', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Extracting...';
-          try {
-            const doc = await loadPdf(extractFile);
-            const total = doc.getPageCount();
-            const pages = parseRanges(ranges.value, total);
-            if (pages.length === 0) throw new Error('No valid pages');
-            const newDoc = await PDFLib.PDFDocument.create();
-            for (let p of pages) { const [page] = await newDoc.copyPages(doc, [p - 1]); newDoc.addPage(page); }
-            await saveAndDownload(newDoc, `extracted_${extractFile.name}`);
-            showToast(`✅ Extracted ${pages.length} pages`);
-          } catch (e) { showToast('Extract error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Watermark", icon: "fas fa-water", desc: "Add text watermark",
-      html: `<div class="drop-zone" id="watermarkDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="watermarkInput" accept="application/pdf" hidden>
-             <div id="watermarkInfo"></div>
-             <input type="text" id="watermarkText" placeholder="Watermark text" value="CONFIDENTIAL">
-             <select id="watermarkOpacity"><option value="0.3">Light</option><option value="0.5">Medium</option><option value="0.7">Dark</option></select>
-             <button id="watermarkBtn" class="btn-primary">Add Watermark</button>`,
-      init: (card) => {
-        let watermarkFile = null;
-        const drop = card.querySelector('#watermarkDrop'), input = card.querySelector('#watermarkInput'), info = card.querySelector('#watermarkInfo'), textInput = card.querySelector('#watermarkText'), opacitySelect = card.querySelector('#watermarkOpacity'), btn = card.querySelector('#watermarkBtn');
-        function setFile(file) { watermarkFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Watermark ready`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!watermarkFile) { showToast('Select a PDF', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Adding watermark...';
-          try {
-            const doc = await loadPdf(watermarkFile);
-            const text = textInput.value || 'CONFIDENTIAL';
-            const opacity = parseFloat(opacitySelect.value);
-            const pages = doc.getPages();
-            for (let page of pages) {
-              const { width, height } = page.getSize();
-              const fontSize = Math.min(width, height) / 10;
-              page.drawText(text, { x: width / 2, y: height / 2, size: fontSize, opacity, color: PDFLib.rgb(0.7, 0.7, 0.7), rotate: PDFLib.degrees(45) });
-            }
-            await saveAndDownload(doc, `watermarked_${watermarkFile.name}`);
-            showToast(`✅ Watermark added`);
-          } catch (e) { showToast('Watermark error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Add Page Numbers", icon: "fas fa-hashtag", desc: "Add page numbers",
-      html: `<div class="drop-zone" id="pagenumDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="pagenumInput" accept="application/pdf" hidden>
-             <div id="pagenumInfo"></div>
-             <input type="text" id="pageNumFormat" placeholder="Format: Page {n} of {total}" value="Page {n} of {total}">
-             <button id="pagenumBtn" class="btn-primary">Add Numbers</button>`,
-      init: (card) => {
-        let pagenumFile = null;
-        const drop = card.querySelector('#pagenumDrop'), input = card.querySelector('#pagenumInput'), info = card.querySelector('#pagenumInfo'), formatInput = card.querySelector('#pageNumFormat'), btn = card.querySelector('#pagenumBtn');
-        function setFile(file) { pagenumFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Ready to add numbers`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!pagenumFile) { showToast('Select a PDF', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Adding numbers...';
-          try {
-            const doc = await loadPdf(pagenumFile);
-            const format = formatInput.value;
-            const pages = doc.getPages();
-            const total = pages.length;
-            for (let i = 0; i < total; i++) {
-              const page = pages[i];
-              const { width, height } = page.getSize();
-              const pageNumText = format.replace('{n}', (i + 1).toString()).replace('{total}', total.toString());
-              page.drawText(pageNumText, { x: width - 50, y: 30, size: 12, color: PDFLib.rgb(0, 0, 0) });
-            }
-            await saveAndDownload(doc, `numbered_${pagenumFile.name}`);
-            showToast(`✅ Page numbers added`);
-          } catch (e) { showToast('Numbering error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Delete Pages", icon: "fas fa-trash-alt", desc: "Remove pages",
-      html: `<div class="drop-zone" id="deleteDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="deleteInput" accept="application/pdf" hidden>
-             <div id="deleteInfo"></div>
-             <input type="text" id="deleteRanges" placeholder="Pages to delete: 2,5-7,9-end" value="">
-             <button id="deleteBtn" class="btn-primary">Delete</button>`,
-      init: (card) => {
-        let deleteFile = null;
-        const drop = card.querySelector('#deleteDrop'), input = card.querySelector('#deleteInput'), info = card.querySelector('#deleteInfo'), ranges = card.querySelector('#deleteRanges'), btn = card.querySelector('#deleteBtn');
-        function setFile(file) { deleteFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Ready to delete pages`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!deleteFile) { showToast('Select a PDF', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Deleting...';
-          try {
-            const doc = await loadPdf(deleteFile);
-            const total = doc.getPageCount();
-            const toDelete = parseRanges(ranges.value, total);
-            const keep = Array.from({ length: total }, (_, i) => i + 1).filter(p => !toDelete.includes(p));
-            if (keep.length === 0) throw new Error('No pages left');
-            const newDoc = await PDFLib.PDFDocument.create();
-            for (let p of keep) { const [page] = await newDoc.copyPages(doc, [p - 1]); newDoc.addPage(page); }
-            await saveAndDownload(newDoc, `deleted_${deleteFile.name}`);
-            showToast(`✅ Deleted ${toDelete.length} pages`);
-          } catch (e) { showToast('Delete error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Protect PDF", icon: "fas fa-lock", desc: "Encrypt with password",
-      html: `<div class="drop-zone" id="protectDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="protectInput" accept="application/pdf" hidden>
-             <div id="protectInfo"></div>
-             <input type="password" id="protectPassword" placeholder="Set a password">
-             <button id="protectBtn" class="btn-primary">Encrypt</button>`,
-      init: (card) => {
-        let protectFile = null;
-        const drop = card.querySelector('#protectDrop'), input = card.querySelector('#protectInput'), info = card.querySelector('#protectInfo'), pwdInput = card.querySelector('#protectPassword'), btn = card.querySelector('#protectBtn');
-        function setFile(file) { protectFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Ready to encrypt`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!protectFile) { showToast('Select a PDF', true); return; }
-          const pwd = pwdInput.value;
-          if (!pwd) { showToast('Enter a password', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Encrypting...';
-          try {
-            const doc = await loadPdf(protectFile);
-            await doc.encrypt({ userPassword: pwd, ownerPassword: pwd, permissions: PDFLib.PDFDocument.AllowAll });
-            await saveAndDownload(doc, `protected_${protectFile.name}`);
-            showToast(`✅ PDF encrypted`);
-          } catch (e) { showToast('Encrypt error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Unlock PDF", icon: "fas fa-unlock-alt", desc: "Remove password",
-      html: `<div class="drop-zone" id="unlockDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop password-protected PDF</div></div>
-             <input type="file" id="unlockInput" accept="application/pdf" hidden>
-             <div id="unlockInfo"></div>
-             <input type="password" id="unlockPassword" placeholder="Enter password">
-             <button id="unlockBtn" class="btn-primary">Unlock</button>`,
-      init: (card) => {
-        let unlockFile = null;
-        const drop = card.querySelector('#unlockDrop'), input = card.querySelector('#unlockInput'), info = card.querySelector('#unlockInfo'), pwdInput = card.querySelector('#unlockPassword'), btn = card.querySelector('#unlockBtn');
-        function setFile(file) { unlockFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Ready to unlock`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!unlockFile) { showToast('Select a PDF', true); return; }
-          const pwd = pwdInput.value;
-          if (!pwd) { showToast('Enter password', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Unlocking...';
-          try {
-            const arrayBuf = await unlockFile.arrayBuffer();
-            const doc = await PDFLib.PDFDocument.load(arrayBuf, { password: pwd });
-            await saveAndDownload(doc, `unlocked_${unlockFile.name}`);
-            showToast(`✅ PDF unlocked`);
-          } catch (e) { showToast('Wrong password or file is not encrypted', true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "PDF to Images", icon: "fas fa-images", desc: "Convert each page to image",
-      html: `<div class="drop-zone" id="pdfImagesDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="pdfImagesInput" accept="application/pdf" hidden>
-             <div id="pdfImagesInfo"></div>
-             <select id="imageFormat"><option value="png">PNG</option><option value="jpg">JPEG</option></select>
-             <button id="pdfImagesBtn" class="btn-primary">Convert & Download ZIP</button>`,
-      init: (card) => {
-        let pdfImagesFile = null;
-        const drop = card.querySelector('#pdfImagesDrop'), input = card.querySelector('#pdfImagesInput'), info = card.querySelector('#pdfImagesInfo'), formatSelect = card.querySelector('#imageFormat'), btn = card.querySelector('#pdfImagesBtn');
-        async function convert(file, format) {
-          const arrayBuffer = await file.arrayBuffer();
-          const pdfData = new Uint8Array(arrayBuffer);
-          const loadingTask = pdfjsLib.getDocument({ data: pdfData });
-          const pdfDoc = await loadingTask.promise;
-          const pageCount = pdfDoc.numPages;
-          const zip = new JSZip();
-          for (let i = 1; i <= pageCount; i++) {
-            const page = await pdfDoc.getPage(i);
-            const viewport = page.getViewport({ scale: 1.5 });
-            const canvas = document.createElement('canvas');
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            const ctx = canvas.getContext('2d');
-            await page.render({ canvasContext: ctx, viewport }).promise;
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, `image/${format}`));
-            const ext = format === 'png' ? 'png' : 'jpg';
-            zip.file(`page_${i}.${ext}`, blob);
-          }
-          return await zip.generateAsync({ type: 'blob' });
-        }
-        function setFile(file) { pdfImagesFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Ready to convert`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!pdfImagesFile) { showToast('Select a PDF', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Converting...';
-          try {
-            const format = formatSelect.value;
-            const zipBlob = await convert(pdfImagesFile, format);
-            saveAs(zipBlob, `pdf_images_${Date.now()}.zip`);
-            showToast(`✅ Converted to ${format.toUpperCase()}`);
-          } catch (e) { showToast('Conversion error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Images to PDF", icon: "fas fa-file-image", desc: "Combine images into PDF",
-      html: `<div class="drop-zone" id="imagesPdfDrop"><div class="drop-icon"><i class="fas fa-images"></i></div><div class="drop-text">Drop images (PNG, JPG)</div></div>
-             <input type="file" id="imagesPdfInput" multiple accept="image/jpeg,image/png" hidden>
-             <div id="imagesPdfInfo"></div>
-             <button id="imagesPdfBtn" class="btn-primary">Create PDF</button>`,
-      init: (card) => {
-        let imageFiles = [];
-        const drop = card.querySelector('#imagesPdfDrop'), input = card.querySelector('#imagesPdfInput'), info = card.querySelector('#imagesPdfInfo'), btn = card.querySelector('#imagesPdfBtn');
-        function update() { info.innerHTML = imageFiles.length ? `${imageFiles.length} images selected` : ''; }
-        function addFiles(files) {
-          const imgs = Array.from(files).filter(f => f.type.startsWith('image/'));
-          if (imgs.length) { imageFiles.push(...imgs); update(); showToast(`➕ Added ${imgs.length} images`); }
-          else showToast('Only images allowed', true);
-        }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); addFiles(e.dataTransfer.files); });
-        input.addEventListener('change', e => { addFiles(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (imageFiles.length === 0) { showToast('Select images', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Creating PDF...';
-          try {
-            const pdfDoc = await PDFLib.PDFDocument.create();
-            for (let img of imageFiles) {
-              const buf = await img.arrayBuffer();
-              let image;
-              if (img.type === 'image/png') image = await pdfDoc.embedPng(buf);
-              else image = await pdfDoc.embedJpg(buf);
-              const page = pdfDoc.addPage([image.width, image.height]);
-              page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
-            }
-            const bytes = await pdfDoc.save();
-            saveAs(new Blob([bytes], { type: 'application/pdf' }), `images_${Date.now()}.pdf`);
-            showToast(`✅ PDF created with ${imageFiles.length} pages`);
-            imageFiles = []; update();
-          } catch (e) { showToast('Error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-        update();
-      }
-    },
-    {
-      name: "Add Signature", icon: "fas fa-pen-fancy", desc: "Draw & add signature",
-      html: `<div class="drop-zone" id="sigDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="sigInput" accept="application/pdf" hidden>
-             <div id="sigInfo"></div>
-             <canvas id="sigCanvas" width="300" height="150" style="border:1px solid #c6c6c8; margin:0.5rem 0; background:white; border-radius:1rem;"></canvas>
-             <div style="display:flex; gap:0.5rem;"><button id="clearSig" class="btn-primary" style="background:#8e8e93;">Clear</button><button id="addSigBtn" class="btn-primary">Add to First Page</button></div>`,
-      init: (card) => {
-        let sigFile = null;
-        const drop = card.querySelector('#sigDrop'), input = card.querySelector('#sigInput'), info = card.querySelector('#sigInfo'), canvas = card.querySelector('#sigCanvas'), ctx = canvas.getContext('2d');
-        let drawing = false;
-        const start = (e) => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); };
-        const draw = (e) => { if (!drawing) return; ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); };
-        const stop = () => { drawing = false; };
-        canvas.addEventListener('mousedown', start);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stop);
-        canvas.addEventListener('mouseleave', stop);
-        card.querySelector('#clearSig').addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
-        function setFile(file) { sigFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Signature ready`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        card.querySelector('#addSigBtn').addEventListener('click', async () => {
-          if (!sigFile) { showToast('Select a PDF', true); return; }
-          const dataUrl = canvas.toDataURL();
-          if (dataUrl === 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==') { showToast('Draw a signature first', true); return; }
-          const imgBuf = await fetch(dataUrl).then(r => r.arrayBuffer());
-          const doc = await loadPdf(sigFile);
-          const img = await doc.embedPng(imgBuf);
-          const page = doc.getPages()[0];
-          const { width, height } = page.getSize();
-          const scale = Math.min(width * 0.2 / img.width, height * 0.2 / img.height);
-          page.drawImage(img, { x: 50, y: 50, width: img.width * scale, height: img.height * scale });
-          await saveAndDownload(doc, `signed_${sigFile.name}`);
-          showToast(`✅ Signature added`);
-        });
-      }
-    },
-    {
-      name: "Page Reorder", icon: "fas fa-arrows-alt", desc: "Drag & drop pages",
-      html: `<div class="drop-zone" id="reorderDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="reorderInput" accept="application/pdf" hidden>
-             <div id="reorderInfo"></div>
-             <div id="pageList" style="max-height:200px; overflow-y:auto;"></div>
-             <button id="reorderBtn" class="btn-primary">Download Reordered PDF</button>`,
-      init: (card) => {
-        let reorderPages = [], reorderDoc = null;
-        const drop = card.querySelector('#reorderDrop'), input = card.querySelector('#reorderInput'), info = card.querySelector('#reorderInfo'), listDiv = card.querySelector('#pageList'), btn = card.querySelector('#reorderBtn');
-        function renderList() {
-          listDiv.innerHTML = reorderPages.map((_, i) => `<div draggable="true" data-idx="${i}" style="padding:0.3rem; margin:0.2rem; background:white; border-radius:0.8rem; cursor:grab; border:1px solid #e5e5ea;">Page ${i+1}</div>`).join('');
-          const items = listDiv.querySelectorAll('div');
-          items.forEach(item => {
-            item.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', item.dataset.idx); });
-            item.addEventListener('dragover', e => { e.preventDefault(); });
-            item.addEventListener('drop', e => {
-              e.preventDefault();
-              const from = parseInt(e.dataTransfer.getData('text/plain'));
-              const to = parseInt(item.dataset.idx);
-              if (from !== to) {
-                const moved = reorderPages.splice(from, 1)[0];
-                reorderPages.splice(to, 0, moved);
-                renderList();
-              }
-            });
-          });
-        }
-        async function loadPages(file) {
-          reorderDoc = await loadPdf(file);
-          reorderPages = Array.from({ length: reorderDoc.getPageCount() }, (_, i) => i);
-          renderList();
-          info.innerHTML = `${reorderPages.length} pages loaded. Drag to reorder.`;
-        }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { loadPages(f); showToast(`Loaded ${f.name}`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!reorderDoc) { showToast('Load a PDF first', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Reordering...';
-          try {
-            const newDoc = await PDFLib.PDFDocument.create();
-            for (let idx of reorderPages) { const [page] = await newDoc.copyPages(reorderDoc, [idx]); newDoc.addPage(page); }
-            await saveAndDownload(newDoc, `reordered_${Date.now()}.pdf`);
-            showToast(`✅ Reordered PDF saved`);
-          } catch (e) { showToast('Reorder error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    },
-    {
-      name: "Remove Metadata", icon: "fas fa-info-circle", desc: "Strip all metadata",
-      html: `<div class="drop-zone" id="metadataDrop"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
-             <input type="file" id="metadataInput" accept="application/pdf" hidden>
-             <div id="metadataInfo"></div>
-             <button id="metadataBtn" class="btn-primary">Remove Metadata</button>`,
-      init: (card) => {
-        let metadataFile = null;
-        const drop = card.querySelector('#metadataDrop'), input = card.querySelector('#metadataInput'), info = card.querySelector('#metadataInfo'), btn = card.querySelector('#metadataBtn');
-        function setFile(file) { metadataFile = file; info.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
-        function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if (f) { setFile(f); showToast(`Ready to remove metadata`); } else showToast('PDF required', true); }
-        drop.addEventListener('click', () => input.click());
-        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-        drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
-        input.addEventListener('change', e => { handleDrop(e.target.files); input.value = ''; });
-        btn.addEventListener('click', async () => {
-          if (!metadataFile) { showToast('Select a PDF', true); return; }
-          btn.disabled = true; const orig = btn.innerHTML; btn.innerHTML = '<span class="spinner"></span> Removing...';
-          try {
-            const doc = await loadPdf(metadataFile);
-            doc.setTitle(''); doc.setAuthor(''); doc.setSubject(''); doc.setKeywords([]); doc.setProducer(''); doc.setCreator('');
-            await saveAndDownload(doc, `clean_${metadataFile.name}`);
-            showToast(`✅ Metadata removed`);
-          } catch (e) { showToast('Error: ' + e.message, true); }
-          finally { btn.disabled = false; btn.innerHTML = orig; }
-        });
-      }
-    }
+    { name: "Merge PDF", desc: "Combine multiple PDFs into one file", icon: "fas fa-object-group", url: "merge.html" },
+    { name: "Split PDF", desc: "Extract pages or split every page", icon: "fas fa-cut", url: "split.html" },
+    { name: "Compress PDF", desc: "Reduce file size while maintaining quality", icon: "fas fa-compress", url: "compress.html" },
+    { name: "Advanced Compress PDF", desc: "Set target size and compress intelligently", icon: "fas fa-chart-line", url: "compress-advanced.html" },
+    { name: "Rotate PDF", desc: "Rotate pages 90°, 180°, or 270°", icon: "fas fa-sync-alt", url: "rotate.html" },
+    { name: "Extract Pages", desc: "Extract a custom range of pages", icon: "fas fa-arrow-right", url: "extract.html" },
+    { name: "Watermark PDF", desc: "Add custom text watermark", icon: "fas fa-water", url: "watermark.html" },
+    { name: "Add Page Numbers", desc: "Add page numbers to your PDF", icon: "fas fa-hashtag", url: "pagenumbers.html" },
+    { name: "Delete Pages", desc: "Remove unwanted pages", icon: "fas fa-trash-alt", url: "delete.html" },
+    { name: "Protect PDF", desc: "Encrypt with a password", icon: "fas fa-lock", url: "protect.html" },
+    { name: "Unlock PDF", desc: "Remove password (if known)", icon: "fas fa-unlock-alt", url: "unlock.html" }
   ];
 
-  // Build the grid
   const grid = document.getElementById('toolsGrid');
-  tools.forEach(tool => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div class="card-header">
+  const searchInput = document.getElementById('toolSearch');
+
+  function renderTools(filter = "") {
+    grid.innerHTML = "";
+    const filtered = tools.filter(tool => 
+      tool.name.toLowerCase().includes(filter) || 
+      tool.desc.toLowerCase().includes(filter)
+    );
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="tool-card" style="grid-column:1/-1; text-align:center; padding:2rem;">No matching tools found.</div>';
+      return;
+    }
+    filtered.forEach(tool => {
+      const card = document.createElement('a');
+      card.className = 'tool-card';
+      card.href = tool.url;
+      card.innerHTML = `
         <i class="${tool.icon}"></i>
         <h2>${tool.name}</h2>
-      </div>
-      ${tool.html}
-    `;
-    grid.appendChild(card);
-    tool.init(card);
+        <p>${tool.desc}</p>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  renderTools();
+  searchInput.addEventListener('input', () => {
+    renderTools(searchInput.value.toLowerCase());
   });
 </script>
 </body>
