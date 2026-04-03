@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF to Text – Convertulo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <style>/* same CSS block */</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-file-alt"></i><h1>PDF to Text</h1></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo"></div>
+    <textarea id="textOutput" rows="10" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2); border-radius:1rem; padding:0.8rem; color:white; margin:1rem 0;" readonly placeholder="Extracted text will appear here..."></textarea>
+    <button id="extractBtn" class="btn-primary">Extract Text</button>
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
+  </div>
+</div>
+<script>
+  let textFile = null;
+  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfo = document.getElementById('fileInfo'), textOutput = document.getElementById('textOutput'), extractBtn = document.getElementById('extractBtn');
+  async function extractText(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfData = new Uint8Array(arrayBuffer);
+    const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+    const pdfDoc = await loadingTask.promise;
+    let fullText = '';
+    for(let i=1; i<=pdfDoc.numPages; i++) {
+      const page = await pdfDoc.getPage(i);
+      const content = await page.getTextContent();
+      const strings = content.items.map(item => item.str);
+      fullText += strings.join(' ') + '\n\n';
+    }
+    return fullText;
+  }
+  function setFile(file) { textFile = file; fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; textOutput.value = ''; }
+  function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if(f) { setFile(f); showToast(`Ready to extract text`); } else showToast('PDF required', true); }
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { handleDrop(e.target.files); fileInput.value = ''; });
+  extractBtn.addEventListener('click', async () => {
+    if(!textFile) { showToast('Select a PDF', true); return; }
+    extractBtn.disabled = true; const orig = extractBtn.innerHTML; extractBtn.innerHTML = '<span class="spinner"></span> Extracting...';
+    try {
+      const text = await extractText(textFile);
+      textOutput.value = text;
+      showToast(`✅ Text extracted (${text.length} characters)`);
+    } catch(e) { showToast('Extract error: ' + e.message, true); }
+    finally { extractBtn.disabled = false; extractBtn.innerHTML = orig; }
+  });
+</script>
+</body>
+</html>
