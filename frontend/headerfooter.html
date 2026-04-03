@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Header/Footer – Convertulo</title>
+  <style>/* same CSS block */</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-heading"></i><h1>Add Header/Footer</h1></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo"></div>
+    <input type="text" id="headerText" placeholder="Header text (e.g., Confidential)" value="">
+    <input type="text" id="footerText" placeholder="Footer text (e.g., Page {n})" value="Page {n}">
+    <button id="addBtn" class="btn-primary">Add Header/Footer</button>
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
+  </div>
+</div>
+<script>
+  let hfFile = null;
+  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfo = document.getElementById('fileInfo'), addBtn = document.getElementById('addBtn');
+  const headerInput = document.getElementById('headerText'), footerInput = document.getElementById('footerText');
+  function setFile(file) { hfFile = file; fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
+  function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if(f) { setFile(f); showToast(`Ready to add header/footer`); } else showToast('PDF required', true); }
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { handleDrop(e.target.files); fileInput.value = ''; });
+  addBtn.addEventListener('click', async () => {
+    if(!hfFile) { showToast('Select a PDF', true); return; }
+    addBtn.disabled = true; const orig = addBtn.innerHTML; addBtn.innerHTML = '<span class="spinner"></span> Adding...';
+    try {
+      const doc = await loadPdf(hfFile);
+      const pages = doc.getPages();
+      const total = pages.length;
+      const header = headerInput.value;
+      const footerRaw = footerInput.value;
+      for(let i=0; i<total; i++) {
+        const page = pages[i];
+        const { width, height } = page.getSize();
+        if(header) {
+          page.drawText(header, { x: width/2, y: height - 30, size: 12, color: PDFLib.rgb(0.5,0.5,0.5) });
+        }
+        if(footerRaw) {
+          const footerText = footerRaw.replace('{n}', (i+1).toString()).replace('{total}', total.toString());
+          page.drawText(footerText, { x: width/2, y: 30, size: 12, color: PDFLib.rgb(0.5,0.5,0.5) });
+        }
+      }
+      await saveAndDownload(doc, `headerfooter_${hfFile.name}`);
+      showToast(`✅ Header/footer added`);
+    } catch(e) { showToast('Error: ' + e.message, true); }
+    finally { addBtn.disabled = false; addBtn.innerHTML = orig; }
+  });
+</script>
+</body>
+</html>
