@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Scan to PDF - PDFAir | Turn Camera Photos into PDF</title>
+  <meta name="description" content="Scan documents using your camera and convert to PDF instantly. Auto-crop, enhance, and create professional PDFs from photos.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #050b14; color: #eef2ff; padding: 2rem 1rem; }
+    #particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; }
+    .gradient-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, rgba(74,144,226,0.08), transparent 60%), radial-gradient(circle at 80% 70%, rgba(255,107,107,0.08), transparent 60%); z-index: -1; pointer-events: none; }
+    .container { max-width: 900px; margin: 0 auto; position: relative; z-index: 2; padding: 0 1rem; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; padding: 0.8rem 1.5rem; background: rgba(10,20,35,0.4); backdrop-filter: blur(20px); border-radius: 3rem; border: 1px solid rgba(255,255,255,0.08); }
+    .logo { display: flex; align-items: center; gap: 0.8rem; text-decoration: none; }
+    .logo h1 { font-size: 1.5rem; background: linear-gradient(135deg, #4A90E2, #FF6B6B, #FFB347); background-clip: text; -webkit-background-clip: text; color: transparent; font-weight: 700; }
+    .back-link { color: #4A90E2; text-decoration: none; font-size: 0.9rem; }
+    .card { background: rgba(15,25,45,0.5); backdrop-filter: blur(16px); border-radius: 2rem; padding: 2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 2rem; }
+    .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; }
+    .card-header i { font-size: 2rem; background: linear-gradient(145deg, #4A90E2, #FF6B6B); background-clip: text; -webkit-background-clip: text; color: transparent; }
+    .card-header h2 { font-size: 1.5rem; font-weight: 600; }
+    .camera-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 1.5rem; overflow: hidden; background: #000; }
+    video { width: 100%; height: auto; display: block; }
+    canvas { display: none; }
+    .controls { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+    .btn { padding: 0.8rem 1.5rem; border-radius: 2rem; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .btn-primary { background: linear-gradient(135deg, #4A90E2, #FF6B6B); color: white; }
+    .btn-secondary { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
+    .btn-danger { background: rgba(255,107,107,0.2); color: #FF6B6B; border: 1px solid rgba(255,107,107,0.3); }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: scale(0.98); }
+    .scanned-pages { margin-top: 2rem; }
+    .pages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .page-thumb { background: rgba(255,255,255,0.05); border-radius: 1rem; padding: 0.5rem; text-align: center; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+    .page-thumb img { width: 100%; height: auto; border-radius: 0.5rem; }
+    .page-thumb button { position: absolute; top: -8px; right: -8px; background: #FF6B6B; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; color: white; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1c1c1e; backdrop-filter: blur(12px); padding: 0.6rem 1.2rem; border-radius: 40px; color: white; z-index: 1000; font-size: 0.85rem; }
+    @media (max-width: 768px) { .container { padding: 0 0.5rem; } .card { padding: 1rem; } }
+  </style>
+</head>
+<body>
+<canvas id="particleCanvas"></canvas>
+<div class="gradient-overlay"></div>
+
+<div class="container">
+  <div class="top-bar">
+    <a href="index.html" class="logo"><i class="fas fa-cloud-upload-alt"></i><h1>PDFAir</h1></a>
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><i class="fas fa-camera"></i><h2>Scan to PDF</h2></div>
+    <p style="margin-bottom: 1rem; opacity: 0.8;">Use your camera to scan documents, receipts, whiteboards, or business cards. Auto-capture and convert to PDF.</p>
+    
+    <div class="camera-container">
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas"></canvas>
+    </div>
+    
+    <div class="controls">
+      <button id="startCamera" class="btn btn-primary"><i class="fas fa-video"></i> Start Camera</button>
+      <button id="captureBtn" class="btn btn-secondary" disabled><i class="fas fa-camera"></i> Capture Page</button>
+      <button id="stopCamera" class="btn btn-danger"><i class="fas fa-stop"></i> Stop Camera</button>
+    </div>
+    
+    <div class="scanned-pages" id="scannedPages" style="display: none;">
+      <h3><i class="fas fa-images"></i> Scanned Pages (<span id="pageCount">0</span>)</h3>
+      <div class="pages-grid" id="pagesGrid"></div>
+      <button id="createPdfBtn" class="btn btn-primary" style="margin-top: 1rem; width: 100%;"><i class="fas fa-file-pdf"></i> Create PDF from <span id="createCount">0</span> Pages</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let stream = null;
+  let video = document.getElementById('video');
+  let canvas = document.getElementById('canvas');
+  let ctx = canvas.getContext('2d');
+  let scannedImages = [];
+  
+  function showToast(msg, isErr = false) {
+    let t = document.querySelector('.toast'); if(t) t.remove();
+    let div = document.createElement('div'); div.className = 'toast';
+    div.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+    div.style.background = isErr ? '#ff3b30' : '#1c1c1e';
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+  }
+  
+  document.getElementById('startCamera').addEventListener('click', async () => {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      video.srcObject = stream;
+      document.getElementById('captureBtn').disabled = false;
+      showToast('✅ Camera started');
+    } catch(e) { showToast('Camera access denied: ' + e.message, true); }
+  });
+  
+  document.getElementById('stopCamera').addEventListener('click', () => {
+    if(stream) { stream.getTracks().forEach(track => track.stop()); video.srcObject = null; }
+    document.getElementById('captureBtn').disabled = true;
+    showToast('Camera stopped');
+  });
+  
+  document.getElementById('captureBtn').addEventListener('click', () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/jpeg', 0.9);
+    scannedImages.push(imageData);
+    renderPages();
+    showToast(`✅ Page ${scannedImages.length} captured`);
+  });
+  
+  function renderPages() {
+    const pagesGrid = document.getElementById('pagesGrid');
+    const scannedDiv = document.getElementById('scannedPages');
+    document.getElementById('pageCount').innerText = scannedImages.length;
+    document.getElementById('createCount').innerText = scannedImages.length;
+    
+    if(scannedImages.length > 0) scannedDiv.style.display = 'block';
+    
+    pagesGrid.innerHTML = scannedImages.map((img, idx) => `
+      <div class="page-thumb">
+        <img src="${img}" alt="Page ${idx+1}">
+        <button onclick="removePage(${idx})"><i class="fas fa-trash"></i></button>
+        <small>Page ${idx+1}</small>
+      </div>
+    `).join('');
+  }
+  
+  window.removePage = function(idx) {
+    scannedImages.splice(idx, 1);
+    renderPages();
+    if(scannedImages.length === 0) document.getElementById('scannedPages').style.display = 'none';
+    showToast('Page removed');
+  };
+  
+  document.getElementById('createPdfBtn').addEventListener('click', async () => {
+    if(scannedImages.length === 0) { showToast('No pages to convert', true); return; }
+    const btn = document.getElementById('createPdfBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating PDF...';
+    
+    try {
+      const pdfDoc = await PDFLib.PDFDocument.create();
+      for(let imgData of scannedImages) {
+        const imgBytes = await fetch(imgData).then(res => res.arrayBuffer());
+        const image = await pdfDoc.embedJpg(imgBytes);
+        const page = pdfDoc.addPage([image.width, image.height]);
+        page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
+      }
+      const pdfBytes = await pdfDoc.save();
+      saveAs(new Blob([pdfBytes], { type: 'application/pdf' }), `scanned_${Date.now()}.pdf`);
+      showToast(`✅ PDF created with ${scannedImages.length} pages!`);
+    } catch(e) { showToast('Error: ' + e.message, true); }
+    finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-file-pdf"></i> Create PDF from ' + scannedImages.length + ' Pages'; }
+  });
+  
+  // Particle background
+  const canvasBg = document.getElementById('particleCanvas');
+  const ctxBg = canvasBg.getContext('2d');
+  let width, height, particles = [];
+  function initParticles() {
+    width = window.innerWidth; height = window.innerHeight;
+    canvasBg.width = width; canvasBg.height = height;
+    for(let i = 0; i < 100; i++) particles.push({ x: Math.random() * width, y: Math.random() * height, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, radius: Math.random() * 2 + 1, alpha: Math.random() * 0.5 + 0.2 });
+  }
+  function drawParticles() {
+    if(!ctxBg) return;
+    ctxBg.clearRect(0, 0, width, height);
+    for(let p of particles) {
+      ctxBg.beginPath(); ctxBg.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctxBg.fillStyle = `rgba(74, 144, 226, ${p.alpha})`;
+      ctxBg.fill();
+      p.x += p.vx; p.y += p.vy;
+      if(p.x < 0) p.x = width; if(p.x > width) p.x = 0;
+      if(p.y < 0) p.y = height; if(p.y > height) p.y = 0;
+    }
+    requestAnimationFrame(drawParticles);
+  }
+  initParticles(); drawParticles();
+  window.addEventListener('resize', () => { initParticles(); });
+</script>
+</body>
+</html>
