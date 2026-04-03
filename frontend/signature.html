@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Signature – Convertulo</title>
+  <style>/* same CSS block */</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-pen-fancy"></i><h1>Add Signature</h1></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop PDF</div></div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo"></div>
+    <canvas id="sigCanvas" width="300" height="150" style="border:1px solid rgba(255,255,255,0.2); margin:0.5rem 0; background:#1e1e2f; border-radius:1rem;"></canvas>
+    <div style="display:flex; gap:0.5rem;"><button id="clearSig" class="btn-primary" style="background:#8e8e93;">Clear</button><button id="addSigBtn" class="btn-primary">Add to First Page</button></div>
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
+  </div>
+</div>
+<script>
+  // helpers
+  let sigFile = null;
+  const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfo = document.getElementById('fileInfo'), canvas = document.getElementById('sigCanvas'), ctx = canvas.getContext('2d');
+  let drawing = false;
+  const start = (e) => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); };
+  const draw = (e) => { if(!drawing) return; ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); };
+  const stop = () => { drawing = false; };
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stop);
+  canvas.addEventListener('mouseleave', stop);
+  ctx.strokeStyle = '#ffb347';
+  ctx.lineWidth = 2;
+  document.getElementById('clearSig').addEventListener('click', () => ctx.clearRect(0,0,canvas.width,canvas.height));
+  function setFile(file) { sigFile = file; fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
+  function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if(f) { setFile(f); showToast(`Signature ready`); } else showToast('PDF required', true); }
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { handleDrop(e.target.files); fileInput.value = ''; });
+  document.getElementById('addSigBtn').addEventListener('click', async () => {
+    if(!sigFile) { showToast('Select a PDF', true); return; }
+    const dataUrl = canvas.toDataURL();
+    if(dataUrl === 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==') { showToast('Draw a signature first', true); return; }
+    const imgBuf = await fetch(dataUrl).then(r => r.arrayBuffer());
+    const doc = await loadPdf(sigFile);
+    const img = await doc.embedPng(imgBuf);
+    const page = doc.getPages()[0];
+    const { width, height } = page.getSize();
+    const scale = Math.min(width * 0.2 / img.width, height * 0.2 / img.height);
+    page.drawImage(img, { x: 50, y: 50, width: img.width * scale, height: img.height * scale });
+    await saveAndDownload(doc, `signed_${sigFile.name}`);
+    showToast(`✅ Signature added`);
+  });
+</script>
+</body>
+</html>
