@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to Images – Convertulo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #050b14; color: #eef2ff; padding: 2rem 1rem; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .card { background: rgba(15, 25, 45, 0.6); backdrop-filter: blur(16px); border-radius: 2rem; padding: 2rem; border: 1px solid rgba(255,255,255,0.15); }
+    .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem; }
+    .card-header i { font-size: 2rem; background: linear-gradient(145deg, #ffb347, #ff6b6b); background-clip: text; -webkit-background-clip: text; color: transparent; }
+    .card-header h1 { font-size: 1.8rem; font-weight: 600; }
+    .drop-zone { background: rgba(0,0,0,0.3); border: 2px dashed rgba(255,180,71,0.6); border-radius: 1.5rem; padding: 1rem; text-align: center; cursor: pointer; transition: 0.2s; margin-bottom: 1rem; }
+    .drop-zone.drag-over { border-color: #ff6b6b; background: rgba(255,107,107,0.1); }
+    .btn-primary { background: linear-gradient(105deg, #ff6b6b, #ffb347); border: none; padding: 0.8rem; border-radius: 2rem; font-weight: 600; width: 100%; cursor: pointer; color: white; margin-top: 1rem; transition: 0.2s; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .back-link { display: inline-block; margin-top: 1.5rem; color: #ffb347; text-decoration: none; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1c1c1e; backdrop-filter: blur(12px); padding: 0.6rem 1.2rem; border-radius: 40px; color: white; z-index: 1000; font-size: 0.85rem; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.6s linear infinite; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-images"></i><h1>PDF to Images</h1></div>
+    <div class="drop-zone" id="dropZone"><div class="drop-icon"><i class="fas fa-file-pdf"></i></div><div class="drop-text">Drop a PDF</div></div>
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+    <div id="fileInfo" style="font-size:0.75rem"></div>
+    <select id="imageFormat">
+      <option value="png">PNG</option>
+      <option value="jpg">JPEG</option>
+    </select>
+    <button id="convertBtn" class="btn-primary">Convert & Download ZIP</button>
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
+  </div>
+</div>
+<script>
+  function showToast(msg, isErr = false) {
+    let t = document.querySelector('.toast'); if(t) t.remove();
+    let div = document.createElement('div'); div.className = 'toast';
+    div.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+    div.style.background = isErr ? '#ff3b30' : '#1c1c1e';
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+  }
+  function formatBytes(b) { if(b===0) return '0 Bytes'; const k=1024; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+['Bytes','KB','MB'][i]; }
+  function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+  async function loadPdf(file) { return await PDFLib.PDFDocument.load(await file.arrayBuffer()); }
+  async function saveAndDownload(pdfDoc, filename) { saveAs(new Blob([await pdfDoc.save()], {type:'application/pdf'}), filename); }
+
+  let pdfFile = null;
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const fileInfo = document.getElementById('fileInfo');
+  const formatSelect = document.getElementById('imageFormat');
+  const convertBtn = document.getElementById('convertBtn');
+
+  async function convertToImages(file, format) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfData = new Uint8Array(arrayBuffer);
+    const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+    const pdfDoc = await loadingTask.promise;
+    const pageCount = pdfDoc.numPages;
+    const zip = new JSZip();
+    for (let i = 1; i <= pageCount; i++) {
+      const page = await pdfDoc.getPage(i);
+      const viewport = page.getViewport({ scale: 1.5 });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, `image/${format}`));
+      const ext = format === 'png' ? 'png' : 'jpg';
+      zip.file(`page_${i}.${ext}`, blob);
+    }
+    return await zip.generateAsync({ type: 'blob' });
+  }
+
+  function setFile(file) { pdfFile = file; fileInfo.innerHTML = file ? `<i class="fas fa-file-pdf"></i> ${escapeHtml(file.name)} (${formatBytes(file.size)})` : ''; }
+  function handleDrop(files) { let f = Array.from(files).find(f => f.type === 'application/pdf'); if(f) { setFile(f); showToast(`Ready to convert`); } else showToast('PDF required', true); }
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleDrop(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { handleDrop(e.target.files); fileInput.value = ''; });
+  convertBtn.addEventListener('click', async () => {
+    if(!pdfFile) { showToast('Select a PDF', true); return; }
+    convertBtn.disabled = true; const orig = convertBtn.innerHTML; convertBtn.innerHTML = '<span class="spinner"></span> Converting...';
+    try {
+      const format = formatSelect.value;
+      const zipBlob = await convertToImages(pdfFile, format);
+      saveAs(zipBlob, `pdf_images_${Date.now()}.zip`);
+      showToast(`✅ Converted to ${format.toUpperCase()}`);
+    } catch(e) { showToast('Conversion error: ' + e.message, true); }
+    finally { convertBtn.disabled = false; convertBtn.innerHTML = orig; }
+  });
+</script>
+</body>
+</html>
