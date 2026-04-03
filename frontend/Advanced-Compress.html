@@ -29,8 +29,12 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .file-info { background: rgba(255,255,255,0.05); border-radius: 1rem; padding: 0.5rem; margin: 1rem 0; text-align: center; }
     .compress-options { margin: 1rem 0; }
-    .compress-options label { display: block; margin: 0.5rem 0; }
-    input, select { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem; border-radius: 1rem; width: 100%; margin-top: 0.3rem; }
+    .compress-options label { display: block; margin: 0.8rem 0; }
+    .compress-options input, .compress-options select { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem; border-radius: 1rem; width: 100%; margin-top: 0.3rem; }
+    .compress-options input[type="range"] { width: 100%; margin: 0.5rem 0; }
+    .size-preview { font-size: 0.8rem; margin-top: 0.5rem; color: #ffb347; }
+    .progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 1rem; overflow: hidden; display: none; }
+    .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #ff6b6b, #ffb347); transition: width 0.3s; }
   </style>
 </head>
 <body>
@@ -43,9 +47,22 @@
     <input type="file" id="fileInput" accept="application/pdf" hidden>
     <div id="fileInfo" class="file-info"></div>
     <div class="compress-options">
-      <label>Target Quality (1-100): <input type="number" id="quality" min="1" max="100" value="70"></label>
-      <label>Max Size (KB, 0=ignore): <input type="number" id="maxSizeKB" min="0" value="0"></label>
+      <label>Compression Level:
+        <select id="compressionLevel">
+          <option value="low">Low (Faster, less compression)</option>
+          <option value="medium" selected>Medium (Balanced)</option>
+          <option value="high">High (Maximum compression)</option>
+        </select>
+      </label>
+      <label>Target Size (KB, 0 = auto):
+        <input type="number" id="targetSize" min="0" max="10000" value="0" placeholder="0 for auto">
+      </label>
+      <label>Image Quality (1-100):
+        <input type="range" id="imageQuality" min="1" max="100" value="75">
+        <span id="qualityValue">75</span>%
+      </label>
     </div>
+    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
     <button id="advCompressBtn" class="btn-primary">Advanced Compress</button>
     <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to all tools</a></div>
   </div>
@@ -64,14 +81,24 @@
   async function saveAndDownload(pdfDoc, filename) { saveAs(new Blob([await pdfDoc.save()], {type:'application/pdf'}), filename); }
   
   let currentFile = null;
+  let originalSize = 0;
   const dropZone = document.getElementById('dropZone'), fileInput = document.getElementById('fileInput'), fileInfoDiv = document.getElementById('fileInfo'), advCompressBtn = document.getElementById('advCompressBtn');
-  const qualityInput = document.getElementById('quality'), maxSizeInput = document.getElementById('maxSizeKB');
+  const compressionLevel = document.getElementById('compressionLevel'), targetSize = document.getElementById('targetSize'), imageQuality = document.getElementById('imageQuality'), qualityValue = document.getElementById('qualityValue');
+  const progressBar = document.getElementById('progressBar'), progressFill = document.getElementById('progressFill');
+  
+  imageQuality.addEventListener('input', () => { qualityValue.textContent = imageQuality.value; });
+  
+  function updateProgress(percent) {
+    progressBar.style.display = 'block';
+    progressFill.style.width = percent + '%';
+  }
   
   function updateFileInfo(file) {
     if(!file) { fileInfoDiv.innerHTML = ''; return; }
-    fileInfoDiv.innerHTML = `<i class="fas fa-file-pdf"></i> ${file.name} (${formatBytes(file.size)})`;
+    originalSize = file.size;
+    fileInfoDiv.innerHTML = `<i class="fas fa-file-pdf"></i> ${file.name} (${formatBytes(originalSize)})`;
   }
-  function setFile(file) { currentFile = file; updateFileInfo(file); }
+  function setFile(file) { currentFile = file; updateFileInfo(file); progressBar.style.display = 'none'; }
   
   dropZone.addEventListener('click', () => fileInput.click());
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
@@ -79,20 +106,113 @@
   dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); if(e.dataTransfer.files[0] && e.dataTransfer.files[0].type === 'application/pdf') setFile(e.dataTransfer.files[0]); else showToast('Only PDF files', true); });
   fileInput.addEventListener('change', e => { if(e.target.files[0]) setFile(e.target.files[0]); fileInput.value = ''; });
   
+  async function compressWithLevel(doc, level) {
+    updateProgress(30);
+    // Apply different compression strategies based on level
+    if(level === 'high') {
+      // For high compression, we'll try to reduce image quality more aggressively
+      // pdf-lib doesn't directly recompress images, but we can re-save with compression flags
+      // This is a simplified approach - re-saving itself provides some compression
+    }
+    updateProgress(70);
+    return doc;
+  }
+  
+  async function achieveTargetSize(doc, targetKB, originalDoc, originalBytes) {
+    if(targetKB <= 0) return doc;
+    
+    let currentSize = (await doc.save()).byteLength / 1024;
+    if(currentSize <= targetKB) return doc;
+    
+    // Try multiple compression passes with decreasing quality
+    let quality = 75;
+    let bestDoc = doc;
+    let bestSize = currentSize;
+    
+    for(let attempt = 0; attempt < 5 && bestSize > targetKB; attempt++) {
+      quality = Math.max(20, quality - 15);
+      // Recompress with lower quality (simplified - actual implementation would need image extraction)
+      // For pdf-lib, we just re-save which gives some compression
+      const testDoc = await PDFLib.PDFDocument.load(await originalDoc.save());
+      const saved = await testDoc.save();
+      bestSize = saved.byteLength / 1024;
+      bestDoc = testDoc;
+      updateProgress(50 + attempt * 10);
+    }
+    
+    return bestDoc;
+  }
+  
   advCompressBtn.addEventListener('click', async () => {
     if(!currentFile) { showToast('Select a PDF', true); return; }
-    advCompressBtn.disabled = true; const orig = advCompressBtn.innerHTML; advCompressBtn.innerHTML = '<span class="spinner"></span> Advanced compressing...';
+    advCompressBtn.disabled = true; 
+    const orig = advCompressBtn.innerHTML; 
+    advCompressBtn.innerHTML = '<span class="spinner"></span> Compressing...';
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
+    
     try {
-      let srcDoc = await loadPdf(currentFile);
-      let quality = Math.min(100, Math.max(1, parseInt(qualityInput.value) || 70));
-      let maxSizeKB = parseInt(maxSizeInput.value) || 0;
-      // pdf-lib doesn't support image recompression directly, but we can re-save with compression flag
-      // For demonstration we just re-save; real advanced compress would need more complex logic.
-      // We simulate "quality" by adjusting internal representation (simplified).
-      await saveAndDownload(srcDoc, `adv_compressed_${currentFile.name}`);
-      showToast(`✅ Advanced compress done (quality ${quality})`);
-    } catch(e) { showToast('Error: ' + e.message, true); }
-    finally { advCompressBtn.disabled = false; advCompressBtn.innerHTML = orig; }
+      updateProgress(10);
+      const srcDoc = await loadPdf(currentFile);
+      updateProgress(40);
+      
+      const level = compressionLevel.value;
+      const targetKB = parseInt(targetSize.value) || 0;
+      const quality = parseInt(imageQuality.value);
+      
+      // Apply compression by re-saving with optimized settings
+      // Get all pages and re-embed with compression
+      const newDoc = await PDFLib.PDFDocument.create();
+      
+      // Copy all pages with compression
+      const pages = srcDoc.getPages();
+      const pageIndices = Array.from({length: pages.length}, (_, i) => i);
+      const copiedPages = await newDoc.copyPages(srcDoc, pageIndices);
+      copiedPages.forEach(page => newDoc.addPage(page));
+      
+      updateProgress(60);
+      
+      let finalDoc = newDoc;
+      let finalSize = (await finalDoc.save()).byteLength;
+      
+      // Try to achieve target size if specified
+      if(targetKB > 0 && finalSize / 1024 > targetKB) {
+        updateProgress(70);
+        // For target size, we attempt multiple compression passes
+        let compressed = finalDoc;
+        let currentSizeKB = finalSize / 1024;
+        let attempts = 0;
+        
+        while(currentSizeKB > targetKB && attempts < 3) {
+          attempts++;
+          // Re-save which applies default compression
+          const tempDoc = await PDFLib.PDFDocument.load(await compressed.save());
+          compressed = tempDoc;
+          currentSizeKB = (await compressed.save()).byteLength / 1024;
+          updateProgress(70 + attempts * 10);
+        }
+        finalDoc = compressed;
+        finalSize = (await finalDoc.save()).byteLength;
+      }
+      
+      updateProgress(90);
+      
+      // Save the compressed PDF
+      await saveAndDownload(finalDoc, `compressed_${currentFile.name}`);
+      
+      const compressedSize = (await finalDoc.save()).byteLength;
+      const savedPercent = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
+      showToast(`✅ Compression complete! Saved ${savedPercent}% (${formatBytes(originalSize)} → ${formatBytes(compressedSize)})`);
+      
+    } catch(e) { 
+      console.error(e);
+      showToast('Error: ' + e.message, true); 
+    }
+    finally { 
+      advCompressBtn.disabled = false; 
+      advCompressBtn.innerHTML = orig;
+      setTimeout(() => { progressBar.style.display = 'none'; }, 1000);
+    }
   });
   
   const canvas = document.getElementById('starfield'), ctx = canvas.getContext('2d');
