@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>PDFAir | 27+ Free PDF Tools – No Uploads, 100% Private</title>
-  <meta name="description" content="PDFAir: 27+ free PDF tools – merge, split, compress, rotate, watermark, sign, convert, protect, scan to PDF, OCR, form filler & more. 100% client-side, no uploads, completely private.">
-  <meta name="keywords" content="PDF tools, free PDF editor, merge PDF, compress PDF, PDF to images, OCR PDF, scan to PDF, PDF form filler, PDF toolkit, PDFAir, no upload PDF">
+  <title>PDFixit | Fix, Edit & Convert PDFs – 27+ Free Tools, No Uploads</title>
+  <meta name="description" content="PDFixit: 27+ free PDF tools – merge, split, compress, rotate, watermark, sign, convert, protect, scan to PDF, OCR & more. 100% client-side, no uploads, completely private.">
+  <meta name="keywords" content="PDF tools, fix PDF, edit PDF, merge PDF, compress PDF, PDF to images, OCR PDF, scan to PDF, PDF form filler, PDFixit, no upload PDF">
   <meta name="author" content="Ram">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="PDFAir | Ultimate PDF Toolkit – 27+ Free Tools">
-  <meta property="og:description" content="27+ free PDF tools. No uploads. 100% private. Scan, OCR, fill forms, merge, compress & more.">
+  <meta property="og:title" content="PDFixit | Fix, Edit & Convert PDFs – 27+ Free Tools">
+  <meta property="og:description" content="27+ free PDF tools. No uploads. 100% private. Fix, merge, compress, convert, scan, OCR & more.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://pdfair.vercel.app">
+  <meta property="og:url" content="https://pdfixit.vercel.app">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://pdfair.vercel.app">
+  <link rel="canonical" href="https://pdfixit.vercel.app">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
@@ -81,12 +81,12 @@
 <div class="gradient-overlay"></div>
 <div class="container">
   <div class="top-bar">
-    <a href="/" class="logo"><i class="fas fa-cloud-upload-alt logo-icon"></i><h1>PDFAir<span>Beta</span></h1></a>
+    <a href="/" class="logo"><i class="fas fa-wrench logo-icon"></i><h1>PDFixit<span>Beta</span></h1></a>
     <div class="search-box"><i class="fas fa-search"></i><input type="text" id="toolSearch" placeholder="Search 27+ tools... (Ctrl+K)"></div>
   </div>
   <div class="hero">
     <div class="hero-badge"><i class="fas fa-shield-alt"></i> 100% Client-Side • No Uploads</div>
-    <h2>Your PDFs, Take Flight</h2>
+    <h2>Fix Your PDFs, Instantly</h2>
     <p>27+ professional PDF tools that work entirely in your browser</p>
     <div class="stats">
       <div class="stat"><div class="stat-number">27+</div><div class="stat-label">PDF Tools</div></div>
@@ -103,17 +103,17 @@
       <span class="badge"><i class="fas fa-language"></i> OCR PDF</span>
     </div>
   </div>
-  <h2 class="section-title">✈️ All Tools</h2>
+  <h2 class="section-title">🔧 All Tools</h2>
   <div class="tools-grid" id="toolsGrid"></div>
 </div>
 <footer>
   <div class="footer-content">
-    <div class="footer-section"><h4><i class="fas fa-cloud-upload-alt"></i> PDFAir</h4><p>Your documents deserve the best. PDFAir provides professional PDF tools that respect your privacy — no uploads, no servers, no compromises.</p><div class="social-links"><a href="#"><i class="fab fa-github"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-linkedin"></i></a><a href="#"><i class="fab fa-product-hunt"></i></a></div></div>
+    <div class="footer-section"><h4><i class="fas fa-wrench"></i> PDFixit</h4><p>Fix, edit, and convert your PDFs with PDFixit. Professional PDF tools that respect your privacy — no uploads, no servers, no compromises.</p><div class="social-links"><a href="#"><i class="fab fa-github"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-linkedin"></i></a><a href="#"><i class="fab fa-product-hunt"></i></a></div></div>
     <div class="footer-section"><h4>Quick Links</h4><a href="#">All Tools</a><a href="#">Popular Tools</a><a href="#">What's New</a><a href="#">Changelog</a></div>
     <div class="footer-section"><h4>Support</h4><a href="#">FAQ</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Contact</a></div>
     <div class="footer-section"><h4>Newsletter</h4><p>Get updates about new tools and features</p><div style="display: flex; margin-top: 0.8rem;"><input type="email" id="footerEmail" placeholder="Your email" style="flex:1; padding:0.5rem; border-radius:2rem 0 0 2rem; border:none; background:rgba(255,255,255,0.1); color:white;"><button id="footerSubscribeBtn" style="padding:0.5rem 1rem; border-radius:0 2rem 2rem 0; border:none; background:#4A90E2; color:white; cursor:pointer;">→</button></div></div>
   </div>
-  <div class="footer-bottom"><p>Made with <i class="fas fa-heart heart"></i> by <strong>Ram</strong> — for you, for everyone, for free.</p><p class="made-by">© 2026 PDFAir. All operations are local; your files never leave your device.</p></div>
+  <div class="footer-bottom"><p>Made with <i class="fas fa-heart heart"></i> by <strong>Ram</strong> — for you, for everyone, for free.</p><p class="made-by">© 2026 PDFixit. All operations are local; your files never leave your device.</p></div>
 </footer>
 <script>
   // Particle System
@@ -163,7 +163,7 @@
   window.addEventListener('resize', () => initParticles());
   initParticles(); drawParticles();
 
-  // Tools Data (27 tools including the 3 new ones)
+  // Tools Data (27 tools)
   const tools = [
     { name: "Merge PDF", desc: "Combine multiple PDFs into one", icon: "fas fa-object-group", keywords: "combine join merge documents", url: "merge.html", popular: true },
     { name: "Split PDF", desc: "Extract pages or split every page", icon: "fas fa-cut", keywords: "divide separate extract pages", url: "split.html", popular: true },
@@ -216,7 +216,7 @@
   
   document.getElementById('footerSubscribeBtn').addEventListener('click', () => {
     const email = document.getElementById('footerEmail').value;
-    if (email && email.includes('@')) { showToast('🎉 Thanks for subscribing!'); document.getElementById('footerEmail').value = ''; localStorage.setItem('pdfair_subscriber', email); } 
+    if (email && email.includes('@')) { showToast('🎉 Thanks for subscribing!'); document.getElementById('footerEmail').value = ''; localStorage.setItem('pdfixit_subscriber', email); } 
     else { showToast('Please enter a valid email', true); }
   });
   
@@ -234,11 +234,10 @@
 </script>
 <!-- Hidden SEO Content & Internal Links -->
 <div style="display: none;" aria-hidden="true">
-  <h1>PDFAir - Free PDF Tools Online</h1><p>PDFAir is the ultimate free PDF toolkit with over 27 professional PDF tools. All tools work directly in your browser with no file uploads required.</p>
+  <h1>PDFixit - Free PDF Tools Online</h1><p>PDFixit is the ultimate free PDF toolkit with over 27 professional PDF tools. All tools work directly in your browser with no file uploads required.</p>
   <h2>Popular PDF Tools</h2><p>Merge PDF files together into a single document. Split PDF pages into separate files. Compress PDF to reduce file size while maintaining quality. Convert PDF to images or images to PDF. Add watermarks, page numbers, signatures, and QR codes. Protect PDF with passwords or unlock protected PDFs. Rotate, crop, extract, delete, and reorder PDF pages.</p>
   <h2>New Advanced Tools</h2><p>Scan to PDF - Use your camera to scan documents and convert to PDF. OCR PDF - Extract text from scanned images and documents. PDF Form Filler - Fill out PDF forms digitally with text and signatures.</p>
-  <h2>Why Choose PDFAir?</h2><p>PDFAir is 100% free with no limits. All processing happens locally in your browser - your files never leave your device. No registration required. Works on all devices including Windows, Mac, Linux, Android, and iPhone.</p>
-  <h2>Complete List of PDF Tools</h2><p>Merge PDF, Split PDF, Compress PDF, Advanced Compress, Rotate PDF, Extract Pages, Add Watermark, Add Page Numbers, Delete Pages, Protect PDF, Unlock PDF, PDF to Images, Images to PDF, Add Signature, Page Reorder, Remove Metadata, PDF to Text, Add QR Code, Flatten PDF, Optimize PDF, Grayscale PDF, Crop PDF, Add Header and Footer, Scan to PDF, OCR PDF, PDF Form Filler.</p>
+  <h2>Why Choose PDFixit?</h2><p>PDFixit is 100% free with no limits. All processing happens locally in your browser - your files never leave your device. No registration required. Works on all devices including Windows, Mac, Linux, Android, and iPhone.</p>
   <a href="/merge.html">Merge PDF</a><a href="/split.html">Split PDF</a><a href="/compress.html">Compress PDF</a><a href="/rotate.html">Rotate PDF</a><a href="/protect.html">Protect PDF</a><a href="/pdftoimages.html">PDF to Images</a><a href="/imagestopdf.html">Images to PDF</a><a href="/scantopdf.html">Scan to PDF</a><a href="/ocrpdf.html">OCR PDF</a><a href="/formfiller.html">PDF Form Filler</a>
 </div>
 </body>
