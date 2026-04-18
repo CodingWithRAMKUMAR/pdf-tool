@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy – Convertulo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #050b14;
+      color: #eef2ff;
+      padding: 2rem 1rem;
+      position: relative;
+    }
+    #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; }
+    .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, rgba(0,150,255,0.08), transparent 70%), radial-gradient(circle at 80% 70%, rgba(255,100,150,0.08), transparent 70%); z-index: -1; pointer-events: none; }
+    .container { max-width: 800px; margin: 0 auto; position: relative; z-index: 2; }
+    .card { background: rgba(15, 25, 45, 0.6); backdrop-filter: blur(16px); border-radius: 2rem; padding: 2rem; border: 1px solid rgba(255,255,255,0.15); }
+    .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem; }
+    .card-header i { font-size: 2rem; background: linear-gradient(145deg, #ffb347, #ff6b6b); background-clip: text; -webkit-background-clip: text; color: transparent; }
+    .card-header h1 { font-size: 1.8rem; font-weight: 600; }
+    .back-link { display: inline-block; margin-top: 1.5rem; color: #ffb347; text-decoration: none; }
+    h2 { font-size: 1.2rem; margin: 1rem 0 0.5rem; color: #ffb347; }
+    p, li { line-height: 1.5; margin-bottom: 0.8rem; opacity: 0.9; }
+    ul { margin-left: 1.5rem; margin-bottom: 1rem; }
+    @media (max-width: 680px) { .card { padding: 1rem; } }
+  </style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="bg-glow"></div>
+<div class="container">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-shield-alt"></i><h1>Privacy Policy</h1></div>
+    <p>Last updated: April 18, 2026</p>
+    <p>Your privacy is important to us. This privacy policy explains what information we collect and how we use it.</p>
+    
+    <h2>1. No Personal Data Collection</h2>
+    <p>Convertulo does not collect, store, or share any personal information. All PDF processing happens entirely in your browser – no files are uploaded to any server.</p>
+    
+    <h2>2. Local Processing Only</h2>
+    <p>All PDF operations (merge, split, compress, etc.) are performed locally using JavaScript libraries. Your documents never leave your device.</p>
+    
+    <h2>3. No Cookies</h2>
+    <p>We do not use cookies for tracking. However, third‑party services like Google Fonts may set their own cookies – we have no control over those.</p>
+    
+    <h2>4. Third‑Party Links</h2>
+    <p>Our website may contain links to external sites. We are not responsible for their privacy practices.</p>
+    
+    <h2>5. Children’s Privacy</h2>
+    <p>Our services are not directed to children under 13. We do not knowingly collect any information from minors.</p>
+    
+    <h2>6. Changes to This Policy</h2>
+    <p>We may update this policy occasionally. Any changes will be posted on this page.</p>
+    
+    <p>If you have any questions, please <a href="contact.html" style="color:#ffb347;">contact us</a>.</p>
+    
+    <div style="text-align: center;"><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Convertulo</a></div>
+  </div>
+</div>
+<script>
+  // Starfield animation (same as landing page)
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let width, height, stars = [];
+  function initStars() {
+    width = window.innerWidth; height = window.innerHeight;
+    canvas.width = width; canvas.height = height;
+    stars = [];
+    const starCount = Math.min(400, Math.floor(width * height / 3000));
+    for (let i = 0; i < starCount; i++) {
+      stars.push({
+        x: Math.random() * width, y: Math.random() * height,
+        radius: Math.random() * 2.5 + 0.5, alpha: Math.random() * 0.8 + 0.2,
+        vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+        pulse: Math.random() * Math.PI * 2
+      });
+    }
+  }
+  function drawStars() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, width, height);
+    for (let s of stars) {
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      const glow = Math.sin(Date.now() * 0.001 + s.pulse) * 0.3 + 0.5;
+      ctx.fillStyle = `rgba(255, 200, 100, ${s.alpha * glow})`;
+      ctx.fill();
+      s.x += s.vx; s.y += s.vy;
+      if (s.x < 0) s.x = width; if (s.x > width) s.x = 0;
+      if (s.y < 0) s.y = height; if (s.y > height) s.y = 0;
+    }
+    requestAnimationFrame(drawStars);
+  }
+  window.addEventListener('resize', () => initStars());
+  initStars(); drawStars();
+</script>
+</body>
+</html>
